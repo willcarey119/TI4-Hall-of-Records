@@ -18,17 +18,7 @@ export function UploadPage() {
     setError(null);
     try {
       const text = await file.text();
-      // parseGame receives the raw text; production usage expects a pre-parsed
-      // object but the function accepts unknown and validates internally.
-      // We parse JSON here to get an object, but any error (JSON or parse) is
-      // surfaced uniformly via the catch block.
-      let raw: unknown;
-      try {
-        raw = JSON.parse(text) as unknown;
-      } catch {
-        // Re-throw through parseGame mock boundary so tests can intercept it
-        raw = text;
-      }
+      const raw = JSON.parse(text) as unknown;
       const parsed = parseGame(raw);
       setGame(parsed);
       setStatus('preview');

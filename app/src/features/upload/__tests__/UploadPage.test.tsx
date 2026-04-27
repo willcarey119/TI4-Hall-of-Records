@@ -78,7 +78,8 @@ describe('UploadPage', () => {
       throw new Error('Unexpected token at position 3');
     });
     render(<UploadPage />);
-    const file = new File(['not valid {{{'], 'bad.json', { type: 'application/json' });
+    // Valid JSON so JSON.parse succeeds; the mocked parseGame throws the error.
+    const file = new File(['{}'], 'bad.json', { type: 'application/json' });
     await userEvent.upload(screen.getByTestId('file-input'), file);
     expect(await screen.findByText(/unexpected token at position 3/i)).toBeInTheDocument();
   });
