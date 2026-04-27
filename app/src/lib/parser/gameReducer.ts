@@ -357,6 +357,112 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       };
     }
 
+    case 'REVEAL_AGENDA': {
+      const agendaRaw = entry.event['agenda'];
+      const agenda = typeof agendaRaw === 'string' ? agendaRaw : '';
+      return {
+        ...state,
+        pendingAgenda: agenda,
+        pendingVotes: [],
+        pendingRiders: [],
+      };
+    }
+
+    case 'CAST_VOTES': {
+      if (state.pendingAgenda === null) {
+        return { ...state, warnings: [...state.warnings, `CAST_VOTES with no pending agenda at ${entry.timestamp}`] };
+      }
+      const factionRaw = entry.event['faction'];
+      const targetRaw = entry.event['target'];
+      const votesRaw = entry.event['votes'];
+      const extraRaw = entry.event['extraVotes'];
+      if (typeof factionRaw !== 'string' || typeof targetRaw !== 'string' || typeof votesRaw !== 'number') {
+        return { ...state, warnings: [...state.warnings, `CAST_VOTES missing fields at ${entry.timestamp}`] };
+      }
+      const totalVotes = votesRaw + (typeof extraRaw === 'number' ? extraRaw : 0);
+      const vote: AgendaVote = { faction: factionRaw, outcome: targetRaw, votes: totalVotes };
+      return { ...state, pendingVotes: [...state.pendingVotes, vote] };
+    }
+
+    case 'HIDE_AGENDA':
+      return {
+        ...state,
+        pendingAgenda: null,
+        pendingVotes: [],
+        pendingRiders: [],
+      };
+
+    case 'RESOLVE_AGENDA': {
+      const agendaRaw = entry.event['agenda'];
+      const targetRaw = entry.event['target'];
+      if (typeof agendaRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `RESOLVE_AGENDA missing agenda at ${entry.timestamp}`] };
+      }
+      const agenda = agendaRaw;
+      const outcome = typeof targetRaw === 'string' ? targetRaw : '';
+      const resolution: AgendaResolution = {
+        agenda,
+        outcome,
+        round: state.currentRound,
+        timestamp: entry.timestamp,
+        votes: state.pendingVotes,
+        riders: state.pendingRiders,
+      };
+
+      // Apply agenda-specific VP rules
+      const newVpEvents: VpEvent[] = [];
+      let newScores = { ...state.currentScores };
+
+      if (agenda === 'Seed of an Empire') {
+        const scoreEntries = Object.entries(state.currentScores);
+        if (scoreEntries.length > 0) {
+          const scoreValues = scoreEntries.map(([, s]) => s);
+          const maxScore = Math.max(...scoreValues);
+          const minScore = Math.min(...scoreValues);
+          if (maxScore !== minScore) {
+            for (const [f, score] of scoreEntries) {
+              if (score === maxScore) {
+                newVpEvents.push({
+                  faction: f,
+                  objective: agenda,
+                  points: 1,
+                  timestamp: entry.timestamp,
+                  source: 'agenda',
+                  ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+                });
+                newScores = { ...newScores, [f]: (newScores[f] ?? 0) + 1 };
+              } else if (score === minScore) {
+                newVpEvents.push({
+                  faction: f,
+                  objective: agenda,
+                  points: -1,
+                  timestamp: entry.timestamp,
+                  source: 'agenda',
+                  ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+                });
+                newScores = { ...newScores, [f]: (newScores[f] ?? 0) - 1 };
+              }
+            }
+          }
+        }
+      }
+
+      return {
+        ...state,
+        agendaResolutions: [...state.agendaResolutions, resolution],
+        vpEvents: [...state.vpEvents, ...newVpEvents],
+        currentScores: newScores,
+        pendingAgenda: null,
+        pendingVotes: [],
+        pendingRiders: [],
+      };
+    }
+
+    case 'START_VOTING':
+    case 'SELECT_ELIGIBLE_OUTCOMES':
+    case 'SPEAKER_TIE_BREAK':
+      return state;
+
     // Cases added in Tasks 5–12
     default:
       return {

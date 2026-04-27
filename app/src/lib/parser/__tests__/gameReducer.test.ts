@@ -327,3 +327,97 @@ describe('gameReducer — GAIN_RELIC / PLAY_RELIC / LOSE_RELIC', () => {
     expect(lossVp?.faction).toBe('barony');
   });
 });
+
+describe('gameReducer — agenda system', () => {
+  it('REVEAL_AGENDA sets pendingAgenda', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+    ]);
+    expect(result.pendingAgenda).toBe('Mutiny');
+    expect(result.pendingVotes).toHaveLength(0);
+  });
+
+  it('CAST_VOTES appends to pendingVotes when pendingAgenda is set', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('CAST_VOTES', { faction: 'barony', votes: 8, extraVotes: 0, target: 'For' }, 1100),
+      makeEntry('CAST_VOTES', { faction: 'arborec', votes: 5, extraVotes: 2, target: 'Against' }, 1200),
+    ]);
+    expect(result.pendingVotes).toHaveLength(2);
+    expect(result.pendingVotes[0]).toEqual({ faction: 'barony', outcome: 'For', votes: 8 });
+    expect(result.pendingVotes[1]).toEqual({ faction: 'arborec', outcome: 'Against', votes: 7 });
+  });
+
+  it('CAST_VOTES outside an agenda window appends a warning', () => {
+    const result = reduce([
+      makeEntry('CAST_VOTES', { faction: 'barony', votes: 8, target: 'For' }),
+    ]);
+    expect(result.warnings.some((w) => w.includes('CAST_VOTES'))).toBe(true);
+    expect(result.pendingVotes).toHaveLength(0);
+  });
+
+  it('RESOLVE_AGENDA emits an AgendaResolution and clears pending state', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('CAST_VOTES', { faction: 'barony', votes: 8, target: 'For' }, 1100),
+      makeEntry('CAST_VOTES', { faction: 'arborec', votes: 4, target: 'Against' }, 1200),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Mutiny', target: 'For' }, 1300),
+    ]);
+    expect(result.agendaResolutions).toHaveLength(1);
+    const res = result.agendaResolutions[0];
+    expect(res?.agenda).toBe('Mutiny');
+    expect(res?.outcome).toBe('For');
+    expect(res?.votes).toHaveLength(2);
+    expect(res?.riders).toHaveLength(0);
+    expect(result.pendingAgenda).toBeNull();
+    expect(result.pendingVotes).toHaveLength(0);
+  });
+
+  it('RESOLVE_AGENDA missing agenda field appends warning', () => {
+    const result = reduce([makeEntry('RESOLVE_AGENDA', {})]);
+    expect(result.warnings.some((w) => w.includes('RESOLVE_AGENDA'))).toBe(true);
+    expect(result.agendaResolutions).toHaveLength(0);
+  });
+
+  it('HIDE_AGENDA clears pending agenda state without emitting a resolution', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Ixthian Artifact' }, 1000),
+      makeEntry('CAST_VOTES', { faction: 'barony', votes: 5, target: 'For' }, 1100),
+      makeEntry('HIDE_AGENDA', {}, 1200),
+    ]);
+    expect(result.pendingAgenda).toBeNull();
+    expect(result.pendingVotes).toHaveLength(0);
+    expect(result.agendaResolutions).toHaveLength(0);
+  });
+
+  it('Seed of an Empire awards +1 VP to the leader and -1 VP to the trailer', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Lead from the Front' }, 100),
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Construct Massive Cities' }, 200),
+      makeEntry('REVEAL_AGENDA', { agenda: 'Seed of an Empire' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Seed of an Empire', target: 'For' }, 1300),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    const agendaVps = result.vpEvents.filter((e) => e.source === 'agenda');
+    expect(agendaVps.find((e) => e.faction === 'barony' && e.points === 1)).toBeDefined();
+    expect(agendaVps.find((e) => e.faction === 'arborec' && e.points === -1)).toBeDefined();
+    expect(result.currentScores['barony']).toBe(4); // 3 + 1
+    expect(result.currentScores['arborec']).toBe(-1); // 0 - 1
+  });
+
+  it('Seed of an Empire with all factions tied does not emit any VP changes', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Seed of an Empire' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Seed of an Empire', target: 'For' }, 1300),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    const agendaVps = result.vpEvents.filter((e) => e.source === 'agenda');
+    expect(agendaVps).toHaveLength(0);
+  });
+
+  it('START_VOTING and SELECT_ELIGIBLE_OUTCOMES are no-ops', () => {
+    const result = reduce([
+      makeEntry('START_VOTING', {}),
+      makeEntry('SELECT_ELIGIBLE_OUTCOMES', { outcomes: ['For', 'Against'] }),
+    ]);
+    expect(result.warnings).toHaveLength(0);
+  });
+});
