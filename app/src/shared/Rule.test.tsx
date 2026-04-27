@@ -21,5 +21,5 @@ it('applies thick border', () => {
 it('applies double border', () => {
   const { container } = render(<Rule weight="double" />);
   const hr = container.querySelector('hr') as HTMLElement;
-  expect(hr.style.borderTop).toContain('double');
+  expect(hr.style.borderTop).toBe('3px double var(--rule)');
 });
