@@ -101,21 +101,31 @@ Dropzone → `parseGame` → preview → "Save to Firestore" button. Validation 
 
 **Goal:** Pick a saved game, see the story.
 
-### 2.1 — VP Race chart
-Recharts line chart, x-axis = `gameTime` (formatted h:mm:ss), y-axis = cumulative VP, one line per faction in faction color.
+**Visual direction:** newspaper / almanac editorial. The design handoff at [`design_handoff_ti4_tracker/`](design_handoff_ti4_tracker/) is the blueprint. Ten screens × four variations are explored there; Phase 2 picks the variations that matter most for the single-game replay.
+
+**Implementation order suggested by the handoff:** tokens + type system → primitives (`Mast`, `Kicker`, `Headline`, `Deck`, `Label`, `Rule`, `FactionDot`, `FactionChip`, `SketchFrame`) → hero (Screen 7A VP Race slope chart) → end-game recap (Screen 10A) → always-visible chrome (round/initiative/dashboard).
+
+### 2.1 — VP Race chart (HERO — Screen 7A)
+Editorial slope chart: rounds on x-axis (or `gameTime` formatted h:mm:ss), cumulative VP on y-axis, one line per faction. Leader line highlighted in `--accent` (faded vermillion), 10/12/14-VP win-line drawn with `--rule`. Two-column body with editorial drop cap explaining the story. Animate the path on round change (1.2 s cubic-bezier).
 
 - **Test first:** `buildVpTimeline(vpEvents, factions)` returns one series per faction with running totals and a leading `(0, 0)` data point.
 
-### 2.2 — Action timeline
-Scrolling chronological feed. Filterable by event type and faction. Major events (Mecatol claim, agenda resolution, final-VP scoring) styled distinctly.
+### 2.2 — Round & phase tracker (Screen 1)
+Driven by `phaseSnapshots[]` from the parser. Variation TBD — broadsheet (1A) is the default; the timeline strip (1C) doubles as a scrubber for replaying past states.
 
-### 2.3 — Planet Control Ledger
-Static map prototype: list of planets grouped by current owner, with hover history. Mecatol Rex and Legendaries pinned at top with "changed hands N times" badges.
+### 2.3 — Action timeline (Screens 4 + 5)
+Scrolling chronological feed. Filterable by event type and faction. Major events (Mecatol claim, agenda resolution, final-VP scoring) styled with the editorial kicker treatment. Combat events get the two-column ledger (Screen 4A); agenda resolutions get the senate broadsheet (Screen 5A) including the vote tally drawn from `agendaResolutions[i].votes`.
 
-### 2.4 — Game header
-Date, duration, expansions, faction lineup with player names and final scores.
+### 2.4 — Player Dashboard (Screen 3)
+One-faction-at-a-time dossier. Default is Screen 3A (broadsheet "DOSSIER No. NN"). Surfaces final score, currencies-via-`techEvents`/planet count, tech list, planet ownership at end of game.
 
-**Phase 2 acceptance:** A user can pick any uploaded game and reconstruct what happened without opening the raw JSON.
+### 2.5 — Planet Control Ledger (Screen 6)
+Static map prototype: list of planets grouped by current owner, with hover history. Mecatol Rex and Legendaries pinned at top with "changed hands N times" badges. Hex-grid variation (6B) is a stretch goal.
+
+### 2.6 — Game header / masthead
+Editorial masthead: date, duration, expansions, faction lineup, final scores, winner. Drives the End-Game Recap (Screen 10A) for the shareable view.
+
+**Phase 2 acceptance:** A user can pick any uploaded game and reconstruct what happened without opening the raw JSON. The VP Race chart and at least one variation of every other Phase 2 screen ships at mid-fi (matching the wireframes); hi-fi pass is Phase 4.
 
 ---
 
@@ -124,6 +134,8 @@ Date, duration, expansions, faction lineup with player names and final scores.
 **Goal:** Cross-game insights for the playgroup, organized around **factions** as the primary axis. Players change every game and are anonymized by default; first-name stats are a best-effort sidecar.
 
 > **Pivot from original Master Guidance:** The Master Guidance Document still describes a player-first alias resolution engine (merging "Tim L"/"Tim"/"Yssaril - Tim" into a canonical Tim profile). That model is retired. Factions are the alignment axis. Player-name handling becomes Phase 3.5 (best-effort first-name aggregation), not the centerpiece.
+
+**Visual direction:** continue the newspaper / almanac aesthetic from Phase 2. Cross-game stats lend themselves naturally to the Senate Almanac (Screen 5D), Bounty cards (Screen 8B), and Density heatmap (Screen 8D) treatments from the design handoff.
 
 ### 3.1 — Faction analytics (primary)
 - Pick rate, win rate, average final VP, average score-time, most-frequent secondary objective scored.
@@ -151,12 +163,19 @@ Average game length, average winning VP, "kingmaker" patterns (who scored last b
 
 ## Phase 4 — Polish & Deploy
 
-- "Deep Space" theme pass (Tailwind tokens, faction color palette, icon set)
-- Loading skeletons, error boundaries, empty states
-- Performance: code-split by route; lazy-load Recharts
-- Lighthouse ≥ 90 on the main dashboard
-- Vercel deploy with `main` branch protection and preview deploys for PRs
-- `README.md` final pass with screenshots
+**Visual direction:** newspaper / almanac editorial broadsheet. See [`design_handoff_ti4_tracker/README.md`](design_handoff_ti4_tracker/README.md) for the full handoff (10 screens × 4 variations, type system, color tokens, suggested implementation order). The earlier "Deep Space" dark-theme placeholder is retired.
+
+- **Hi-fi pass on the design tokens** — port `wireframes.css` custom properties (`--paper`, `--paper-2`, `--rule`, `--ink`, `--ink-2/3/4`, `--accent`, `--cool`, `--gold`, `--moss`) into the Tailwind theme. Replace the stub Deep Space tokens currently in `app/tailwind.config.ts`.
+- **Fonts** — load Newsreader (display), IBM Plex Sans (body/UI), IBM Plex Mono (data/labels), Caveat (margin annotations) from Google Fonts. Configure subsetting + `display=swap`.
+- **Faction color palette** — replace the wireframes' placeholder oklch faction tokens with the official 25-faction palette (TI4 base + PoK + Codex + Discordant Stars).
+- **Iconography pass** — replace text/SVG glyph placeholders (`✦`, `♔`, `⚔`, `⚖`, `🜨`, `◆`, `▲`, `◌`, `⌖`, faction monograms) with proper SVG icons or commissioned faction crests.
+- **Animations** — VP slope chart path transitions (1.2 s cubic-bezier), round-dot pulse, recap stagger-in stats, combat feed fade-in, phase-clock needle rotation. (See design handoff §Animations.)
+- **Hero screens first** — Screen 7A (VP Race slope chart) and Screen 10A (End-Game Recap front page) are the highest-payoff hi-fi targets. Most other screens can stay mid-fi for the initial Phase 4 launch.
+- Loading skeletons, error boundaries, empty states.
+- Performance: code-split by route; lazy-load chart libraries.
+- Lighthouse ≥ 90 on the main dashboard.
+- Vercel deploy with `main` branch protection and preview deploys for PRs.
+- `README.md` final pass with screenshots.
 
 ---
 

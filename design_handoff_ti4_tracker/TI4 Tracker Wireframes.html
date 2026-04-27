@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>TI4 Tracker — Wireframe Exploration</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;0,6..72,800;1,6..72,400;1,6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="wireframes.css" />
+<style>
+  body { margin: 0; background: #f0eee9; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="wf-primitives.jsx"></script>
+<script type="text/babel" src="wf-screens-1.jsx"></script>
+<script type="text/babel" src="wf-screens-2.jsx"></script>
+<script type="text/babel" src="wf-screens-3.jsx"></script>
+<script type="text/babel" src="wf-screens-4.jsx"></script>
+<script type="text/babel" src="wf-screens-5.jsx"></script>
+
+<script type="text/babel">
+const W_DESK = 460;
+const H_DESK = 360;
+const W_PHONE = 220;
+const H_PHONE = 440;
+const W_TAB  = 380;
+const H_TAB  = 320;
+
+const App = () => (
+  <DesignCanvas>
+
+    <DCSection id="intro" title="TI4 Tracker · Wireframe Exploration" subtitle="Newspaper / almanac post-game recap aesthetic · 10 screens × 4 variations · Mid-fi sketches">
+      <DCArtboard id="readme" label="00 · How to read this" width={420} height={360}>
+        <div className="wf" style={{ padding: 18 }}>
+          <div className="mast-title" style={{ fontSize: 26, textAlign: 'center', borderBottom: '3px double var(--rule)', paddingBottom: 8 }}>The Galactic Chronicle</div>
+          <div className="byline" style={{ textAlign: 'center', marginTop: 4 }}>Vol. IV · A Wireframe Almanac · 26 Apr 2026</div>
+          <Rule kind="double" />
+          <Headline size={18}>The brief, in short.</Headline>
+          <Deck style={{ marginTop: 4 }}>A post-game infographic / shareable recap built from ti-assistant.com JSON exports. Newspaper aesthetic. 10 screens, 4 variations each.</Deck>
+          <Rule />
+          <div className="col" style={{ fontSize: 10, lineHeight: 1.45 }}>
+            <div className="dropcap"><b>Read each row left-to-right.</b> Variations escalate from conventional to novel. Pan/zoom this canvas; click any artboard to focus it; ←/→ walks variations, ↑/↓ jumps screens.</div>
+            <div style={{ marginTop: 6 }}><b>Type system:</b> Newsreader (display serif) · IBM Plex Sans (body) · IBM Plex Mono (data captions) · Caveat (margin notes).</div>
+            <div style={{ marginTop: 6 }}><b>Color:</b> warm newsprint, deep ink, faded vermillion accent for "stop press" and a faded ink-blue for charts. Faction colors are placeholders.</div>
+            <div style={{ marginTop: 6 }}><b>Tweak axes per row:</b> data-viz style · density (minimal ↔ data-rich) · interaction model · device form factor.</div>
+          </div>
+          <Rule />
+          <Byline>Next steps · pick favorites per row · we mock up hi-fi from ti-assistant JSON shape</Byline>
+        </div>
+      </DCArtboard>
+    </DCSection>
+
+    <DCSection id="round" title="01 · Round / Phase Tracker" subtitle="Where in the game are we right now?">
+      <DCArtboard id="r1" label="A · Broadsheet front page" width={W_DESK} height={H_DESK}><RoundPhase_Broadsheet /></DCArtboard>
+      <DCArtboard id="r2" label="B · Phone live glance" width={W_PHONE} height={H_PHONE}><RoundPhase_Phone /></DCArtboard>
+      <DCArtboard id="r3" label="C · Horizontal timeline strip" width={W_DESK} height={H_DESK}><RoundPhase_Timeline /></DCArtboard>
+      <DCArtboard id="r4" label="D · Radial phase clock" width={W_TAB} height={H_TAB}><RoundPhase_Radial /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="turn" title="02 · Initiative & Turn Order" subtitle="Who plays next, who has passed, who drafted what">
+      <DCArtboard id="t1" label="A · Numbered slate (list)" width={W_DESK} height={H_DESK}><TurnOrder_Slate /></DCArtboard>
+      <DCArtboard id="t2" label="B · Up-now → Up-next queue" width={W_DESK} height={H_DESK}><TurnOrder_Queue /></DCArtboard>
+      <DCArtboard id="t3" label="C · Strategy card grid" width={W_TAB} height={H_TAB}><TurnOrder_Grid /></DCArtboard>
+      <DCArtboard id="t4" label="D · Round table (radial)" width={W_TAB} height={H_TAB}><TurnOrder_Round /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="player" title="03 · Player Dashboard" subtitle="One faction's full state — VP, currencies, command, tech, planets">
+      <DCArtboard id="p1" label="A · Broadsheet dossier" width={W_DESK} height={H_DESK}><PlayerDash_Broadsheet /></DCArtboard>
+      <DCArtboard id="p2" label="B · Phone tabbed scroll" width={W_PHONE} height={H_PHONE}><PlayerDash_Phone /></DCArtboard>
+      <DCArtboard id="p3" label="C · Tactile sheet card" width={W_TAB} height={H_TAB}><PlayerDash_SheetCard /></DCArtboard>
+      <DCArtboard id="p4" label="D · 6-axis radar profile" width={W_TAB} height={H_TAB}><PlayerDash_Radar /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="combat" title="04 · Combat Logger" subtitle="Roll-by-roll, units lost, who won where">
+      <DCArtboard id="c1" label="A · Two-column ledger" width={W_DESK} height={H_DESK}><Combat_Ledger /></DCArtboard>
+      <DCArtboard id="c2" label="B · Live roll feed" width={W_TAB} height={H_TAB}><Combat_Feed /></DCArtboard>
+      <DCArtboard id="c3" label="C · Battle splits (multi)" width={W_DESK} height={H_DESK}><Combat_Splits /></DCArtboard>
+      <DCArtboard id="c4" label="D · Phone tap-to-roll" width={W_PHONE} height={H_PHONE}><Combat_Phone /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="agenda" title="05 · Voting / Agenda Dashboard" subtitle="The Galactic Senate · For vs. Against · law history">
+      <DCArtboard id="a1" label="A · Senate broadsheet" width={W_DESK} height={H_DESK}><Agenda_Senate /></DCArtboard>
+      <DCArtboard id="a2" label="B · Per-player tally bars" width={W_DESK} height={H_DESK}><Agenda_Tally /></DCArtboard>
+      <DCArtboard id="a3" label="C · Phone slide-to-vote" width={W_PHONE} height={H_PHONE}><Agenda_Phone /></DCArtboard>
+      <DCArtboard id="a4" label="D · Senate almanac (history)" width={W_DESK} height={H_DESK}><Agenda_History /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="econ" title="06 · Economy / Planet Board" subtitle="Resources vs. Influence vs. Tech vs. Fleet">
+      <DCArtboard id="e1" label="A · Multi-faction radar" width={W_TAB} height={H_TAB}><Economy_Radar /></DCArtboard>
+      <DCArtboard id="e2" label="B · Hex planet board" width={W_DESK} height={H_DESK}><Economy_PlanetBoard /></DCArtboard>
+      <DCArtboard id="e3" label="C · Paired column stacks" width={W_DESK} height={H_DESK}><Economy_Stacks /></DCArtboard>
+      <DCArtboard id="e4" label="D · Trade flow (sankey)" width={W_DESK} height={H_DESK}><Economy_Sankey /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="vp" title="07 · VP Race ★ HERO" subtitle="The single most important visualization · the race to 10/14">
+      <DCArtboard id="v1" label="A · Slope chart with story" width={W_DESK} height={H_DESK}><VP_Slope /></DCArtboard>
+      <DCArtboard id="v2" label="B · Standings bar (live)" width={W_TAB} height={H_TAB}><VP_Bars /></DCArtboard>
+      <DCArtboard id="v3" label="C · Stadium / lane race" width={W_DESK} height={H_DESK}><VP_Stadium /></DCArtboard>
+      <DCArtboard id="v4" label="D · Stacked stream per round" width={W_DESK} height={H_DESK}><VP_Stream /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="obj" title="08 · Objective Matrix" subtitle="Public objectives × players">
+      <DCArtboard id="o1" label="A · Classic checkmark grid" width={W_DESK} height={H_DESK}><Obj_Matrix /></DCArtboard>
+      <DCArtboard id="o2" label="B · Bounty cards" width={W_DESK} height={H_DESK}><Obj_Cards /></DCArtboard>
+      <DCArtboard id="o3" label="C · Per-player score timeline" width={W_DESK} height={H_DESK}><Obj_Timeline /></DCArtboard>
+      <DCArtboard id="o4" label="D · Density heatmap" width={W_TAB} height={H_TAB}><Obj_Heatmap /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="draft" title="09 · Faction Picker / Draft" subtitle="Pre-game · 25 civilizations">
+      <DCArtboard id="d1" label="A · Carousel pool" width={W_DESK} height={H_DESK}><Draft_Carousel /></DCArtboard>
+      <DCArtboard id="d2" label="B · Full roster grid" width={W_DESK} height={H_DESK}><Draft_Roster /></DCArtboard>
+      <DCArtboard id="d3" label="C · 3-up compare" width={W_TAB} height={H_TAB}><Draft_Compare /></DCArtboard>
+      <DCArtboard id="d4" label="D · Phone snake-draft" width={W_PHONE} height={H_PHONE}><Draft_Phone /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="recap" title="10 · End-Game Recap Infographic" subtitle="The shareable centerpiece — the 'final edition' broadsheet">
+      <DCArtboard id="g1" label="A · Front-page final edition" width={W_DESK} height={H_DESK}><Recap_Front /></DCArtboard>
+      <DCArtboard id="g2" label="B · By-the-numbers stat block" width={W_DESK} height={H_DESK}><Recap_Stats /></DCArtboard>
+      <DCArtboard id="g3" label="C · Awards ceremony" width={W_DESK} height={H_DESK}><Recap_Awards /></DCArtboard>
+      <DCArtboard id="g4" label="D · Round-by-round narrative" width={W_DESK} height={H_DESK}><Recap_Story /></DCArtboard>
+    </DCSection>
+
+  </DesignCanvas>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -62,23 +62,51 @@ Test files live next to source (or under `__tests__/` — both are acceptable; u
 
 ---
 
-## Schema Correction
+## Schema (corrected after Task 0 discovery)
 
-The existing `ti4_schema.ts` `ActionLogEntry` type is **wrong for our purposes**. It wraps data in a nested structure that does not match what TI Assistant actually exports.
+**Reversal:** An earlier draft of this spec claimed `ti4_schema.ts`'s `ActionLogEntry` was wrong. After running the discover-data script against the six real exports, the original schema is **correct**. Real entries are wrapped, not flat.
 
-**Actual format (confirmed by reading real exports):**
+### Top-level export shape
+
 ```ts
-interface RawLogEntry {
-  action: string;                        // e.g. "SCORE_OBJECTIVE", "ADVANCE_PHASE"
-  event: Record<string, unknown>;        // payload — shape varies by action
-  timestamp: number;                     // Unix ms — always present
-  gameTime?: number;                     // seconds since game start — sometimes absent
+{
+  data: {
+    factions: Array<{ id: string; playerName: string; color: string }>;
+    speaker: number;                    // mapPosition index
+    options: Record<string, unknown>;   // includes 'victory-points', expansions
+  };
+  timers: {
+    game: number;
+    [factionId: string]: number;        // also includes lastUpdate
+  };
+  actionLog: Array<{
+    timestampMillis: number;            // Unix ms when logged
+    data: { action: string; event: Record<string, unknown>; timestamp: number };
+    gameSeconds?: number;               // seconds into the game
+  }>;
 }
 ```
 
-`types.ts` will define this corrected `RawLogEntry` interface and use it throughout the parser. The original `ActionLogEntry` in `ti4_schema.ts` is preserved verbatim (it's a verbatim copy of the root schema) but **never imported in parser code**. Parser code imports only from `types.ts`.
+Note: `factions`, `speaker`, `options` live under `top.data.*` — `timers` and `actionLog` are at the top level.
 
-**Important:** `actionLog` in real exports is **reverse-chronological**. The reducer sorts ascending by `timestamp` before processing. `gameTime` is used for display only (it may be absent on some entries).
+### Internal `RawLogEntry` (parser-internal, normalized by `parseGame`)
+
+```ts
+export interface RawLogEntry {
+  action: string;
+  event: Record<string, unknown>;
+  timestamp: number;     // taken from data.timestamp or timestampMillis
+  gameTime?: number;     // taken from gameSeconds
+}
+```
+
+`parseGame` extracts and normalizes from the wrapped structure into this flat `RawLogEntry`. The reducer never sees the wrapper.
+
+`actionLog` in real exports is **reverse-chronological** — `parseGame` sorts ascending by `timestamp` before reducing.
+
+### Faction setup — adjusted to match real data
+
+Real faction objects have only `{ id, playerName, color }`. `mapPosition` is derived from array index. `startingTechs` and `startingPlanets` are not present in exports — the parser initializes them as empty arrays. (A future faction-profile dictionary could populate them, but Phase 1a tracks ownership via CLAIM_PLANET events from any starting state.)
 
 ---
 

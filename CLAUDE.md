@@ -14,13 +14,15 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 
 ## Current Status
 
-**Phase 0 (Scaffolding) is complete.** Phase 1 (Ingestion Engine) is next.
+**Phase 0 (Scaffolding) and Phase 1a (Parser Layer) are complete.** Phase 1b (Upload UI + Firestore adapter) is next.
 
-All app code lives under `D:\_TI4 App\app\`. Phase 0 scaffolding is **complete** — `app/` exists, all tooling is wired, and the six game exports are in `app/game-data/`.
+All app code lives under `D:\_TI4 App\app\`. The parser layer (`app/src/lib/parser/`) outputs a typed `ParsedGame` from raw TI Assistant exports. 146 tests, ≥ 90 % coverage, all 6 real game exports parse cleanly with one minor agenda-VP-watchlist warning.
 
 **Source of truth for the plan:** [`ROADMAP.md`](ROADMAP.md) — this supersedes the `Master Guidance Document.md`, which is deprecated.
 
 **Source of truth for how we work:** [`SKILLS.md`](SKILLS.md)
+
+**Source of truth for visual design:** [`design_handoff_ti4_tracker/`](design_handoff_ti4_tracker/) — newspaper / almanac editorial direction. Read its `README.md` before touching styling, fonts, or component layout in Phase 1b+.
 
 ---
 
@@ -36,6 +38,9 @@ These are the most common ways an AI session goes wrong on this project:
 | Shipping Phase 1 with only `SCORE_OBJECTIVE` VP tracking | **Not acceptable.** All VP sources (§1.5a–g in ROADMAP) required before Phase 1 ships. | Partial VP = wrong final scores = useless parser. |
 | Importing the Firestore SDK in a React component | **Banned.** All Firestore calls go through `src/adapters/firestore.ts` only. | Adapter pattern keeps tests clean. |
 | `any` types outside the schema boundary | **Banned.** `tsconfig.json` has `"strict": true` + `"noUncheckedIndexedAccess": true`. | See SKILLS.md §3. |
+| A "Deep Space" dark-theme look (the original Phase 4 plan) | **Retired.** Visual direction is now **newspaper / almanac editorial broadsheet** — see `design_handoff_ti4_tracker/`. | Replaces the placeholder dark theme with a defined design language. The Tailwind tokens currently in `app/tailwind.config.ts` are stale — they will be replaced with the design's CSS custom properties (`--paper`, `--ink`, `--accent`, etc.) during Phase 1b/2 styling work. |
+| Setting up a custom dark color palette in `tailwind.config.ts` for Phase 1b UI | **Wrong direction.** Use the design tokens from `design_handoff_ti4_tracker/wireframes.css` (warm newsprint, oklch ink colors, vermillion accent). Load Newsreader + IBM Plex Sans + IBM Plex Mono + Caveat from Google Fonts. | See design handoff `README.md`. |
+| Designing a `RoundState[]` field as one entry per round | **Wrong shape.** Field is `phaseSnapshots: PhaseSnapshot[]` — one entry per phase transition (4× per round). Renamed during Phase 1a code-review follow-up. | The reducer pushes a snapshot on every `ADVANCE_PHASE`; treating it as per-round caused off-by-one assumptions. |
 
 ---
 
@@ -75,9 +80,14 @@ All must succeed on a clean install. See ROADMAP §Phase 0 for full deliverables
 
 ## Key Data Shape Notes
 
-- `actionLog` in real TI Assistant exports is **reverse-chronological**. Always sort ascending by `gameTime` before reducing.
-- `GameEventPayload.event` is `Record<string, any>` in the raw schema. Narrow it with discriminated union type guards at the parser boundary — never pass `any` downstream.
-- `GameOptions` has more fields than the Master Guidance Document showed (`events`, `hide-*`, `secondary-victory-points`). The canonical interface is in `ti-assistant TI4 Schema Definitions.ts`.
+- Real exports are **wrapped**: top-level `{ data: { factions, speaker, options }, timers, actionLog }`. `factions`/`speaker`/`options` live under `top.data.*`.
+- Real `actionLog` entries are wrapped: `{ timestampMillis, data: { action, event, timestamp }, gameSeconds? }`. The original `ti-assistant TI4 Schema Definitions.ts` schema was correct on this; an early Phase 1a draft incorrectly tried to "flatten" it.
+- `parseGame()` in `app/src/lib/parser/parseGame.ts` normalizes the wrapped raw shape into a flat internal `RawLogEntry` before the reducer sees it. The reducer never deals with the wrapper.
+- `actionLog` is **reverse-chronological**. `parseGame` sorts ascending by `timestamp` before reducing.
+- `event` is `Record<string, unknown>` in the parser — narrowed with `typeof` guards in each switch case. Never `any`.
+- `factionId` in real exports is the full faction NAME with spaces and apostrophes (e.g. `"Vaden Banking Clans"`, `"L'tokk Khrask"`), not a slug.
+- Faction objects only carry `{ id, playerName, color }` — `mapPosition` is derived from array index, `startingTechs`/`startingPlanets` are TODO (Phase 1b+ via a faction-profile dictionary).
+- See `app/src/lib/parser/SCHEMA.md` if it exists, otherwise the "Schema Findings" section at the top of `docs/superpowers/plans/2026-04-26-phase-1a-parser.md` is the canonical inventory of real action names + payload shapes.
 
 ---
 

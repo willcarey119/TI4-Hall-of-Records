@@ -10,6 +10,105 @@
 
 ---
 
+## Schema Findings (added after Task 0 — IMPORTANT, READ FIRST)
+
+The discover-data script (Task 0) revealed the real TI Assistant export schema and corrected several assumptions in the original plan. **Implementers must apply these corrections in their respective tasks.**
+
+### Top-level wrapped structure
+
+```jsonc
+{
+  "data": {
+    "factions": [{ "id": "Vaden Banking Clans", "playerName": "KP", "color": "Black" }, …],
+    "speaker": 0,                    // mapPosition index, not faction id
+    "options": { "victory-points": 12, "expansions": ["POK","CODEX ONE",…] }
+  },
+  "timers": { "game": 26979, "Vaden Banking Clans": 2737, …, "lastUpdate": … },
+  "actionLog": [
+    { "timestampMillis": 1737328465900,
+      "data": { "action": "END_GAME", "event": {}, "timestamp": 1737328464818 },
+      "gameSeconds": 26979 },
+    …
+  ]
+}
+```
+
+`actionLog` is reverse-chronological. `parseGame` (Task 13) extracts and sorts.
+
+### Faction objects in real data
+
+Real factions only have `{ id, playerName, color }`. The `FactionSetup` interface keeps `mapPosition` (derived from array index), `startingTechs: []`, and `startingPlanets: []` for forward compatibility, but parsers must NOT expect those last two from the export.
+
+### Real action names + payload shapes
+
+Several action names in the original plan were guessed wrong. The real names and payload shapes are below. **When implementing Tasks 4–12, use these exact strings and field names.**
+
+| Action | Real payload shape | Notes |
+|--------|-------------------|-------|
+| `SCORE_OBJECTIVE` | `{ faction, objective, key? }` | `key` is the giver of "Support for the Throne" (the faction granting the support) |
+| `UNSCORE_OBJECTIVE` | `{ faction, objective, key? }` | Mirror of SCORE |
+| `CLAIM_PLANET` | `{ faction, planet, prevOwner? }` | Custodians = first claim of `Mecatol Rex` |
+| `UNCLAIM_PLANET` | `{ faction, planet }` | |
+| `GAIN_RELIC` | `{ faction, relic }` | Shard of the Throne emits +1 VpEvent |
+| `PLAY_RELIC` | `{ relic, tech? }` | **No `faction` field** — derive from `currentRelics[relic]`. Crown of Emphidia emits +1 VpEvent. |
+| `LOSE_RELIC` | `{ faction, relic }` | (replaces planned `PURGE_RELIC`) Shard of the Throne emits -1 VpEvent |
+| `RESOLVE_AGENDA` | `{ agenda, target }` | `target` is the outcome string. **No votes/riders array** — votes come from preceding `CAST_VOTES` events. |
+| `REVEAL_AGENDA` | `{ agenda? }` | Marks start of voting cycle for an agenda |
+| `REPEAL_AGENDA` | `{ agenda? }` | A passed law being repealed |
+| `HIDE_AGENDA` | `{ agenda? }` | UNDO/cancellation pair |
+| `CAST_VOTES` | `{ faction, votes, extraVotes, target }` | Aggregate between REVEAL_AGENDA and RESOLVE_AGENDA into the AgendaResolution |
+| `START_VOTING` | `{}` | Phase marker |
+| `SELECT_ELIGIBLE_OUTCOMES` | (varies) | Track only the agenda choice; ignore for VP |
+| `SPEAKER_TIE_BREAK` | (varies) | Speaker breaks vote ties |
+| `PLAY_RIDER` | `{ rider, faction, outcome }` | Imperial Rider VP — read `currentOwners['Mecatol Rex']` |
+| `ASSIGN_STRATEGY_CARD` | `{ assignedTo, id, pickedBy }` | (replaces planned `PICK_STRATEGY_CARD`) `id` is card name; `assignedTo` is the recipient faction |
+| `MARK_PRIMARY` | `{ faction, state }` | `state` ∈ `DONE`/`SKIPPED` (rare). Maps to StrategyCardEvent `play_primary` (DONE) or skipped variant. |
+| `MARK_SECONDARY` | `{ faction, state }` | `state` `DONE` → `follow`; `SKIPPED` → `abstain`. (replaces planned `FOLLOW_SECONDARY`/`ABSTAIN_SECONDARY`) |
+| `SET_SPEAKER` | `{ newSpeaker, prevSpeaker }` | (replaces planned `CHANGE_SPEAKER`) |
+| `UPDATE_LEADER_STATE` | `{ leaderId, state, prevState }` | Single action covers all leader state changes. Map state values to LeaderEvent type: `readied` (after locked) → `'unlock'`; `exhausted` → `'exhaust'`; `purged` → `'purge'`; other transitions → `'play'`. |
+| `ADD_ATTACHMENT` | `{ attachment, planet }` | **No `faction` field** — derive from `currentOwners[planet]` (may be `null`) |
+| `GAIN_ALLIANCE` | `{ faction, fromFaction }` | (replaces planned `FORM_ALLIANCE`) |
+| `COMMIT_TO_EXPEDITION` | `{ expedition, factionId }` | (replaces planned `EXPEDITION`) `expedition` ∈ `influence`/`resources`/`techSkip`/etc. — store as `planet` field of `ExpeditionEvent` (the type slot exists; expedition kind is the value) |
+| `ADD_TECH`, `REMOVE_TECH`, `CHOOSE_STARTING_TECH`, `PURGE_TECH` | `{ faction, tech }` | `PURGE_TECH` was not in the original plan — emit as `TechEvent` with `type: 'remove'` and a warning, OR add a `'purge'` type variant. |
+| `PLAY_PROMISSORY_NOTE` | `{ card, target }` | **No `fromFaction`/`note` fields** — `card` is the note name; `target` is the recipient faction; the giving faction is implicit (the current turn faction). |
+| `PLAY_ACTION_CARD` | `{ card, target? }` | **No `faction` field** — use the current turn faction (track via END_TURN events) |
+| `PLAY_COMPONENT` | `{ name, factionId }` | Field is `factionId` (not `faction`) and `name` (not `component`). |
+| `REVEAL_OBJECTIVE` | `{ objective }` | **No `stage` field** — look up the stage from the objectives dictionary |
+| `ADVANCE_PHASE` | `{ skipAgenda, factions: { [id]: { …faction snapshot… } } }` | **No explicit `round` or `phase` fields.** Track round/phase by counting ADVANCE_PHASE events sequentially: phases cycle Strategy → Action → Status → (Agenda) → Strategy (next round). |
+| `END_TURN` | `{ prevFaction, selectedAction, secondaries }` | Use `prevFaction` to update `currentTurnFaction` for next `SELECT_ACTION` |
+| `SELECT_ACTION` | `{ action }` | Track `currentTurnFaction` going INTO this action — set when SELECT_ACTION fires after END_TURN. The faction is whoever wasn't `prevFaction` last; in practice we track via END_TURN events. |
+| `END_GAME` | `{}` | Marks game end |
+| `UNPASS` | `{ faction? }` | Undo a pass — minor |
+| `SWAP_MAP_TILES`, `SWAP_STRATEGY_CARDS` | (varies) | Setup adjustments — emit as `actionEvents` catch-all |
+| `CHOOSE_SUB_FACTION` | `{ subFaction, factionId? }` | Discordant Stars sub-faction pick |
+| `SELECT_SUB_AGENDA`, `SELECT_SUB_COMPONENT` | (varies) | Sub-selections — emit as `actionEvents` catch-all |
+| `PLAY_ADJUDICATOR_BAAL` | (varies) | Discordant Stars specific — emit as `actionEvents` catch-all |
+
+### Reducer state additions
+
+The reducer needs a small additional piece of state to handle the implicit-faction events:
+
+```ts
+interface ReducerState {
+  // … existing fields
+  currentTurnFaction: string;              // updated by END_TURN.prevFaction
+  pendingAgenda: string | null;            // set by REVEAL_AGENDA, cleared by RESOLVE_AGENDA
+  pendingVotes: AgendaVote[];              // accumulates from CAST_VOTES, drained at RESOLVE_AGENDA
+  pendingRiders: AgendaRider[];            // accumulates from PLAY_RIDER, drained at RESOLVE_AGENDA
+}
+```
+
+`createInitialState` should add `currentTurnFaction: ''`, `pendingAgenda: null`, `pendingVotes: []`, `pendingRiders: []`.
+
+### "Imperial Point" / "Custodians Token" not in objective list
+
+The 60 real objective strings do NOT include "Imperial Point" or "Custodians Token". Conclusions:
+
+- **Custodians Token** — handled by the first `CLAIM_PLANET` on `Mecatol Rex` (matches the spec design). No dictionary entry needed for it as an objective key, but `getObjectivePoints('Custodians Token')` still returns `{ stage: 'other', points: 1 }` for use in the `VpEvent.objective` field.
+- **Imperial Point** — does not appear as a SCORE_OBJECTIVE objective name in any of the 6 exports. The Imperial primary VP may surface differently (possibly as a regular SCORE_OBJECTIVE with a normal Stage I/II objective name when scoring early via Imperial primary). Phase 1a will not emit a separate "Imperial Point" VpEvent. Re-investigate during Phase 1 combined acceptance if scores don't match.
+
+---
+
 ## File Map
 
 All paths relative to `D:\_TI4 App\app\`.
@@ -482,7 +581,7 @@ Expected: FAIL — `Cannot find module '../objectives'`.
 
 - [ ] **Step 3: Implement objectives.ts**
 
-**Before writing this file: check your scratch note from Task 0 (the discover-data OBJECTIVES output) and add any objective strings that appear in real game data but are not already in the dictionary below.**
+The dictionary below is the **complete, classified list of every objective string discovered in the 6 real game exports** (Task 0), cross-referenced against the official TI4 + PoK wiki. Use it verbatim — do not guess additional entries.
 
 ```ts
 // src/lib/parser/objectives.ts
@@ -494,77 +593,98 @@ export interface ObjectiveDefinition {
 }
 
 /**
- * Static dictionary of all known TI4 + PoK + Discordant Stars objectives.
- * Keys are EXACT strings as they appear in TI Assistant exports (case-sensitive).
- * Verify all entries against the discover-data script output (Task 0).
+ * Static dictionary of objectives known to appear in TI Assistant exports.
+ * Keys are EXACT strings as they appear in real game data (case-sensitive).
+ * Built from the Task 0 discover-data output (60 unique objective strings)
+ * cross-referenced with the official TI4 wiki classifications.
  */
 const OBJECTIVES: Record<string, ObjectiveDefinition> = {
-  // ── Stage I Public (Base TI4) ─────────────────────────────────────────
+  // ── Stage I Public — Base TI4 (1 VP) ──────────────────────────────────
+  'Corner the Market': { stage: 'I', points: 1 },
+  'Develop Weaponry': { stage: 'I', points: 1 },
+  'Diversify Research': { stage: 'I', points: 1 },
+  'Erect a Monument': { stage: 'I', points: 1 },
   'Expand Borders': { stage: 'I', points: 1 },
   'Found Research Outposts': { stage: 'I', points: 1 },
   'Intimidate Council': { stage: 'I', points: 1 },
   'Lead from the Front': { stage: 'I', points: 1 },
   'Negotiate Trade Routes': { stage: 'I', points: 1 },
+  'Sway the Council': { stage: 'I', points: 1 },
 
-  // ── Stage I Public (PoK) ──────────────────────────────────────────────
-  // Verify exact strings against Task 0 discover-data output
-  'Control the Borderlands': { stage: 'I', points: 1 },
-  'Hold Vast Reserves': { stage: 'I', points: 1 },
-  'Patrol Vast Territories': { stage: 'I', points: 1 },
-  'Protect the Border': { stage: 'I', points: 1 },
-  'Reclaim Ancient Monuments': { stage: 'I', points: 1 },
-  'Rule Distant Lands': { stage: 'I', points: 1 },
+  // ── Stage I Public — PoK (1 VP) ───────────────────────────────────────
+  'Amass Wealth': { stage: 'I', points: 1 },
+  'Build Defenses': { stage: 'I', points: 1 },
+  'Discover Lost Outposts': { stage: 'I', points: 1 },
+  'Engineer a Marvel': { stage: 'I', points: 1 },
+  'Populate the Outer Rim': { stage: 'I', points: 1 },
+  'Push Boundaries': { stage: 'I', points: 1 },
 
-  // ── Stage II Public (Base TI4) ────────────────────────────────────────
+  // ── Stage II Public — Base TI4 (2 VP) ─────────────────────────────────
   'Centralize Galactic Trade': { stage: 'II', points: 2 },
   'Conquer the Weak': { stage: 'II', points: 2 },
-  'Destroy Their Greatest Ship': { stage: 'II', points: 2 },
-  'Demonstrate Your Power': { stage: 'II', points: 2 },
-  'Dictate Policy': { stage: 'II', points: 2 },
-  'Drive the Debate': { stage: 'II', points: 2 },
-
-  // ── Stage II Public (PoK) ─────────────────────────────────────────────
-  'Achieve Supremacy': { stage: 'II', points: 2 },
-  'Construct Massive Cities': { stage: 'II', points: 2 },
-  'Discover Lost Outposts': { stage: 'II', points: 2 },
-  'Establish Hegemony': { stage: 'II', points: 2 },
-  'Force Submission': { stage: 'II', points: 2 },
-  'Make History': { stage: 'II', points: 2 },
-  'Spread Democracy': { stage: 'II', points: 2 },
+  'Form Galactic Brain Trust': { stage: 'II', points: 2 },
+  'Found a Golden Age': { stage: 'II', points: 2 },
+  'Master the Sciences': { stage: 'II', points: 2 },
+  'Revolutionize Warfare': { stage: 'II', points: 2 },
+  'Subdue the Galaxy': { stage: 'II', points: 2 },
   'Unify the Colonies': { stage: 'II', points: 2 },
 
-  // ── Secret Objectives ─────────────────────────────────────────────────
-  // Fill in from discover-data Task 0 output. Starter list:
-  'Become a Martyr': { stage: 'secret', points: 1 },
-  'Betray a Friend': { stage: 'secret', points: 1 },
-  'Brave the Void': { stage: 'secret', points: 1 },
-  'Darken the Skies': { stage: 'secret', points: 1 },
+  // ── Stage II Public — PoK (2 VP) ──────────────────────────────────────
+  'Command an Armada': { stage: 'II', points: 2 },
+  'Construct Massive Cities': { stage: 'II', points: 2 },
+  'Rule Distant Lands': { stage: 'II', points: 2 },
+
+  // ── Secret — Action Phase, Base TI4 (1 VP) ────────────────────────────
   'Destroy Their Greatest Ship': { stage: 'secret', points: 1 },
-  'Dictate Policy (Secret)': { stage: 'secret', points: 1 }, // rename if discover-data shows different string
-  'Diversify Research': { stage: 'secret', points: 1 },
-  'Establish a Perimeter': { stage: 'secret', points: 1 },
-  'Found a Golden Age': { stage: 'secret', points: 1 },
-  'Fuel the War Machine': { stage: 'secret', points: 1 },
-  'Galvanize the People': { stage: 'secret', points: 1 },
-  'Hoard Raw Materials': { stage: 'secret', points: 1 },
-  'Mechanize the Military': { stage: 'secret', points: 1 },
-  'Mine Rare Minerals': { stage: 'secret', points: 1 },
-  'Monopolize Production': { stage: 'secret', points: 1 },
-  'Occupy the Seat of the Empire': { stage: 'secret', points: 1 },
-  'Threaten Enemies': { stage: 'secret', points: 1 },
+  'Make an Example of Their World': { stage: 'secret', points: 1 },
+  'Spark a Rebellion': { stage: 'secret', points: 1 },
   'Turn Their Fleets to Dust': { stage: 'secret', points: 1 },
   'Unveil Flagship': { stage: 'secret', points: 1 },
 
+  // ── Secret — Action Phase, PoK (1 VP) ─────────────────────────────────
+  'Betray a Friend': { stage: 'secret', points: 1 },
+  'Brave the Void': { stage: 'secret', points: 1 },
+  'Demonstrate Your Power': { stage: 'secret', points: 1 },
+  'Prove Endurance': { stage: 'secret', points: 1 },
+
+  // ── Secret — Status Phase, Base TI4 (1 VP) ────────────────────────────
+  'Adapt New Strategies': { stage: 'secret', points: 1 },
+  'Control the Region': { stage: 'secret', points: 1 },
+  'Cut Supply Lines': { stage: 'secret', points: 1 },
+  'Establish a Perimeter': { stage: 'secret', points: 1 },
+  'Form a Spy Network': { stage: 'secret', points: 1 },
+  'Fuel the War Machine': { stage: 'secret', points: 1 },
+  'Gather a Mighty Fleet': { stage: 'secret', points: 1 },
+  'Learn the Secrets of the Cosmos': { stage: 'secret', points: 1 },
+  'Master the Laws of Physics': { stage: 'secret', points: 1 },
+  'Monopolize Production': { stage: 'secret', points: 1 },
+  'Occupy the Seat of the Empire': { stage: 'secret', points: 1 },
+  'Threaten Enemies': { stage: 'secret', points: 1 },
+
+  // ── Secret — Status Phase, PoK (1 VP) ─────────────────────────────────
+  'Destroy Heretical Works': { stage: 'secret', points: 1 },
+  'Establish Hegemony': { stage: 'secret', points: 1 },
+  'Foster Cohesion': { stage: 'secret', points: 1 },
+  'Hoard Raw Materials': { stage: 'secret', points: 1 },
+  'Mechanize the Military': { stage: 'secret', points: 1 },
+  'Occupy the Fringe': { stage: 'secret', points: 1 },
+  'Produce En Masse': { stage: 'secret', points: 1 },
+  'Seize an Icon': { stage: 'secret', points: 1 },
+  'Stake your Claim': { stage: 'secret', points: 1 },
+  'Strengthen Bonds': { stage: 'secret', points: 1 },
+
+  // ── Secret — Agenda Phase, PoK (1 VP) ─────────────────────────────────
+  'Dictate Policy': { stage: 'secret', points: 1 },
+  'Drive the Debate': { stage: 'secret', points: 1 },
+
   // ── Special VP Sources ────────────────────────────────────────────────
   'Support for the Throne': { stage: 'support', points: 1 },
-  'Imperial Point': { stage: 'imperial', points: 1 },
-  'Custodians Token': { stage: 'other', points: 1 },
-  'Shard of the Throne': { stage: 'relic', points: 1 },
-  'Crown of Emphidia': { stage: 'relic', points: 1 },
+  'Custodians Token': { stage: 'other', points: 1 },        // emitted by reducer for Mecatol first claim
+  'Shard of the Throne': { stage: 'relic', points: 1 },     // emitted by reducer on GAIN_RELIC
+  'Crown of Emphidia': { stage: 'relic', points: 1 },       // emitted by reducer on PLAY_RELIC
+  'Imperial Rider': { stage: 'agenda', points: 1 },         // emitted by reducer on PLAY_RIDER
 
-  // ── Discordant Stars / Thunder's Edge ─────────────────────────────────
-  // Add entries from discover-data Task 0 output as they appear.
-  // Styx is added proactively (1 VP while controlled; action type unconfirmed):
+  // ── Discordant Stars (proactively added; not yet seen in 6 exports) ──
   'Styx': { stage: 'legendary', points: 1 },
 };
 
@@ -573,6 +693,25 @@ const OBJECTIVES: Record<string, ObjectiveDefinition> = {
 export function getObjectivePoints(name: string): ObjectiveDefinition | null {
   return OBJECTIVES[name] ?? null;
 }
+```
+
+**Update the test file** to also assert on a few additional confirmed entries. Add to `objectives.test.ts`:
+
+```ts
+  describe('additional real-data entries', () => {
+    it('returns Stage I, 1 VP for "Sway the Council" (Base)', () => {
+      expect(getObjectivePoints('Sway the Council')).toEqual({ stage: 'I', points: 1 });
+    });
+    it('returns Stage I, 1 VP for "Amass Wealth" (PoK)', () => {
+      expect(getObjectivePoints('Amass Wealth')).toEqual({ stage: 'I', points: 1 });
+    });
+    it('returns secret, 1 VP for "Dictate Policy" (Agenda Phase secret, NOT Stage II)', () => {
+      expect(getObjectivePoints('Dictate Policy')).toEqual({ stage: 'secret', points: 1 });
+    });
+    it('returns secret, 1 VP for "Establish Hegemony" (Status Phase secret, NOT Stage II)', () => {
+      expect(getObjectivePoints('Establish Hegemony')).toEqual({ stage: 'secret', points: 1 });
+    });
+  });
 ```
 
 - [ ] **Step 4: Run tests — verify they pass**
@@ -2125,38 +2264,50 @@ function hashGameId(firstTimestamp: number, sortedFactionIds: string[]): string 
   return hash.toString(36);
 }
 
+/** Reads `top.data.factions[]`. Real entries have only { id, playerName, color };
+ *  the parser fills mapPosition (from array index) and empty starting arrays. */
 function extractFactions(raw: Record<string, unknown>): FactionSetup[] {
-  const rawFactions = Array.isArray(raw['factions']) ? raw['factions'] : [];
-  return rawFactions.map((f): FactionSetup => {
+  const dataObj = (typeof raw['data'] === 'object' && raw['data'] !== null)
+    ? (raw['data'] as Record<string, unknown>)
+    : {};
+  const rawFactions = Array.isArray(dataObj['factions']) ? dataObj['factions'] : [];
+  return rawFactions.map((f, idx): FactionSetup => {
     const faction = (typeof f === 'object' && f !== null) ? (f as Record<string, unknown>) : {};
     return {
-      factionId: typeof faction['factionId'] === 'string' ? faction['factionId'] : '',
+      factionId: typeof faction['id'] === 'string' ? faction['id'] : '',
       playerName: typeof faction['playerName'] === 'string' ? faction['playerName'] : '',
       color: typeof faction['color'] === 'string' ? faction['color'] : '',
-      mapPosition: typeof faction['mapPosition'] === 'number' ? faction['mapPosition'] : 0,
-      startingTechs: Array.isArray(faction['startingTechs'])
-        ? (faction['startingTechs'] as unknown[]).filter((t): t is string => typeof t === 'string')
-        : [],
-      startingPlanets: Array.isArray(faction['startingPlanets'])
-        ? (faction['startingPlanets'] as unknown[]).filter((p): p is string => typeof p === 'string')
-        : [],
+      mapPosition: idx,
+      startingTechs: [],
+      startingPlanets: [],
     };
   });
 }
 
+/** Reads `top.actionLog[]` and normalizes the wrapped shape into flat `RawLogEntry`.
+ *  Real shape: { timestampMillis, data: { action, event, timestamp }, gameSeconds? } */
 function extractLogEntries(raw: Record<string, unknown>): RawLogEntry[] {
   const rawLog = Array.isArray(raw['actionLog']) ? raw['actionLog'] : [];
   return rawLog
     .flatMap((entry): RawLogEntry[] => {
       if (typeof entry !== 'object' || entry === null) return [];
       const e = entry as Record<string, unknown>;
-      const action = e['action'];
+      const inner = (typeof e['data'] === 'object' && e['data'] !== null)
+        ? (e['data'] as Record<string, unknown>)
+        : {};
+      const action = inner['action'];
       if (typeof action !== 'string') return [];
+      // Prefer inner timestamp (action-internal), fall back to outer timestampMillis
+      const ts = typeof inner['timestamp'] === 'number'
+        ? inner['timestamp']
+        : (typeof e['timestampMillis'] === 'number' ? e['timestampMillis'] : 0);
       return [{
         action,
-        event: (typeof e['event'] === 'object' && e['event'] !== null) ? (e['event'] as Record<string, unknown>) : {},
-        timestamp: typeof e['timestamp'] === 'number' ? e['timestamp'] : 0,
-        ...(typeof e['gameTime'] === 'number' ? { gameTime: e['gameTime'] } : {}),
+        event: (typeof inner['event'] === 'object' && inner['event'] !== null)
+          ? (inner['event'] as Record<string, unknown>)
+          : {},
+        timestamp: ts,
+        ...(typeof e['gameSeconds'] === 'number' ? { gameTime: e['gameSeconds'] } : {}),
       }];
     })
     .sort((a, b) => a.timestamp - b.timestamp);
