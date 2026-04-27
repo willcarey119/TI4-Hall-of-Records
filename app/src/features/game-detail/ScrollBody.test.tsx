@@ -3,14 +3,14 @@ import { vi, beforeEach, afterEach } from 'vitest';
 import { ScrollBody } from './ScrollBody';
 
 // IntersectionObserver is not implemented in jsdom — stub it.
-let observerCallback: IntersectionObserverCallback | null = null;
+let observerCallbacks: IntersectionObserverCallback[] = [];
 
 beforeEach(() => {
-  observerCallback = null;
+  observerCallbacks = [];
   vi.stubGlobal(
     'IntersectionObserver',
     vi.fn().mockImplementation(function (cb: IntersectionObserverCallback) {
-      observerCallback = cb;
+      observerCallbacks.push(cb);
       return { observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn() };
     })
   );
@@ -37,13 +37,13 @@ it('calls onSectionChange when a section enters the viewport', () => {
   const onSectionChange = vi.fn();
   render(<ScrollBody onSectionChange={onSectionChange} />);
 
-  // Simulate the observer firing for the timeline section
+  // Fire the timeline observer (index 1) with an intersecting entry
   act(() => {
     const fakeEntry = {
       isIntersecting: true,
       target: { dataset: { section: 'timeline' } },
     } as unknown as IntersectionObserverEntry;
-    observerCallback?.([fakeEntry], {} as IntersectionObserver);
+    observerCallbacks[1]?.([fakeEntry], {} as IntersectionObserver);
   });
 
   expect(onSectionChange).toHaveBeenCalledWith('timeline');
