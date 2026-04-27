@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { GameContext } from './GameContext';
 import { FrozenHeader } from './FrozenHeader';
@@ -70,7 +69,7 @@ it('shows the game title', () => {
 
 it('shows faction chips for all factions', () => {
   renderHeader();
-  expect(screen.getAllByText(/Sol/).length).toBeGreaterThan(0);
+  expect(screen.getByText(/Sol ✦/)).toBeInTheDocument();
   expect(screen.getByText(/Hacan/)).toBeInTheDocument();
 });
 
