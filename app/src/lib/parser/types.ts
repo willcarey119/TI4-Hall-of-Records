@@ -49,7 +49,7 @@ export interface GameTimers {
   agendas: { first: number; second: number };
 }
 
-export interface RoundState {
+export interface PhaseSnapshot {
   round: number;
   phase: string;
   speaker: string;
@@ -214,7 +214,7 @@ export interface ParsedGame {
   factions: FactionSetup[];
   options: Record<string, unknown>;
   initialSpeaker: string;
-  rounds: RoundState[];
+  phaseSnapshots: PhaseSnapshot[];
   // Event arrays — all sorted ascending by timestamp
   vpEvents: VpEvent[];
   planetEvents: PlanetEvent[];

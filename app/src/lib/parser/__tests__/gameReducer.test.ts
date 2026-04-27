@@ -413,6 +413,14 @@ describe('gameReducer — agenda system', () => {
     expect(agendaVps).toHaveLength(0);
   });
 
+  it('RESOLVE_AGENDA on a watch-listed agenda emits a warning (Phase 1a TODO marker)', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Mutiny', target: 'For' }, 1100),
+    ]);
+    expect(result.warnings.some((w) => w.includes('Mutiny') && w.includes('VP'))).toBe(true);
+  });
+
   it('START_VOTING and SELECT_ELIGIBLE_OUTCOMES are no-ops', () => {
     const result = reduce([
       makeEntry('START_VOTING', {}),
@@ -708,12 +716,12 @@ describe('gameReducer — Task 12 remaining events', () => {
     expect(result.warnings.some((w) => w.includes('REVEAL_OBJECTIVE') || w.includes('BogusObjectiveXYZ'))).toBe(true);
   });
 
-  it('ADVANCE_PHASE pushes a RoundState and rotates phase', () => {
+  it('ADVANCE_PHASE pushes a PhaseSnapshot and rotates phase', () => {
     const result = reduce([
       makeEntry('ADVANCE_PHASE', { skipAgenda: false }, 1000),
       makeEntry('ADVANCE_PHASE', { skipAgenda: false }, 2000),
     ]);
-    expect(result.rounds.length).toBeGreaterThanOrEqual(1);
+    expect(result.phaseSnapshots.length).toBeGreaterThanOrEqual(1);
   });
 
   it('catch-all events emit ActionEvent with currentTurnFaction', () => {

@@ -23,7 +23,7 @@ import type {
   ExpeditionEvent,
   SecondaryEvent,
   ActionEvent,
-  RoundState,
+  PhaseSnapshot,
 } from './types';
 import { getObjectivePoints } from './objectives';
 
@@ -46,7 +46,7 @@ export interface ReducerState {
   expeditionEvents: ExpeditionEvent[];
   secondaryEvents: SecondaryEvent[];
   actionEvents: ActionEvent[];
-  rounds: RoundState[];
+  phaseSnapshots: PhaseSnapshot[];
   // Live game state
   currentScores: Record<string, number>;
   currentOwners: Record<string, string>; // planet → faction ID
@@ -92,7 +92,7 @@ export function createInitialState(factions: FactionSetup[]): ReducerState {
     expeditionEvents: [],
     secondaryEvents: [],
     actionEvents: [],
-    rounds: [],
+    phaseSnapshots: [],
     currentScores,
     currentOwners,
     currentRelics: {},
@@ -444,6 +444,26 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         }
       }
 
+      // TODO(phase-1b): Only Seed of an Empire is currently wired up for
+      // agenda-driven VP changes. Other agendas that affect VP per official
+      // TI4 rules and have appeared (or may appear) in real exports:
+      //   - Mutiny: each player who voted "For" gains 1 VP if the agenda passes
+      //   - Political Censure: elected player gains 1 VP (loses on next agenda phase)
+      //   - Crown of Thalnos: VP swing on combat outcome
+      //   - Classified Document Leaks: turns a hidden objective public
+      //   - Compensated Disarmament: VP-adjacent (units removed)
+      // When these are implemented, remove names from VP_AGENDA_WATCHLIST below.
+      const VP_AGENDA_WATCHLIST = new Set([
+        'Mutiny',
+        'Political Censure',
+        'Crown of Thalnos',
+        'Classified Document Leaks',
+      ]);
+      const watchedAgenda = VP_AGENDA_WATCHLIST.has(agenda);
+      const watchWarning = watchedAgenda
+        ? [`RESOLVE_AGENDA "${agenda}" may affect VP but no handler is implemented yet (Phase 1a TODO)`]
+        : [];
+
       if (agenda === 'Seed of an Empire') {
         const scoreEntries = Object.entries(state.currentScores);
         if (scoreEntries.length > 0) {
@@ -486,6 +506,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         pendingAgenda: null,
         pendingVotes: [],
         pendingRiders: [],
+        warnings: [...state.warnings, ...watchWarning],
       };
     }
 
@@ -797,7 +818,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       const wrapped = nextIdx >= PHASE_ORDER.length;
       const nextPhase = wrapped ? 'strategy' : (PHASE_ORDER[nextIdx] ?? 'strategy');
       const nextRound = wrapped ? state.currentRound + 1 : state.currentRound;
-      const roundState: RoundState = {
+      const snapshot: PhaseSnapshot = {
         round: state.currentRound,
         phase: state.currentPhase,
         speaker: state.currentSpeaker,
@@ -805,7 +826,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       };
       return {
         ...state,
-        rounds: [...state.rounds, roundState],
+        phaseSnapshots: [...state.phaseSnapshots, snapshot],
         currentPhase: nextPhase,
         currentRound: nextRound,
       };

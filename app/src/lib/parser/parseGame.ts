@@ -27,6 +27,12 @@ function extractFactions(raw: Record<string, unknown>): FactionSetup[] {
       playerName: typeof faction['playerName'] === 'string' ? faction['playerName'] : '',
       color: typeof faction['color'] === 'string' ? faction['color'] : '',
       mapPosition: idx,
+      // TODO(phase-1b): TI Assistant exports do not carry per-faction starting
+      // techs or starting planets. To populate these, build a faction-profile
+      // dictionary keyed on factionId (e.g. { 'Vaden Banking Clans': { startingTechs: [...], startingPlanets: [...] }, ... })
+      // and look up here. Until then, currentOwners will not reflect home-system
+      // ownership at game start, so the FIRST claim of a home-system planet will
+      // emit a PlanetEvent with prevOwner: null instead of the actual starting owner.
       startingTechs: [],
       startingPlanets: [],
     };
@@ -120,7 +126,7 @@ export function parseGame(raw: unknown): ParsedGame {
     factions,
     options: rawOptions,
     initialSpeaker,
-    rounds: finalState.rounds,
+    phaseSnapshots: finalState.phaseSnapshots,
     vpEvents: finalState.vpEvents,
     planetEvents: finalState.planetEvents,
     techEvents: finalState.techEvents,
