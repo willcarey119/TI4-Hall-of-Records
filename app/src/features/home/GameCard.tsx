@@ -16,7 +16,7 @@ export function GameCard({ game }: GameCardProps) {
       style={{
         width: '100%',
         textAlign: 'left',
-        border: '1px solid #d0cbc5',
+        border: '1px solid var(--ink-4)',
         padding: '12px',
         background: 'var(--paper)',
         cursor: 'pointer',
