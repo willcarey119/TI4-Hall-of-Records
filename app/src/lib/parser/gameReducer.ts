@@ -25,6 +25,7 @@ import type {
   ActionEvent,
   RoundState,
 } from './types';
+import { getObjectivePoints } from './objectives';
 
 export interface ReducerState {
   // Output event arrays
@@ -110,7 +111,63 @@ export function createInitialState(factions: FactionSetup[]): ReducerState {
 
 export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerState {
   switch (entry.action) {
-    // Cases added in Tasks 4–12
+    case 'SCORE_OBJECTIVE': {
+      const factionRaw = entry.event['faction'];
+      const objectiveRaw = entry.event['objective'];
+      if (typeof factionRaw !== 'string' || typeof objectiveRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `SCORE_OBJECTIVE missing faction/objective at ${entry.timestamp}`] };
+      }
+      const faction = factionRaw;
+      const objective = objectiveRaw;
+      const def = getObjectivePoints(objective);
+      if (def === null) {
+        return { ...state, warnings: [...state.warnings, `Unknown objective: "${objective}" at ${entry.timestamp}`] };
+      }
+      const prevScore = state.currentScores[faction] ?? 0;
+      const newVpEvent: VpEvent = {
+        faction,
+        objective,
+        points: def.points,
+        timestamp: entry.timestamp,
+        source: 'score_objective',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return {
+        ...state,
+        vpEvents: [...state.vpEvents, newVpEvent],
+        currentScores: { ...state.currentScores, [faction]: prevScore + def.points },
+      };
+    }
+
+    case 'UNSCORE_OBJECTIVE': {
+      const factionRaw = entry.event['faction'];
+      const objectiveRaw = entry.event['objective'];
+      if (typeof factionRaw !== 'string' || typeof objectiveRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `UNSCORE_OBJECTIVE missing faction/objective at ${entry.timestamp}`] };
+      }
+      const faction = factionRaw;
+      const objective = objectiveRaw;
+      const def = getObjectivePoints(objective);
+      if (def === null) {
+        return { ...state, warnings: [...state.warnings, `Unknown objective (unscore): "${objective}" at ${entry.timestamp}`] };
+      }
+      const prevScore = state.currentScores[faction] ?? 0;
+      const newVpEvent: VpEvent = {
+        faction,
+        objective,
+        points: -def.points,
+        timestamp: entry.timestamp,
+        source: 'score_objective',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return {
+        ...state,
+        vpEvents: [...state.vpEvents, newVpEvent],
+        currentScores: { ...state.currentScores, [faction]: prevScore - def.points },
+      };
+    }
+
+    // Cases added in Tasks 5–12
     default:
       return {
         ...state,

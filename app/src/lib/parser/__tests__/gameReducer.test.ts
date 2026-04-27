@@ -72,3 +72,76 @@ describe('gameReducer — unknown action', () => {
     expect(result.warnings).toHaveLength(0);
   });
 });
+
+describe('gameReducer — SCORE_OBJECTIVE', () => {
+  it('emits a VpEvent with correct fields and source', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Lead from the Front' }, 2000),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents).toHaveLength(1);
+    const ev = result.vpEvents[0];
+    expect(ev?.faction).toBe('barony');
+    expect(ev?.objective).toBe('Lead from the Front');
+    expect(ev?.points).toBe(1);
+    expect(ev?.source).toBe('score_objective');
+    expect(ev?.timestamp).toBe(2000);
+  });
+
+  it('awards 2 VP for Stage II objectives', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Construct Massive Cities' }),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents[0]?.points).toBe(2);
+  });
+
+  it('increments currentScores by points value', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Lead from the Front' }),
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Construct Massive Cities' }),
+    ], [makeFaction('barony')]);
+    expect(result.currentScores['barony']).toBe(3);
+  });
+
+  it('handles "Support for the Throne" with optional key field', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'arborec', objective: 'Support for the Throne', key: 'barony' }),
+    ], [makeFaction('arborec'), makeFaction('barony')]);
+    expect(result.vpEvents[0]?.faction).toBe('arborec');
+    expect(result.vpEvents[0]?.points).toBe(1);
+  });
+
+  it('appends a warning for an unknown objective and does not emit VpEvent', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'UNKNOWN_OBJ_XYZ' }),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents).toHaveLength(0);
+    expect(result.warnings.some((w) => w.includes('UNKNOWN_OBJ_XYZ'))).toBe(true);
+    expect(result.currentScores['barony']).toBe(0);
+  });
+
+  it('appends warning when faction or objective field is missing', () => {
+    const result = reduce([makeEntry('SCORE_OBJECTIVE', {})]);
+    expect(result.warnings.some((w) => w.includes('SCORE_OBJECTIVE'))).toBe(true);
+    expect(result.vpEvents).toHaveLength(0);
+  });
+});
+
+describe('gameReducer — UNSCORE_OBJECTIVE', () => {
+  it('emits a VpEvent with negative points', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Lead from the Front' }, 1000),
+      makeEntry('UNSCORE_OBJECTIVE', { faction: 'barony', objective: 'Lead from the Front' }, 1500),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents).toHaveLength(2);
+    expect(result.vpEvents[1]?.points).toBe(-1);
+    expect(result.vpEvents[1]?.source).toBe('score_objective');
+  });
+
+  it('decrements currentScores by points value', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Construct Massive Cities' }),
+      makeEntry('UNSCORE_OBJECTIVE', { faction: 'barony', objective: 'Construct Massive Cities' }),
+    ], [makeFaction('barony')]);
+    expect(result.currentScores['barony']).toBe(0);
+  });
+});
