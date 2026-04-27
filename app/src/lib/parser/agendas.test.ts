@@ -48,11 +48,11 @@ describe('lookupAgenda', () => {
     expect(entry?.expansion).toBe('base');
   });
 
-  it('covers all 63 entries (50 base + 13 PoK)', () => {
+  it('covers all 62 entries (49 base + 13 PoK)', () => {
     const entries = Object.entries(AGENDAS);
     const base = entries.filter(([, e]) => e.expansion === 'base');
     const pok  = entries.filter(([, e]) => e.expansion === 'pok');
-    expect(base.length).toBe(50);
+    expect(base.length).toBe(49);
     expect(pok.length).toBe(13);
   });
 

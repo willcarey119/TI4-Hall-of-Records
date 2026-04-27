@@ -17,21 +17,27 @@ export type AgendaElect =
   | 'planet'
   | null;
 
-export interface AgendaEntry {
+interface AgendaEntryBase {
   type: 'law' | 'directive';
-  elect: AgendaElect;
-  /** FOR effect text — present when elect is null */
-  forEffect?: string;
-  /** AGAINST effect text — present when elect is null */
-  againstEffect?: string;
-  /** Single effect text — present when elect is non-null */
-  effect?: string;
   /** Trigger text shown before voting begins (e.g. "When this agenda is revealed…") */
   trigger?: string;
   expansion: AgendaExpansion;
   /** True if this base-game card is removed from play when PoK is used */
   removedInPok?: boolean;
 }
+
+export interface AgendaEntryForAgainst extends AgendaEntryBase {
+  elect: null;
+  forEffect: string;
+  againstEffect: string;
+}
+
+export interface AgendaEntryElect extends AgendaEntryBase {
+  elect: Exclude<AgendaElect, null>;
+  effect: string;
+}
+
+export type AgendaEntry = AgendaEntryForAgainst | AgendaEntryElect;
 
 // ─── BASE GAME LAWS ─────────────────────────────────────────────────────────
 
@@ -132,11 +138,6 @@ const BASE_LAWS: Record<string, AgendaEntry> = {
     type: 'law', elect: null, expansion: 'base',
     forEffect: 'When a player produces units, they produce only 1 fighter and infantry for its cost instead of 2.',
     againstEffect: 'No effect.',
-  },
-  'Representative Government (TI4)': {
-    type: 'law', elect: null, expansion: 'base', removedInPok: true,
-    forEffect: 'Players cannot exhaust planets to cast votes during the agenda phase. Each player may cast 1 vote on each agenda instead.',
-    againstEffect: 'At the start of the next strategy phase, each player that voted "Against" exhausts all of their cultural planets.',
   },
   'Research Team: Biotic': {
     type: 'law', elect: 'industrial-planet', expansion: 'base', removedInPok: true,
