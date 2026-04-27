@@ -517,6 +517,65 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       return { ...state, techEvents: [...state.techEvents, techEvent] };
     }
 
+    case 'ASSIGN_STRATEGY_CARD': {
+      const assignedRaw = entry.event['assignedTo'];
+      const idRaw = entry.event['id'];
+      if (typeof assignedRaw !== 'string' || typeof idRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `ASSIGN_STRATEGY_CARD missing fields at ${entry.timestamp}`] };
+      }
+      const ev: StrategyCardEvent = {
+        faction: assignedRaw,
+        card: idRaw,
+        timestamp: entry.timestamp,
+        type: 'pick',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, strategyCardEvents: [...state.strategyCardEvents, ev] };
+    }
+
+    case 'MARK_PRIMARY': {
+      const factionRaw = entry.event['faction'];
+      const stateRaw = entry.event['state'];
+      if (typeof factionRaw !== 'string' || typeof stateRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `MARK_PRIMARY missing fields at ${entry.timestamp}`] };
+      }
+      if (stateRaw !== 'DONE') {
+        return state; // SKIPPED or other → no-op
+      }
+      const ev: StrategyCardEvent = {
+        faction: factionRaw,
+        card: '',
+        timestamp: entry.timestamp,
+        type: 'play_primary',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, strategyCardEvents: [...state.strategyCardEvents, ev] };
+    }
+
+    case 'MARK_SECONDARY': {
+      const factionRaw = entry.event['faction'];
+      const stateRaw = entry.event['state'];
+      if (typeof factionRaw !== 'string' || typeof stateRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `MARK_SECONDARY missing fields at ${entry.timestamp}`] };
+      }
+      let secondaryType: SecondaryEvent['type'];
+      if (stateRaw === 'DONE') {
+        secondaryType = 'follow';
+      } else if (stateRaw === 'SKIPPED') {
+        secondaryType = 'abstain';
+      } else {
+        return { ...state, warnings: [...state.warnings, `MARK_SECONDARY unknown state "${stateRaw}" at ${entry.timestamp}`] };
+      }
+      const ev: SecondaryEvent = {
+        faction: factionRaw,
+        strategyCard: '',
+        timestamp: entry.timestamp,
+        type: secondaryType,
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, secondaryEvents: [...state.secondaryEvents, ev] };
+    }
+
     // Cases added in Tasks 5–12
     default:
       return {

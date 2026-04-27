@@ -529,3 +529,55 @@ describe('gameReducer — tech events', () => {
     expect(result.techEvents).toHaveLength(0);
   });
 });
+
+describe('gameReducer — strategy card and secondary events', () => {
+  it('ASSIGN_STRATEGY_CARD emits StrategyCardEvent with type=pick', () => {
+    const result = reduce([
+      makeEntry('ASSIGN_STRATEGY_CARD', { assignedTo: 'barony', id: 'Warfare', pickedBy: 'barony' }, 1000),
+    ]);
+    expect(result.strategyCardEvents).toHaveLength(1);
+    expect(result.strategyCardEvents[0]).toMatchObject({ faction: 'barony', card: 'Warfare', type: 'pick' });
+  });
+
+  it('ASSIGN_STRATEGY_CARD missing fields appends warning', () => {
+    const result = reduce([makeEntry('ASSIGN_STRATEGY_CARD', {})]);
+    expect(result.warnings.some((w) => w.includes('ASSIGN_STRATEGY_CARD'))).toBe(true);
+  });
+
+  it('MARK_PRIMARY DONE emits StrategyCardEvent with type=play_primary', () => {
+    const result = reduce([
+      makeEntry('MARK_PRIMARY', { faction: 'barony', state: 'DONE' }),
+    ]);
+    expect(result.strategyCardEvents[0]?.type).toBe('play_primary');
+    expect(result.strategyCardEvents[0]?.faction).toBe('barony');
+  });
+
+  it('MARK_PRIMARY SKIPPED emits no event', () => {
+    const result = reduce([
+      makeEntry('MARK_PRIMARY', { faction: 'barony', state: 'SKIPPED' }),
+    ]);
+    expect(result.strategyCardEvents).toHaveLength(0);
+  });
+
+  it('MARK_SECONDARY DONE emits SecondaryEvent with type=follow', () => {
+    const result = reduce([
+      makeEntry('MARK_SECONDARY', { faction: 'barony', state: 'DONE' }),
+    ]);
+    expect(result.secondaryEvents[0]).toMatchObject({ faction: 'barony', type: 'follow' });
+  });
+
+  it('MARK_SECONDARY SKIPPED emits SecondaryEvent with type=abstain', () => {
+    const result = reduce([
+      makeEntry('MARK_SECONDARY', { faction: 'barony', state: 'SKIPPED' }),
+    ]);
+    expect(result.secondaryEvents[0]?.type).toBe('abstain');
+  });
+
+  it('MARK_SECONDARY with unrecognised state appends warning', () => {
+    const result = reduce([
+      makeEntry('MARK_SECONDARY', { faction: 'barony', state: 'UNKNOWN' }),
+    ]);
+    expect(result.warnings.some((w) => w.includes('MARK_SECONDARY'))).toBe(true);
+    expect(result.secondaryEvents).toHaveLength(0);
+  });
+});
