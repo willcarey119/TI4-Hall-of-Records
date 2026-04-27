@@ -1,6 +1,14 @@
-// src/App.tsx
-import { UploadPage } from './features/upload';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HomePage } from './features/home';
+import { GameDetailPage } from './features/game-detail';
 
 export default function App() {
-  return <UploadPage />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/games/:gameId" element={<GameDetailPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
