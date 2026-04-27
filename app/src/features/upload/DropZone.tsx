@@ -42,6 +42,7 @@ export function DropZone({ onFile, disabled = false }: DropZoneProps) {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
+        onDragEnd={handleDragLeave}
         disabled={disabled}
         className={[
           'w-full border-2 border-dashed px-8 py-12 text-center transition-colors',
