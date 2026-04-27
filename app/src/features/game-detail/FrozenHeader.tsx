@@ -1,7 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { Kicker, FactionChip, Rule } from '../../shared';
-import { formatKicker, formatGameTitle } from '../../shared';
+import { Kicker, FactionChip, Rule, formatKicker, formatGameTitle } from '../../shared';
 import { useGame } from './GameContext';
+
+function scrollToSection(id: string): void {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
 
 const SECTIONS = [
   { id: 'vp-race', label: 'VP Race' },
@@ -19,10 +22,6 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
   const { game } = useGame();
 
   if (game === null) return null;
-
-  function scrollTo(id: string): void {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  }
 
   return (
     <div
@@ -67,7 +66,7 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
                 key={f.factionId}
                 factionId={f.factionId}
                 color={f.color}
-                score={game.finalScores[f.factionId]}
+                score={game.finalScores[f.factionId] ?? 0}
                 winner={f.factionId === game.winner}
               />
             ))}
@@ -84,7 +83,7 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
           <button
             key={id}
             type="button"
-            onClick={() => { scrollTo(id); }}
+            onClick={() => { scrollToSection(id); }}
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: '9px',
