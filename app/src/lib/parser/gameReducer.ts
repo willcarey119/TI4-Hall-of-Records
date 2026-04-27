@@ -493,6 +493,30 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
     case 'SPEAKER_TIE_BREAK':
       return state;
 
+    case 'ADD_TECH':
+    case 'REMOVE_TECH':
+    case 'CHOOSE_STARTING_TECH':
+    case 'PURGE_TECH': {
+      const factionRaw = entry.event['faction'];
+      const techRaw = entry.event['tech'];
+      if (typeof factionRaw !== 'string' || typeof techRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `${entry.action} missing faction/tech at ${entry.timestamp}`] };
+      }
+      const techType: TechEvent['type'] =
+        entry.action === 'ADD_TECH' ? 'research'
+        : entry.action === 'REMOVE_TECH' ? 'remove'
+        : entry.action === 'CHOOSE_STARTING_TECH' ? 'starting'
+        : 'purge';
+      const techEvent: TechEvent = {
+        faction: factionRaw,
+        tech: techRaw,
+        timestamp: entry.timestamp,
+        type: techType,
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, techEvents: [...state.techEvents, techEvent] };
+    }
+
     // Cases added in Tasks 5–12
     default:
       return {

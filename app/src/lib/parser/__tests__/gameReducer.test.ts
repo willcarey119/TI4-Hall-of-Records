@@ -492,3 +492,40 @@ describe('gameReducer — PLAY_RIDER', () => {
     expect(result.warnings.some((w) => w.includes('PLAY_RIDER'))).toBe(true);
   });
 });
+
+describe('gameReducer — tech events', () => {
+  it('ADD_TECH emits a TechEvent with type=research', () => {
+    const result = reduce([
+      makeEntry('ADD_TECH', { faction: 'barony', tech: 'Neural Motivator' }, 1000),
+    ]);
+    expect(result.techEvents).toHaveLength(1);
+    expect(result.techEvents[0]).toMatchObject({ faction: 'barony', tech: 'Neural Motivator', type: 'research' });
+  });
+
+  it('REMOVE_TECH emits a TechEvent with type=remove', () => {
+    const result = reduce([
+      makeEntry('REMOVE_TECH', { faction: 'barony', tech: 'Neural Motivator' }),
+    ]);
+    expect(result.techEvents[0]?.type).toBe('remove');
+  });
+
+  it('CHOOSE_STARTING_TECH emits a TechEvent with type=starting', () => {
+    const result = reduce([
+      makeEntry('CHOOSE_STARTING_TECH', { faction: 'barony', tech: 'Sarween Tools' }),
+    ]);
+    expect(result.techEvents[0]).toMatchObject({ tech: 'Sarween Tools', type: 'starting' });
+  });
+
+  it('PURGE_TECH emits a TechEvent with type=purge', () => {
+    const result = reduce([
+      makeEntry('PURGE_TECH', { faction: 'barony', tech: 'War Sun' }),
+    ]);
+    expect(result.techEvents[0]?.type).toBe('purge');
+  });
+
+  it('appends warning when faction or tech missing', () => {
+    const result = reduce([makeEntry('ADD_TECH', {})]);
+    expect(result.warnings.some((w) => w.includes('ADD_TECH'))).toBe(true);
+    expect(result.techEvents).toHaveLength(0);
+  });
+});
