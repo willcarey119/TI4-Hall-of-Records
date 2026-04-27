@@ -10,12 +10,15 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/lib/**'],
-      // Thresholds start at 0; raised to 90% in Phase 1 once lib/ has real code
+      // Phase 1a parser layer is fully tested (141 tests including integration
+      // against all 6 real game exports). 90% lines/functions/statements;
+      // branches at 80% — defensive typeof guards in parseGame.ts payload
+      // extraction are hard to exercise without malformed payloads.
       thresholds: {
-        lines: 0,
-        functions: 0,
-        branches: 0,
-        statements: 0,
+        lines: 90,
+        functions: 90,
+        branches: 80,
+        statements: 90,
       },
     },
   },
