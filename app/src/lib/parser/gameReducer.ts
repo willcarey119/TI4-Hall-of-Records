@@ -384,6 +384,20 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       return { ...state, pendingVotes: [...state.pendingVotes, vote] };
     }
 
+    case 'PLAY_RIDER': {
+      if (state.pendingAgenda === null) {
+        return { ...state, warnings: [...state.warnings, `PLAY_RIDER with no pending agenda at ${entry.timestamp}`] };
+      }
+      const factionRaw = entry.event['faction'];
+      const riderRaw = entry.event['rider'];
+      const outcomeRaw = entry.event['outcome'];
+      if (typeof factionRaw !== 'string' || typeof riderRaw !== 'string' || typeof outcomeRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `PLAY_RIDER missing fields at ${entry.timestamp}`] };
+      }
+      const rider: AgendaRider = { faction: factionRaw, rider: riderRaw, outcome: outcomeRaw };
+      return { ...state, pendingRiders: [...state.pendingRiders, rider] };
+    }
+
     case 'HIDE_AGENDA':
       return {
         ...state,
@@ -412,6 +426,22 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       // Apply agenda-specific VP rules
       const newVpEvents: VpEvent[] = [];
       let newScores = { ...state.currentScores };
+
+      // Rider VPs: Imperial Rider grants +1 VP if its predicted outcome matches the resolved target.
+      const VP_RIDERS = new Set(['Imperial Rider']);
+      for (const r of state.pendingRiders) {
+        if (VP_RIDERS.has(r.rider) && r.outcome === outcome) {
+          newVpEvents.push({
+            faction: r.faction,
+            objective: r.rider,
+            points: 1,
+            timestamp: entry.timestamp,
+            source: 'rider',
+            ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+          });
+          newScores = { ...newScores, [r.faction]: (newScores[r.faction] ?? 0) + 1 };
+        }
+      }
 
       if (agenda === 'Seed of an Empire') {
         const scoreEntries = Object.entries(state.currentScores);

@@ -421,3 +421,74 @@ describe('gameReducer — agenda system', () => {
     expect(result.warnings).toHaveLength(0);
   });
 });
+
+describe('gameReducer — PLAY_RIDER', () => {
+  it('PLAY_RIDER buffers into pendingRiders during an agenda', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('PLAY_RIDER', { rider: 'Politics Rider', faction: 'barony', outcome: 'For' }, 1100),
+    ]);
+    expect(result.pendingRiders).toHaveLength(1);
+    expect(result.pendingRiders[0]).toEqual({ faction: 'barony', rider: 'Politics Rider', outcome: 'For' });
+  });
+
+  it('PLAY_RIDER outside an agenda window appends warning', () => {
+    const result = reduce([
+      makeEntry('PLAY_RIDER', { rider: 'Politics Rider', faction: 'barony', outcome: 'For' }),
+    ]);
+    expect(result.warnings.some((w) => w.includes('PLAY_RIDER'))).toBe(true);
+    expect(result.pendingRiders).toHaveLength(0);
+  });
+
+  it('riders are drained into AgendaResolution at RESOLVE_AGENDA', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('PLAY_RIDER', { rider: 'Politics Rider', faction: 'barony', outcome: 'For' }, 1100),
+      makeEntry('PLAY_RIDER', { rider: 'Trade Rider', faction: 'arborec', outcome: 'Against' }, 1200),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Mutiny', target: 'For' }, 1300),
+    ]);
+    expect(result.agendaResolutions[0]?.riders).toHaveLength(2);
+    expect(result.pendingRiders).toHaveLength(0);
+  });
+
+  it('Imperial Rider with matching outcome emits +1 VpEvent', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('PLAY_RIDER', { rider: 'Imperial Rider', faction: 'barony', outcome: 'For' }, 1100),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Mutiny', target: 'For' }, 1300),
+    ], [makeFaction('barony')]);
+    const riderVp = result.vpEvents.find((e) => e.source === 'rider');
+    expect(riderVp?.faction).toBe('barony');
+    expect(riderVp?.points).toBe(1);
+    expect(riderVp?.objective).toBe('Imperial Rider');
+    expect(result.currentScores['barony']).toBe(1);
+  });
+
+  it('Imperial Rider with mismatched outcome emits NO VpEvent', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('PLAY_RIDER', { rider: 'Imperial Rider', faction: 'barony', outcome: 'For' }, 1100),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Mutiny', target: 'Against' }, 1300),
+    ], [makeFaction('barony')]);
+    const riderVps = result.vpEvents.filter((e) => e.source === 'rider');
+    expect(riderVps).toHaveLength(0);
+    expect(result.currentScores['barony']).toBe(0);
+  });
+
+  it('Non-VP riders (Politics, Trade, etc.) emit no VP even when outcome matches', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('PLAY_RIDER', { rider: 'Politics Rider', faction: 'barony', outcome: 'For' }, 1100),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Mutiny', target: 'For' }, 1300),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents.filter((e) => e.source === 'rider')).toHaveLength(0);
+  });
+
+  it('PLAY_RIDER missing fields appends warning', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }),
+      makeEntry('PLAY_RIDER', {}),
+    ]);
+    expect(result.warnings.some((w) => w.includes('PLAY_RIDER'))).toBe(true);
+  });
+});
