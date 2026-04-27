@@ -167,6 +167,75 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       };
     }
 
+    case 'CLAIM_PLANET': {
+      const factionRaw = entry.event['faction'];
+      const planetRaw = entry.event['planet'];
+      if (typeof factionRaw !== 'string' || typeof planetRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `CLAIM_PLANET missing faction/planet at ${entry.timestamp}`] };
+      }
+      const faction = factionRaw;
+      const planet = planetRaw;
+      const payloadPrevOwner = entry.event['prevOwner'];
+      const prevOwner = typeof payloadPrevOwner === 'string'
+        ? payloadPrevOwner
+        : (state.currentOwners[planet] ?? null);
+      const planetEvent: PlanetEvent = {
+        faction,
+        planet,
+        prevOwner,
+        timestamp: entry.timestamp,
+        type: 'claim',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      const isCustodians = planet === 'Mecatol Rex' && !state.custodiansTaken;
+      const custVpEvent: VpEvent | null = isCustodians
+        ? {
+            faction,
+            objective: 'Custodians Token',
+            points: 1,
+            timestamp: entry.timestamp,
+            source: 'custodians',
+            ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+          }
+        : null;
+      const prevScore = state.currentScores[faction] ?? 0;
+      return {
+        ...state,
+        planetEvents: [...state.planetEvents, planetEvent],
+        vpEvents: custVpEvent ? [...state.vpEvents, custVpEvent] : state.vpEvents,
+        currentOwners: { ...state.currentOwners, [planet]: faction },
+        currentScores: isCustodians
+          ? { ...state.currentScores, [faction]: prevScore + 1 }
+          : state.currentScores,
+        custodiansTaken: state.custodiansTaken || isCustodians,
+      };
+    }
+
+    case 'UNCLAIM_PLANET': {
+      const factionRaw = entry.event['faction'];
+      const planetRaw = entry.event['planet'];
+      if (typeof factionRaw !== 'string' || typeof planetRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `UNCLAIM_PLANET missing faction/planet at ${entry.timestamp}`] };
+      }
+      const faction = factionRaw;
+      const planet = planetRaw;
+      const newOwners = { ...state.currentOwners };
+      delete newOwners[planet];
+      const planetEvent: PlanetEvent = {
+        faction,
+        planet,
+        prevOwner: state.currentOwners[planet] ?? null,
+        timestamp: entry.timestamp,
+        type: 'unclaim',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return {
+        ...state,
+        planetEvents: [...state.planetEvents, planetEvent],
+        currentOwners: newOwners,
+      };
+    }
+
     // Cases added in Tasks 5–12
     default:
       return {

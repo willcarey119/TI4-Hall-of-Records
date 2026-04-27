@@ -145,3 +145,96 @@ describe('gameReducer — UNSCORE_OBJECTIVE', () => {
     expect(result.currentScores['barony']).toBe(0);
   });
 });
+
+describe('gameReducer — CLAIM_PLANET', () => {
+  it('emits a PlanetEvent with type=claim and null prevOwner for new claim', () => {
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'barony', planet: 'Mecatol Rex' }, 1000),
+    ], [makeFaction('barony')]);
+    expect(result.planetEvents).toHaveLength(1);
+    const ev = result.planetEvents[0];
+    expect(ev?.faction).toBe('barony');
+    expect(ev?.planet).toBe('Mecatol Rex');
+    expect(ev?.type).toBe('claim');
+    expect(ev?.prevOwner).toBeNull();
+  });
+
+  it('uses prevOwner from payload when present', () => {
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'arborec', planet: 'Mecatol Rex', prevOwner: 'barony' }, 1000),
+    ]);
+    expect(result.planetEvents[0]?.prevOwner).toBe('barony');
+  });
+
+  it('falls back to currentOwners when prevOwner field absent', () => {
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'barony', planet: 'Mecatol Rex' }, 1000),
+      makeEntry('CLAIM_PLANET', { faction: 'arborec', planet: 'Mecatol Rex' }, 2000),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    expect(result.planetEvents[1]?.prevOwner).toBe('barony');
+  });
+
+  it('emits a Custodians VpEvent on first claim of Mecatol Rex', () => {
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'barony', planet: 'Mecatol Rex' }, 1000),
+    ], [makeFaction('barony')]);
+    const custVp = result.vpEvents.find((e) => e.source === 'custodians');
+    expect(custVp).toBeDefined();
+    expect(custVp?.faction).toBe('barony');
+    expect(custVp?.points).toBe(1);
+    expect(custVp?.objective).toBe('Custodians Token');
+    expect(result.custodiansTaken).toBe(true);
+    expect(result.currentScores['barony']).toBe(1);
+  });
+
+  it('does NOT emit Custodians VP on second claim of Mecatol Rex', () => {
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'barony', planet: 'Mecatol Rex' }, 1000),
+      makeEntry('CLAIM_PLANET', { faction: 'arborec', planet: 'Mecatol Rex' }, 2000),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    const custVps = result.vpEvents.filter((e) => e.source === 'custodians');
+    expect(custVps).toHaveLength(1);
+    expect(result.currentScores['barony']).toBe(1);
+    expect(result.currentScores['arborec']).toBe(0);
+  });
+
+  it('does NOT emit Custodians VP for non-Mecatol planets', () => {
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'barony', planet: 'Jord' }, 1000),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents.filter((e) => e.source === 'custodians')).toHaveLength(0);
+  });
+
+  it('updates currentOwners', () => {
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'barony', planet: 'Lazar' }),
+    ]);
+    expect(result.currentOwners['Lazar']).toBe('barony');
+  });
+
+  it('appends warning when faction or planet missing', () => {
+    const result = reduce([makeEntry('CLAIM_PLANET', {})]);
+    expect(result.warnings.some((w) => w.includes('CLAIM_PLANET'))).toBe(true);
+    expect(result.planetEvents).toHaveLength(0);
+  });
+});
+
+describe('gameReducer — UNCLAIM_PLANET', () => {
+  it('emits a PlanetEvent with type=unclaim', () => {
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'barony', planet: 'Lazar' }, 500),
+      makeEntry('UNCLAIM_PLANET', { faction: 'barony', planet: 'Lazar' }, 1000),
+    ]);
+    expect(result.planetEvents).toHaveLength(2);
+    expect(result.planetEvents[1]?.type).toBe('unclaim');
+    expect(result.planetEvents[1]?.faction).toBe('barony');
+  });
+
+  it('removes planet from currentOwners on unclaim', () => {
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'barony', planet: 'Lazar' }),
+      makeEntry('UNCLAIM_PLANET', { faction: 'barony', planet: 'Lazar' }),
+    ]);
+    expect(result.currentOwners['Lazar']).toBeUndefined();
+  });
+});
