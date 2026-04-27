@@ -391,10 +391,11 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       const factionRaw = entry.event['faction'];
       const riderRaw = entry.event['rider'];
       const outcomeRaw = entry.event['outcome'];
-      if (typeof factionRaw !== 'string' || typeof riderRaw !== 'string' || typeof outcomeRaw !== 'string') {
+      if (typeof factionRaw !== 'string' || typeof riderRaw !== 'string') {
         return { ...state, warnings: [...state.warnings, `PLAY_RIDER missing fields at ${entry.timestamp}`] };
       }
-      const rider: AgendaRider = { faction: factionRaw, rider: riderRaw, outcome: outcomeRaw };
+      const outcome = typeof outcomeRaw === 'string' ? outcomeRaw : '';
+      const rider: AgendaRider = { faction: factionRaw, rider: riderRaw, outcome };
       return { ...state, pendingRiders: [...state.pendingRiders, rider] };
     }
 
@@ -495,8 +496,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
 
     case 'ADD_TECH':
     case 'REMOVE_TECH':
-    case 'CHOOSE_STARTING_TECH':
-    case 'PURGE_TECH': {
+    case 'CHOOSE_STARTING_TECH': {
       const factionRaw = entry.event['faction'];
       const techRaw = entry.event['tech'];
       if (typeof factionRaw !== 'string' || typeof techRaw !== 'string') {
@@ -505,13 +505,28 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       const techType: TechEvent['type'] =
         entry.action === 'ADD_TECH' ? 'research'
         : entry.action === 'REMOVE_TECH' ? 'remove'
-        : entry.action === 'CHOOSE_STARTING_TECH' ? 'starting'
-        : 'purge';
+        : 'starting';
       const techEvent: TechEvent = {
         faction: factionRaw,
         tech: techRaw,
         timestamp: entry.timestamp,
         type: techType,
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, techEvents: [...state.techEvents, techEvent] };
+    }
+
+    case 'PURGE_TECH': {
+      // Real payload: { techId: string } — uses techId (not tech) and has no faction.
+      const techRaw = entry.event['techId'];
+      if (typeof techRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `PURGE_TECH missing techId at ${entry.timestamp}`] };
+      }
+      const techEvent: TechEvent = {
+        faction: state.currentTurnFaction,
+        tech: techRaw,
+        timestamp: entry.timestamp,
+        type: 'purge',
         ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
       };
       return { ...state, techEvents: [...state.techEvents, techEvent] };
@@ -534,16 +549,11 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
     }
 
     case 'MARK_PRIMARY': {
-      const factionRaw = entry.event['faction'];
-      const stateRaw = entry.event['state'];
-      if (typeof factionRaw !== 'string' || typeof stateRaw !== 'string') {
-        return { ...state, warnings: [...state.warnings, `MARK_PRIMARY missing fields at ${entry.timestamp}`] };
-      }
-      if (stateRaw !== 'DONE') {
-        return state; // SKIPPED or other → no-op
-      }
+      // Real payload: { completed: boolean }. No faction field — use currentTurnFaction.
+      const completed = entry.event['completed'];
+      if (completed !== true) return state; // false or missing → no-op
       const ev: StrategyCardEvent = {
-        faction: factionRaw,
+        faction: state.currentTurnFaction,
         card: '',
         timestamp: entry.timestamp,
         type: 'play_primary',
@@ -702,9 +712,14 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
     }
 
     case 'COMMIT_TO_EXPEDITION': {
-      const factionRaw = entry.event['factionId'];
+      // Real payload usually { expedition, factionId }, but undo entries have prevFaction instead.
+      const factionIdRaw = entry.event['factionId'];
+      const prevFactionRaw = entry.event['prevFaction'];
+      const factionRaw = typeof factionIdRaw === 'string' ? factionIdRaw
+        : typeof prevFactionRaw === 'string' ? prevFactionRaw
+        : null;
       const expRaw = entry.event['expedition'];
-      if (typeof factionRaw !== 'string' || typeof expRaw !== 'string') {
+      if (factionRaw === null || typeof expRaw !== 'string') {
         return { ...state, warnings: [...state.warnings, `COMMIT_TO_EXPEDITION missing fields at ${entry.timestamp}`] };
       }
       const ev: ExpeditionEvent = {

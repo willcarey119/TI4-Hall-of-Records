@@ -516,13 +516,6 @@ describe('gameReducer — tech events', () => {
     expect(result.techEvents[0]).toMatchObject({ tech: 'Sarween Tools', type: 'starting' });
   });
 
-  it('PURGE_TECH emits a TechEvent with type=purge', () => {
-    const result = reduce([
-      makeEntry('PURGE_TECH', { faction: 'barony', tech: 'War Sun' }),
-    ]);
-    expect(result.techEvents[0]?.type).toBe('purge');
-  });
-
   it('appends warning when faction or tech missing', () => {
     const result = reduce([makeEntry('ADD_TECH', {})]);
     expect(result.warnings.some((w) => w.includes('ADD_TECH'))).toBe(true);
@@ -542,21 +535,6 @@ describe('gameReducer — strategy card and secondary events', () => {
   it('ASSIGN_STRATEGY_CARD missing fields appends warning', () => {
     const result = reduce([makeEntry('ASSIGN_STRATEGY_CARD', {})]);
     expect(result.warnings.some((w) => w.includes('ASSIGN_STRATEGY_CARD'))).toBe(true);
-  });
-
-  it('MARK_PRIMARY DONE emits StrategyCardEvent with type=play_primary', () => {
-    const result = reduce([
-      makeEntry('MARK_PRIMARY', { faction: 'barony', state: 'DONE' }),
-    ]);
-    expect(result.strategyCardEvents[0]?.type).toBe('play_primary');
-    expect(result.strategyCardEvents[0]?.faction).toBe('barony');
-  });
-
-  it('MARK_PRIMARY SKIPPED emits no event', () => {
-    const result = reduce([
-      makeEntry('MARK_PRIMARY', { faction: 'barony', state: 'SKIPPED' }),
-    ]);
-    expect(result.strategyCardEvents).toHaveLength(0);
   });
 
   it('MARK_SECONDARY DONE emits SecondaryEvent with type=follow', () => {
@@ -695,13 +673,6 @@ describe('gameReducer — Task 12 remaining events', () => {
     expect(result.allianceEvents[0]).toMatchObject({ faction1: 'barony', faction2: 'arborec', type: 'form' });
   });
 
-  it('COMMIT_TO_EXPEDITION emits an ExpeditionEvent with expedition stored as planet', () => {
-    const result = reduce([
-      makeEntry('COMMIT_TO_EXPEDITION', { factionId: 'barony', expedition: 'influence' }),
-    ]);
-    expect(result.expeditionEvents[0]).toMatchObject({ faction: 'barony', planet: 'influence' });
-  });
-
   it('PLAY_PROMISSORY_NOTE attributes from currentTurnFaction', () => {
     const result = reduce([
       makeEntry('END_TURN', { prevFaction: 'barony' }, 1000),
@@ -754,5 +725,75 @@ describe('gameReducer — Task 12 remaining events', () => {
     ]);
     expect(result.actionEvents.length).toBe(3);
     expect(result.actionEvents[0]).toMatchObject({ faction: 'barony', action: 'REPEAL_AGENDA' });
+  });
+});
+
+describe('gameReducer — Task 12.5 edge case fixes', () => {
+  it('MARK_PRIMARY with completed=true emits StrategyCardEvent using currentTurnFaction', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'barony' }, 1000),
+      makeEntry('MARK_PRIMARY', { completed: true }, 1100),
+    ]);
+    expect(result.strategyCardEvents).toHaveLength(1);
+    expect(result.strategyCardEvents[0]).toMatchObject({ faction: 'barony', card: '', type: 'play_primary' });
+    expect(result.warnings).toHaveLength(0);
+  });
+
+  it('MARK_PRIMARY with completed=false is a no-op', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'barony' }),
+      makeEntry('MARK_PRIMARY', { completed: false }),
+    ]);
+    expect(result.strategyCardEvents).toHaveLength(0);
+    expect(result.warnings).toHaveLength(0);
+  });
+
+  it('MARK_PRIMARY with no currentTurnFaction still emits with empty faction', () => {
+    const result = reduce([
+      makeEntry('MARK_PRIMARY', { completed: true }),
+    ]);
+    expect(result.strategyCardEvents[0]?.faction).toBe('');
+  });
+
+  it('PLAY_RIDER without outcome emits with empty outcome string', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('PLAY_RIDER', { rider: 'Leadership Rider', faction: 'barony' }, 1100),
+    ]);
+    expect(result.pendingRiders).toHaveLength(1);
+    expect(result.pendingRiders[0]).toEqual({ faction: 'barony', rider: 'Leadership Rider', outcome: '' });
+    expect(result.warnings).toHaveLength(0);
+  });
+
+  it('PURGE_TECH with techId field and no faction uses currentTurnFaction', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'barony' }, 1000),
+      makeEntry('PURGE_TECH', { techId: 'LightWave Deflector' }, 1100),
+    ]);
+    expect(result.techEvents).toHaveLength(1);
+    expect(result.techEvents[0]).toMatchObject({ faction: 'barony', tech: 'LightWave Deflector', type: 'purge' });
+    expect(result.warnings).toHaveLength(0);
+  });
+
+  it('PURGE_TECH missing techId appends warning', () => {
+    const result = reduce([makeEntry('PURGE_TECH', {})]);
+    expect(result.warnings.some((w) => w.includes('PURGE_TECH'))).toBe(true);
+    expect(result.techEvents).toHaveLength(0);
+  });
+
+  it('COMMIT_TO_EXPEDITION accepts prevFaction as fallback for factionId', () => {
+    const result = reduce([
+      makeEntry('COMMIT_TO_EXPEDITION', { expedition: 'tradeGoods', prevFaction: 'barony' }),
+    ]);
+    expect(result.expeditionEvents).toHaveLength(1);
+    expect(result.expeditionEvents[0]).toMatchObject({ faction: 'barony', planet: 'tradeGoods' });
+    expect(result.warnings).toHaveLength(0);
+  });
+
+  it('COMMIT_TO_EXPEDITION still works with factionId field (backward compat)', () => {
+    const result = reduce([
+      makeEntry('COMMIT_TO_EXPEDITION', { expedition: 'influence', factionId: 'arborec' }),
+    ]);
+    expect(result.expeditionEvents[0]?.faction).toBe('arborec');
   });
 });
