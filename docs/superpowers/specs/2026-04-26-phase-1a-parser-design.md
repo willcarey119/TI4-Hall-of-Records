@@ -174,6 +174,7 @@ type VpSource =
   | 'relic'
   | 'agenda'
   | 'rider'
+  | 'legendary_planet'   // Discordant Stars legendary planet VP (e.g. Styx)
   | 'manual';
 
 interface PlanetEvent {
@@ -324,7 +325,7 @@ interface ActionEvent {
 Static lookup table keyed on objective name string (exact match, case-sensitive, matching real export strings).
 
 ```ts
-type ObjectiveStage = 'I' | 'II' | 'secret' | 'support' | 'imperial' | 'agenda' | 'relic' | 'other';
+type ObjectiveStage = 'I' | 'II' | 'secret' | 'support' | 'imperial' | 'agenda' | 'relic' | 'legendary' | 'other';
 
 interface ObjectiveDefinition {
   stage: ObjectiveStage;
@@ -344,6 +345,7 @@ Returns `null` for unknown objectives and appends a warning. The dictionary must
 - Relic-based objectives (Shard, Crown of Emphidia)
 - Agenda objectives (Seed of an Empire, Classified Document Leaks, Political Censure, etc.)
 - Discordant Stars / Thunder's Edge objectives if they appear in the real data (determined by discover-data script)
+- **Legendary planet VPs (Discordant Stars):** Styx (1 VP while controlled) and any other Discordant Stars legendary planets that grant VP. These are added proactively because they will not appear in the current six game exports. The action type in TI Assistant exports is expected to be `SCORE_OBJECTIVE` with the planet name as the objective string — confirm against live data when a game with Styx is uploaded. Until confirmed, the dictionary entry exists but the action handler notes the uncertainty.
 
 **Source data:** Run `scripts/discover-data.ts` over all six game JSONs to extract every unique `event.objective` string, then cross-reference against the official TI4 + PoK + Codex objective lists.
 
@@ -434,6 +436,7 @@ All VP sources must be covered. Each has a corresponding `VpSource` tag on the e
 | Agenda VPs | `RESOLVE_AGENDA` for Mutiny, Seed of an Empire, Classified Document Leaks, Political Censure, Crown of Thalnos, etc. | Seed of an Empire requires `currentScores` |
 | Imperial Rider | `PLAY_RIDER` with outcome matching Mecatol Rex controller | Requires `currentOwners` |
 | Other riders | `PLAY_RIDER` | Non-VP riders emitted as `AgendaRider`, not `VpEvent` |
+| Legendary planet VPs (DS) | `SCORE_OBJECTIVE` with planet name (expected) | Styx = 1 VP while controlled. Action type unconfirmed — no current game exports contain Styx. Dictionary entry added proactively; handler emits a `VpEvent` with `source: 'legendary_planet'` and logs a warning if action format differs. |
 
 `UNSCORE_OBJECTIVE` emits a `VpEvent` with negative `points`. All VP reversal logic is handled in the reducer by emitting negated events rather than mutating prior events — this preserves the full VP timeline for the replay chart.
 
@@ -468,3 +471,4 @@ All VP sources must be covered. Each has a corresponding `VpSource` tag on the e
 | Riders appear as VP or agenda sub-events? | Non-VP riders go into `AgendaRider[]` inside `AgendaResolution`; VP-granting riders emit a `VpEvent` |
 | `gameTime` always present? | No — optional. Some entries omit it. `timestamp` is always present and is used as the sort key. |
 | `speaker` field in raw export | `speaker: mapPosition` (integer index). Resolved to faction ID via `factions` array at parse time. |
+| Styx / legendary planet VPs | Styx (Discordant Stars) grants 1 VP while controlled. Added proactively to dictionary (`stage: 'legendary'`, 1 VP). Expected action is `SCORE_OBJECTIVE` with objective `"Styx"` — to be confirmed against live data. Other DS legendary-planet VP sources should be audited when those games are available. |
