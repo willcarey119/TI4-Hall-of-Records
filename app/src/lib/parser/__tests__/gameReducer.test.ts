@@ -238,3 +238,92 @@ describe('gameReducer — UNCLAIM_PLANET', () => {
     expect(result.currentOwners['Lazar']).toBeUndefined();
   });
 });
+
+describe('gameReducer — GAIN_RELIC / PLAY_RELIC / LOSE_RELIC', () => {
+  it('GAIN_RELIC emits a RelicEvent and tracks ownership', () => {
+    const result = reduce([
+      makeEntry('GAIN_RELIC', { faction: 'barony', relic: 'Stellar Converter' }, 1000),
+    ], [makeFaction('barony')]);
+    expect(result.relicEvents).toHaveLength(1);
+    expect(result.relicEvents[0]?.type).toBe('gain');
+    expect(result.relicEvents[0]?.faction).toBe('barony');
+    expect(result.relicEvents[0]?.relic).toBe('Stellar Converter');
+    expect(result.currentRelics['Stellar Converter']).toBe('barony');
+  });
+
+  it('GAIN_RELIC on "Shard of the Throne" emits +1 VpEvent (source=relic)', () => {
+    const result = reduce([
+      makeEntry('GAIN_RELIC', { faction: 'barony', relic: 'Shard of the Throne' }),
+    ], [makeFaction('barony')]);
+    const vp = result.vpEvents.find((e) => e.source === 'relic');
+    expect(vp?.faction).toBe('barony');
+    expect(vp?.points).toBe(1);
+    expect(vp?.objective).toBe('Shard of the Throne');
+    expect(result.currentScores['barony']).toBe(1);
+  });
+
+  it('GAIN_RELIC on non-VP relic does not emit VpEvent', () => {
+    const result = reduce([
+      makeEntry('GAIN_RELIC', { faction: 'barony', relic: 'Maw of Worlds' }),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents).toHaveLength(0);
+    expect(result.currentScores['barony']).toBe(0);
+  });
+
+  it('PLAY_RELIC emits a RelicEvent with faction derived from currentRelics', () => {
+    const result = reduce([
+      makeEntry('GAIN_RELIC', { faction: 'barony', relic: 'Maw of Worlds' }, 500),
+      makeEntry('PLAY_RELIC', { relic: 'Maw of Worlds', tech: 'Assault Cannon' }, 1000),
+    ], [makeFaction('barony')]);
+    const playEv = result.relicEvents.find((e) => e.type === 'play');
+    expect(playEv?.faction).toBe('barony');
+    expect(playEv?.relic).toBe('Maw of Worlds');
+  });
+
+  it('PLAY_RELIC on "Crown of Emphidia" emits +1 VpEvent', () => {
+    const result = reduce([
+      makeEntry('GAIN_RELIC', { faction: 'barony', relic: 'Crown of Emphidia' }, 500),
+      makeEntry('PLAY_RELIC', { relic: 'Crown of Emphidia' }, 1000),
+    ], [makeFaction('barony')]);
+    const vp = result.vpEvents.find((e) => e.source === 'relic' && e.points === 1 && e.objective === 'Crown of Emphidia');
+    expect(vp?.faction).toBe('barony');
+    expect(result.currentScores['barony']).toBe(1);
+  });
+
+  it('PLAY_RELIC on "The Crown of Emphidia" (with article) also emits +1 VpEvent', () => {
+    const result = reduce([
+      makeEntry('GAIN_RELIC', { faction: 'barony', relic: 'The Crown of Emphidia' }, 500),
+      makeEntry('PLAY_RELIC', { relic: 'The Crown of Emphidia' }, 1000),
+    ], [makeFaction('barony')]);
+    const vp = result.vpEvents.find((e) => e.source === 'relic' && e.points === 1);
+    expect(vp?.faction).toBe('barony');
+  });
+
+  it('PLAY_RELIC with no known owner appends a warning', () => {
+    const result = reduce([
+      makeEntry('PLAY_RELIC', { relic: 'Maw of Worlds' }),
+    ]);
+    expect(result.warnings.some((w) => w.includes('PLAY_RELIC') && w.includes('owner'))).toBe(true);
+    expect(result.relicEvents).toHaveLength(0);
+  });
+
+  it('LOSE_RELIC emits a RelicEvent with type=lose', () => {
+    const result = reduce([
+      makeEntry('GAIN_RELIC', { faction: 'barony', relic: 'Shard of the Throne' }, 500),
+      makeEntry('LOSE_RELIC', { faction: 'barony', relic: 'Shard of the Throne' }, 1000),
+    ], [makeFaction('barony')]);
+    const loseEv = result.relicEvents.find((e) => e.type === 'lose');
+    expect(loseEv).toBeDefined();
+    expect(result.currentRelics['Shard of the Throne']).toBeUndefined();
+  });
+
+  it('LOSE_RELIC on "Shard of the Throne" emits -1 VpEvent', () => {
+    const result = reduce([
+      makeEntry('GAIN_RELIC', { faction: 'barony', relic: 'Shard of the Throne' }, 500),
+      makeEntry('LOSE_RELIC', { faction: 'barony', relic: 'Shard of the Throne' }, 1000),
+    ], [makeFaction('barony')]);
+    expect(result.currentScores['barony']).toBe(0); // +1 then -1
+    const lossVp = result.vpEvents.find((e) => e.source === 'relic' && e.points === -1);
+    expect(lossVp?.faction).toBe('barony');
+  });
+});

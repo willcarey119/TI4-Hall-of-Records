@@ -236,6 +236,127 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       };
     }
 
+    case 'GAIN_RELIC': {
+      const factionRaw = entry.event['faction'];
+      const relicRaw = entry.event['relic'];
+      if (typeof factionRaw !== 'string' || typeof relicRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `GAIN_RELIC missing faction/relic at ${entry.timestamp}`] };
+      }
+      const faction = factionRaw;
+      const relic = relicRaw;
+      const relicEvent: RelicEvent = {
+        faction,
+        relic,
+        timestamp: entry.timestamp,
+        type: 'gain',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      const VP_ON_GAIN = new Set(['Shard of the Throne']);
+      const grantsVp = VP_ON_GAIN.has(relic);
+      const prevScore = state.currentScores[faction] ?? 0;
+      const vpEvent: VpEvent | null = grantsVp
+        ? {
+            faction,
+            objective: relic,
+            points: 1,
+            timestamp: entry.timestamp,
+            source: 'relic',
+            ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+          }
+        : null;
+      return {
+        ...state,
+        relicEvents: [...state.relicEvents, relicEvent],
+        vpEvents: vpEvent ? [...state.vpEvents, vpEvent] : state.vpEvents,
+        currentRelics: { ...state.currentRelics, [relic]: faction },
+        currentScores: grantsVp
+          ? { ...state.currentScores, [faction]: prevScore + 1 }
+          : state.currentScores,
+      };
+    }
+
+    case 'PLAY_RELIC': {
+      const relicRaw = entry.event['relic'];
+      if (typeof relicRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `PLAY_RELIC missing relic at ${entry.timestamp}`] };
+      }
+      const relic = relicRaw;
+      const owner = state.currentRelics[relic];
+      if (owner === undefined) {
+        return { ...state, warnings: [...state.warnings, `PLAY_RELIC for "${relic}" has no known owner at ${entry.timestamp}`] };
+      }
+      const faction = owner;
+      const relicEvent: RelicEvent = {
+        faction,
+        relic,
+        timestamp: entry.timestamp,
+        type: 'play',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      const VP_ON_PLAY = new Set(['Crown of Emphidia', 'The Crown of Emphidia']);
+      const grantsVp = VP_ON_PLAY.has(relic);
+      const prevScore = state.currentScores[faction] ?? 0;
+      const vpEvent: VpEvent | null = grantsVp
+        ? {
+            faction,
+            objective: relic,
+            points: 1,
+            timestamp: entry.timestamp,
+            source: 'relic',
+            ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+          }
+        : null;
+      return {
+        ...state,
+        relicEvents: [...state.relicEvents, relicEvent],
+        vpEvents: vpEvent ? [...state.vpEvents, vpEvent] : state.vpEvents,
+        currentScores: grantsVp
+          ? { ...state.currentScores, [faction]: prevScore + 1 }
+          : state.currentScores,
+      };
+    }
+
+    case 'LOSE_RELIC': {
+      const factionRaw = entry.event['faction'];
+      const relicRaw = entry.event['relic'];
+      if (typeof factionRaw !== 'string' || typeof relicRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `LOSE_RELIC missing faction/relic at ${entry.timestamp}`] };
+      }
+      const faction = factionRaw;
+      const relic = relicRaw;
+      const relicEvent: RelicEvent = {
+        faction,
+        relic,
+        timestamp: entry.timestamp,
+        type: 'lose',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      const VP_ON_LOSE = new Set(['Shard of the Throne']);
+      const losesVp = VP_ON_LOSE.has(relic);
+      const prevScore = state.currentScores[faction] ?? 0;
+      const vpEvent: VpEvent | null = losesVp
+        ? {
+            faction,
+            objective: relic,
+            points: -1,
+            timestamp: entry.timestamp,
+            source: 'relic',
+            ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+          }
+        : null;
+      const newRelics = { ...state.currentRelics };
+      delete newRelics[relic];
+      return {
+        ...state,
+        relicEvents: [...state.relicEvents, relicEvent],
+        vpEvents: vpEvent ? [...state.vpEvents, vpEvent] : state.vpEvents,
+        currentRelics: newRelics,
+        currentScores: losesVp
+          ? { ...state.currentScores, [faction]: prevScore - 1 }
+          : state.currentScores,
+      };
+    }
+
     // Cases added in Tasks 5–12
     default:
       return {
