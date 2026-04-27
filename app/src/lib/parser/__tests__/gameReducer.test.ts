@@ -641,3 +641,118 @@ describe('gameReducer — action cards and components', () => {
     expect(result.warnings).toHaveLength(0);
   });
 });
+
+describe('gameReducer — Task 12 remaining events', () => {
+  it('SET_SPEAKER emits SpeakerEvent and updates currentSpeaker', () => {
+    const result = reduce([
+      makeEntry('SET_SPEAKER', { newSpeaker: 'arborec', prevSpeaker: 'barony' }),
+    ]);
+    expect(result.speakerEvents[0]).toMatchObject({ newSpeaker: 'arborec', prevSpeaker: 'barony' });
+    expect(result.currentSpeaker).toBe('arborec');
+  });
+
+  it('UPDATE_LEADER_STATE locked->readied maps to type=unlock', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'barony' }, 1000),
+      makeEntry('UPDATE_LEADER_STATE', { leaderId: 'Vera Khage', state: 'readied', prevState: 'locked' }, 1100),
+    ]);
+    expect(result.leaderEvents[0]).toMatchObject({ leader: 'Vera Khage', type: 'unlock', faction: 'barony' });
+  });
+
+  it('UPDATE_LEADER_STATE state=exhausted maps to type=exhaust', () => {
+    const result = reduce([
+      makeEntry('UPDATE_LEADER_STATE', { leaderId: 'Magmus', state: 'exhausted', prevState: 'readied' }),
+    ]);
+    expect(result.leaderEvents[0]?.type).toBe('exhaust');
+  });
+
+  it('UPDATE_LEADER_STATE state=purged maps to type=purge', () => {
+    const result = reduce([
+      makeEntry('UPDATE_LEADER_STATE', { leaderId: 'X', state: 'purged', prevState: 'readied' }),
+    ]);
+    expect(result.leaderEvents[0]?.type).toBe('purge');
+  });
+
+  it('ADD_ATTACHMENT derives faction from currentOwners', () => {
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'barony', planet: 'Lazar' }, 500),
+      makeEntry('ADD_ATTACHMENT', { attachment: 'Paradise World', planet: 'Lazar' }, 1000),
+    ]);
+    expect(result.attachmentEvents[0]).toMatchObject({ faction: 'barony', planet: 'Lazar', attachment: 'Paradise World', type: 'attach' });
+  });
+
+  it('ADD_ATTACHMENT with no known owner emits faction=null', () => {
+    const result = reduce([
+      makeEntry('ADD_ATTACHMENT', { attachment: 'X', planet: 'UnknownPlanet' }),
+    ]);
+    expect(result.attachmentEvents[0]?.faction).toBeNull();
+  });
+
+  it('GAIN_ALLIANCE emits an AllianceEvent', () => {
+    const result = reduce([
+      makeEntry('GAIN_ALLIANCE', { faction: 'barony', fromFaction: 'arborec' }),
+    ]);
+    expect(result.allianceEvents[0]).toMatchObject({ faction1: 'barony', faction2: 'arborec', type: 'form' });
+  });
+
+  it('COMMIT_TO_EXPEDITION emits an ExpeditionEvent with expedition stored as planet', () => {
+    const result = reduce([
+      makeEntry('COMMIT_TO_EXPEDITION', { factionId: 'barony', expedition: 'influence' }),
+    ]);
+    expect(result.expeditionEvents[0]).toMatchObject({ faction: 'barony', planet: 'influence' });
+  });
+
+  it('PLAY_PROMISSORY_NOTE attributes from currentTurnFaction', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'barony' }, 1000),
+      makeEntry('PLAY_PROMISSORY_NOTE', { card: 'Trade Agreement', target: 'arborec' }, 1100),
+    ]);
+    expect(result.promissoryNoteEvents[0]).toMatchObject({
+      fromFaction: 'barony',
+      toFaction: 'arborec',
+      note: 'Trade Agreement',
+      type: 'play',
+    });
+  });
+
+  it('REVEAL_OBJECTIVE emits ObjectiveReveal for known Stage I objective', () => {
+    const result = reduce([
+      makeEntry('REVEAL_OBJECTIVE', { objective: 'Lead from the Front' }, 1000),
+    ]);
+    expect(result.objectiveReveals[0]).toMatchObject({ objective: 'Lead from the Front', stage: 'I' });
+    expect(result.revealedObjectives).toContain('Lead from the Front');
+  });
+
+  it('REVEAL_OBJECTIVE emits ObjectiveReveal for known Stage II objective', () => {
+    const result = reduce([
+      makeEntry('REVEAL_OBJECTIVE', { objective: 'Construct Massive Cities' }, 1000),
+    ]);
+    expect(result.objectiveReveals[0]?.stage).toBe('II');
+  });
+
+  it('REVEAL_OBJECTIVE for unknown objective appends warning', () => {
+    const result = reduce([
+      makeEntry('REVEAL_OBJECTIVE', { objective: 'BogusObjectiveXYZ' }),
+    ]);
+    expect(result.warnings.some((w) => w.includes('REVEAL_OBJECTIVE') || w.includes('BogusObjectiveXYZ'))).toBe(true);
+  });
+
+  it('ADVANCE_PHASE pushes a RoundState and rotates phase', () => {
+    const result = reduce([
+      makeEntry('ADVANCE_PHASE', { skipAgenda: false }, 1000),
+      makeEntry('ADVANCE_PHASE', { skipAgenda: false }, 2000),
+    ]);
+    expect(result.rounds.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('catch-all events emit ActionEvent with currentTurnFaction', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'barony' }, 1000),
+      makeEntry('REPEAL_AGENDA', { agenda: 'X' }, 1100),
+      makeEntry('UNPASS', { faction: 'barony' }, 1200),
+      makeEntry('END_GAME', {}, 1300),
+    ]);
+    expect(result.actionEvents.length).toBe(3);
+    expect(result.actionEvents[0]).toMatchObject({ faction: 'barony', action: 'REPEAL_AGENDA' });
+  });
+});

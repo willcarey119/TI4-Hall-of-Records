@@ -625,6 +625,195 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       };
     }
 
+    case 'SET_SPEAKER': {
+      const newSpeakerRaw = entry.event['newSpeaker'];
+      const prevSpeakerRaw = entry.event['prevSpeaker'];
+      if (typeof newSpeakerRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `SET_SPEAKER missing newSpeaker at ${entry.timestamp}`] };
+      }
+      const ev: SpeakerEvent = {
+        newSpeaker: newSpeakerRaw,
+        prevSpeaker: typeof prevSpeakerRaw === 'string' ? prevSpeakerRaw : '',
+        timestamp: entry.timestamp,
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return {
+        ...state,
+        speakerEvents: [...state.speakerEvents, ev],
+        currentSpeaker: newSpeakerRaw,
+      };
+    }
+
+    case 'UPDATE_LEADER_STATE': {
+      const leaderRaw = entry.event['leaderId'];
+      const stateRaw = entry.event['state'];
+      const prevStateRaw = entry.event['prevState'];
+      if (typeof leaderRaw !== 'string' || typeof stateRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `UPDATE_LEADER_STATE missing fields at ${entry.timestamp}`] };
+      }
+      let leaderType: LeaderEvent['type'];
+      if (prevStateRaw === 'locked') leaderType = 'unlock';
+      else if (stateRaw === 'exhausted') leaderType = 'exhaust';
+      else if (stateRaw === 'purged') leaderType = 'purge';
+      else leaderType = 'state_change';
+      const ev: LeaderEvent = {
+        faction: state.currentTurnFaction,
+        leader: leaderRaw,
+        timestamp: entry.timestamp,
+        type: leaderType,
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, leaderEvents: [...state.leaderEvents, ev] };
+    }
+
+    case 'ADD_ATTACHMENT': {
+      const attachmentRaw = entry.event['attachment'];
+      const planetRaw = entry.event['planet'];
+      if (typeof attachmentRaw !== 'string' || typeof planetRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `ADD_ATTACHMENT missing fields at ${entry.timestamp}`] };
+      }
+      const planet = planetRaw;
+      const ownerOrNull: string | null = state.currentOwners[planet] ?? null;
+      const ev: AttachmentEvent = {
+        faction: ownerOrNull,
+        planet,
+        attachment: attachmentRaw,
+        timestamp: entry.timestamp,
+        type: 'attach',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, attachmentEvents: [...state.attachmentEvents, ev] };
+    }
+
+    case 'GAIN_ALLIANCE': {
+      const factionRaw = entry.event['faction'];
+      const fromRaw = entry.event['fromFaction'];
+      if (typeof factionRaw !== 'string' || typeof fromRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `GAIN_ALLIANCE missing fields at ${entry.timestamp}`] };
+      }
+      const ev: AllianceEvent = {
+        faction1: factionRaw,
+        faction2: fromRaw,
+        timestamp: entry.timestamp,
+        type: 'form',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, allianceEvents: [...state.allianceEvents, ev] };
+    }
+
+    case 'COMMIT_TO_EXPEDITION': {
+      const factionRaw = entry.event['factionId'];
+      const expRaw = entry.event['expedition'];
+      if (typeof factionRaw !== 'string' || typeof expRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `COMMIT_TO_EXPEDITION missing fields at ${entry.timestamp}`] };
+      }
+      const ev: ExpeditionEvent = {
+        faction: factionRaw,
+        planet: expRaw,
+        timestamp: entry.timestamp,
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, expeditionEvents: [...state.expeditionEvents, ev] };
+    }
+
+    case 'PLAY_PROMISSORY_NOTE': {
+      const cardRaw = entry.event['card'];
+      const targetRaw = entry.event['target'];
+      if (typeof cardRaw !== 'string' || typeof targetRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `PLAY_PROMISSORY_NOTE missing fields at ${entry.timestamp}`] };
+      }
+      const fromFaction = state.currentTurnFaction;
+      const warnings = fromFaction === ''
+        ? [...state.warnings, `PLAY_PROMISSORY_NOTE with no known turn faction at ${entry.timestamp}`]
+        : state.warnings;
+      const ev: PromissoryNoteEvent = {
+        fromFaction,
+        toFaction: targetRaw,
+        note: cardRaw,
+        timestamp: entry.timestamp,
+        type: 'play',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, promissoryNoteEvents: [...state.promissoryNoteEvents, ev], warnings };
+    }
+
+    case 'REVEAL_OBJECTIVE': {
+      const objRaw = entry.event['objective'];
+      if (typeof objRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `REVEAL_OBJECTIVE missing objective at ${entry.timestamp}`] };
+      }
+      const objective = objRaw;
+      const def = getObjectivePoints(objective);
+      const newRevealed = [...state.revealedObjectives, objective];
+      if (def === null) {
+        return {
+          ...state,
+          revealedObjectives: newRevealed,
+          warnings: [...state.warnings, `REVEAL_OBJECTIVE for unknown objective "${objective}" at ${entry.timestamp}`],
+        };
+      }
+      if (def.stage !== 'I' && def.stage !== 'II') {
+        return {
+          ...state,
+          revealedObjectives: newRevealed,
+          warnings: [...state.warnings, `REVEAL_OBJECTIVE for non-public objective "${objective}" (stage=${def.stage}) at ${entry.timestamp}`],
+        };
+      }
+      const reveal: ObjectiveReveal = {
+        objective,
+        stage: def.stage,
+        round: state.currentRound,
+        timestamp: entry.timestamp,
+      };
+      return {
+        ...state,
+        objectiveReveals: [...state.objectiveReveals, reveal],
+        revealedObjectives: newRevealed,
+      };
+    }
+
+    case 'ADVANCE_PHASE': {
+      const skipAgendaRaw = entry.event['skipAgenda'];
+      const skipAgenda = skipAgendaRaw === true;
+      const PHASE_ORDER = ['strategy', 'action', 'status', 'agenda'] as const;
+      const currentIdx = PHASE_ORDER.indexOf(state.currentPhase as typeof PHASE_ORDER[number]);
+      let nextIdx = currentIdx === -1 ? 0 : (currentIdx + 1);
+      if (skipAgenda && PHASE_ORDER[nextIdx] === 'agenda') nextIdx += 1;
+      const wrapped = nextIdx >= PHASE_ORDER.length;
+      const nextPhase = wrapped ? 'strategy' : (PHASE_ORDER[nextIdx] ?? 'strategy');
+      const nextRound = wrapped ? state.currentRound + 1 : state.currentRound;
+      const roundState: RoundState = {
+        round: state.currentRound,
+        phase: state.currentPhase,
+        speaker: state.currentSpeaker,
+        strategyCards: {},
+      };
+      return {
+        ...state,
+        rounds: [...state.rounds, roundState],
+        currentPhase: nextPhase,
+        currentRound: nextRound,
+      };
+    }
+
+    case 'REPEAL_AGENDA':
+    case 'UNPASS':
+    case 'SWAP_MAP_TILES':
+    case 'SWAP_STRATEGY_CARDS':
+    case 'CHOOSE_SUB_FACTION':
+    case 'SELECT_SUB_AGENDA':
+    case 'SELECT_SUB_COMPONENT':
+    case 'PLAY_ADJUDICATOR_BAAL':
+    case 'END_GAME': {
+      const ev: ActionEvent = {
+        faction: state.currentTurnFaction,
+        action: entry.action,
+        timestamp: entry.timestamp,
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, actionEvents: [...state.actionEvents, ev] };
+    }
+
     // Cases added in Tasks 5–12
     default:
       return {
