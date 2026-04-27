@@ -66,6 +66,25 @@ describe('UploadPage', () => {
     expect(screen.getByText(/drop.*json/i)).toBeInTheDocument();
   });
 
+  it('does NOT render a Hall of Records heading', () => {
+    render(<UploadPage />);
+    expect(screen.queryByText(/Hall of Records/i)).not.toBeInTheDocument();
+  });
+
+  it('calls onSaved after a successful upload and save', async () => {
+    const onSaved = vi.fn();
+    render(<UploadPage onSaved={onSaved} />);
+
+    const file = new File(['{}'], 'game.json', { type: 'application/json' });
+    await userEvent.upload(screen.getByTestId('file-input'), file);
+
+    const saveBtn = await screen.findByRole('button', { name: /Save to Records/i });
+    await userEvent.click(saveBtn);
+
+    await screen.findByText(/Saved to the Archive/i);
+    expect(onSaved).toHaveBeenCalledTimes(1);
+  });
+
   it('shows the game preview after a valid JSON file is uploaded', async () => {
     render(<UploadPage />);
     const file = new File(['{}'], 'game.json', { type: 'application/json' });
