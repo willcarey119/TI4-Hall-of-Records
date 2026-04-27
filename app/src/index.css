@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Newspaper / Almanac design tokens ────────────────────────────────────── */
+/* Source: design_handoff_ti4_tracker/wireframes.css                           */
+:root {
+  --paper:   oklch(0.97 0.012 80);   /* warm newsprint background */
+  --paper-2: oklch(0.94 0.014 80);   /* slightly darker fill */
+  --rule:    oklch(0.18 0.01 60);    /* rule lines */
+  --ink:     oklch(0.18 0.01 60);    /* primary text */
+  --ink-2:   oklch(0.34 0.01 60);    /* secondary text */
+  --ink-3:   oklch(0.52 0.01 60);    /* tertiary / captions */
+  --ink-4:   oklch(0.72 0.01 60);    /* dividers, disabled */
+  --accent:  oklch(0.45 0.12 25);    /* faded vermillion — "stop press" */
+  --cool:    oklch(0.45 0.08 240);   /* faded ink-blue — secondary accent */
+  --gold:    oklch(0.62 0.10 75);    /* tech color: yellow */
+  --moss:    oklch(0.45 0.06 145);   /* tech color: green */
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+}
