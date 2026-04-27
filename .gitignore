@@ -12,12 +12,24 @@ coverage/
 .env
 .env.local
 .env.*.local
+.env.*
 
 # Editor artifacts
 .DS_Store
 Thumbs.db
 *.swp
 *.swo
+
+# IDE / editor configs
+.vscode/
+.idea/
+*.sublime-workspace
+*.code-workspace
+
+# Logs and TypeScript build cache
+npm-debug.log*
+yarn-error.log*
+*.tsbuildinfo
 
 # Vite cache
 .vite/
