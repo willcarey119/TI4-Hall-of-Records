@@ -97,7 +97,7 @@ export function GameDetailPage() {
   }
 
   return (
-    <GameContext.Provider value={{ game, loading, error }}>
+    <GameContext.Provider value={{ game: game!, loading: false, error: null }}>
       <div
         style={{
           display: 'flex',

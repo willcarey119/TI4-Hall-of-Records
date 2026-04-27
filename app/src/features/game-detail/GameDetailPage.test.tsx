@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { GameDetailPage } from './GameDetailPage';
+import { formatGameTitle } from '../../shared';
 import type { ParsedGame } from '../../lib/parser/types';
 
 vi.mock('../../adapters/firestore', () => ({
@@ -21,7 +22,7 @@ beforeEach(() => {
 });
 
 afterEach(async () => {
-  await new Promise((r) => { setTimeout(r, 0); });
+  await act(async () => {});
   vi.unstubAllGlobals();
   vi.clearAllMocks();
 });
@@ -85,7 +86,8 @@ it('shows loading state before the game loads', () => {
 it('renders game title after loading', async () => {
   mockLoadGame.mockResolvedValue(mockGame);
   renderPage();
-  expect(await screen.findByText(/Sol Seizes the Throne/i)).toBeInTheDocument();
+  const title = formatGameTitle(mockGame.winner as string, mockGame.finalScores as Record<string, number>);
+  expect(await screen.findByText(new RegExp(title, 'i'))).toBeInTheDocument();
 });
 
 it('shows error message when loadGame rejects', async () => {
@@ -98,6 +100,7 @@ it('shows error message when loadGame rejects', async () => {
 it('calls loadGame with the gameId from the route', async () => {
   mockLoadGame.mockResolvedValue(mockGame);
   renderPage();
-  await screen.findByText(/Sol Seizes the Throne/i);
+  const title = formatGameTitle(mockGame.winner as string, mockGame.finalScores as Record<string, number>);
+  await screen.findByText(new RegExp(title, 'i'));
   expect(mockLoadGame).toHaveBeenCalledWith('test-1');
 });
