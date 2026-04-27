@@ -8,7 +8,11 @@ import { GamePreview } from './GamePreview';
 
 type Status = 'idle' | 'parsing' | 'preview' | 'saving' | 'saved' | 'error';
 
-export function UploadPage() {
+interface UploadPageProps {
+  onSaved?: () => void;
+}
+
+export function UploadPage({ onSaved }: UploadPageProps) {
   const [status, setStatus] = useState<Status>('idle');
   const [game, setGame] = useState<ParsedGame | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +40,7 @@ export function UploadPage() {
       await signInAnon();
       await saveGame(game);
       setStatus('saved');
+      onSaved?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save');
       setStatus('error');
@@ -44,19 +49,6 @@ export function UploadPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
-      {/* Masthead */}
-      <header className="mb-8 border-b-[3px] border-double border-ink pb-4">
-        <p className="font-mono text-[10px] uppercase tracking-widest text-ink-3">
-          Est. 2026
-        </p>
-        <h1 className="font-display text-4xl font-extrabold italic text-ink">
-          Hall of Records
-        </h1>
-        <p className="font-mono text-xs text-ink-3">
-          Twilight Imperium IV · Game Archive
-        </p>
-      </header>
-
       {/* Upload / error states */}
       {(status === 'idle' || status === 'parsing' || status === 'error') && (
         <section className="space-y-4">
