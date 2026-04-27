@@ -11,8 +11,8 @@ export function WarningList({ warnings }: WarningListProps) {
         {warnings.length} warning{warnings.length !== 1 ? 's' : ''}
       </p>
       <ul className="mt-2 space-y-1">
-        {warnings.map((w) => (
-          <li key={w} className="font-mono text-xs text-ink-3">
+        {warnings.map((w, i) => (
+          <li key={i} className="font-mono text-xs text-ink-3">
             {w}
           </li>
         ))}

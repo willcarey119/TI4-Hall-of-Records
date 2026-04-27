@@ -83,4 +83,10 @@ describe('GamePreview', () => {
     render(<GamePreview game={mockGame} onSave={vi.fn()} saving={false} />);
     expect(screen.queryByText(/warning/i)).not.toBeInTheDocument();
   });
+
+  it('does not show a winner label when winner is null', () => {
+    const noWinner: ParsedGame = { ...mockGame, winner: null };
+    render(<GamePreview game={noWinner} onSave={vi.fn()} saving={false} />);
+    expect(screen.queryByText(/winner/i)).not.toBeInTheDocument();
+  });
 });
