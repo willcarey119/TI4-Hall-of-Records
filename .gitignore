@@ -33,3 +33,9 @@ yarn-error.log*
 
 # Vite cache
 .vite/
+
+# Visual brainstorming companion sessions
+.superpowers/
+
+# Git worktrees (project-local isolated workspaces)
+.worktrees/
