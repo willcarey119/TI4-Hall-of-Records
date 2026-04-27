@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import type { ParsedGame } from '../../lib/parser/types';
 import { parseGame } from '../../lib/parser/parseGame';
-import { signInAnon, saveGame } from '../../adapters/firestore';
 import { DropZone } from './DropZone';
 import { GamePreview } from './GamePreview';
 
@@ -37,6 +36,7 @@ export function UploadPage({ onSaved }: UploadPageProps) {
     setStatus('saving');
     setError(null);
     try {
+      const { signInAnon, saveGame } = await import('../../adapters/firestore');
       await signInAnon();
       await saveGame(game);
       setStatus('saved');

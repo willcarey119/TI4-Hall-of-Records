@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { listGames } from '../../adapters/firestore';
 import type { ParsedGameSummary } from '../../adapters/firestore';
 import { Mast, Rule, Label } from '../../shared';
 import { UploadPage } from '../upload/UploadPage';
@@ -14,6 +13,7 @@ export function HomePage() {
     setLoading(true);
     setError(null);
     try {
+      const { listGames } = await import('../../adapters/firestore');
       const result = await listGames();
       setGames(result);
     } catch (e) {

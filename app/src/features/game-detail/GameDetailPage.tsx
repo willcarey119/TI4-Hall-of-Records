@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { loadGame } from '../../adapters/firestore';
 import type { ParsedGame } from '../../lib/parser/types';
 import { GameContext } from './GameContext';
 import { FrozenHeader } from './FrozenHeader';
@@ -25,7 +24,8 @@ export function GameDetailPage() {
     setLoading(true);
     setError(null);
 
-    loadGame(gameId)
+    import('../../adapters/firestore')
+      .then(({ loadGame }) => loadGame(gameId))
       .then((g) => {
         if (!cancelled) {
           setGame(g);
