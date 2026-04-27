@@ -26,12 +26,15 @@ export interface ParsedGameSummary {
 export async function signInAnon(): Promise<string> {
   const result = await signInAnonymously(auth);
   const { user } = result;
-  console.log('Signed in anonymously, uid:', user.uid);
+  if (import.meta.env.DEV) {
+    console.log('Signed in anonymously, uid:', user.uid);
+  }
   return user.uid;
 }
 
 export async function saveGame(game: ParsedGame): Promise<string> {
-  const data = JSON.parse(JSON.stringify(game)) as ParsedGame;
+  const data = JSON.parse(JSON.stringify(game)) as unknown as ParsedGame;
+  // setDoc overwrites any existing document with this gameId — re-uploading the same export is idempotent.
   await setDoc(doc(db, 'games', game.gameId), data);
   return game.gameId;
 }
@@ -40,8 +43,9 @@ export async function listGames(): Promise<ParsedGameSummary[]> {
   const q = query(collection(db, 'games'), orderBy('playedAt', 'desc'));
   const snap = await getDocs(q);
 
+  // If any document is malformed, the entire call rejects. Acceptable for a private playgroup dataset.
   return snap.docs.map((docSnap) => {
-    const game = docSnap.data() as ParsedGame;
+    const game = docSnap.data() as unknown as ParsedGame;
     return {
       gameId: game.gameId,
       playedAt: game.playedAt,
@@ -62,5 +66,5 @@ export async function loadGame(gameId: string): Promise<ParsedGame> {
   if (!snap.exists()) {
     throw new Error(`Game not found: ${gameId}`);
   }
-  return snap.data() as ParsedGame;
+  return snap.data() as unknown as ParsedGame;
 }
