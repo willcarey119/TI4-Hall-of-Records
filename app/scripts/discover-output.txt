@@ -1,0 +1,249 @@
+
+> app@0.0.0 discover
+> tsx scripts/discover-data.ts
+
+Reading 6 files from D:\_TI4 App\app\game-data
+
+=== ACTIONS (43) ===
+  ADD_ATTACHMENT
+  ADD_TECH
+  ADVANCE_PHASE
+  ASSIGN_STRATEGY_CARD
+  CAST_VOTES
+  CHOOSE_STARTING_TECH
+  CHOOSE_SUB_FACTION
+  CLAIM_PLANET
+  COMMIT_TO_EXPEDITION
+  END_GAME
+  END_TURN
+  GAIN_ALLIANCE
+  GAIN_RELIC
+  HIDE_AGENDA
+  LOSE_RELIC
+  MARK_PRIMARY
+  MARK_SECONDARY
+  PLAY_ACTION_CARD
+  PLAY_ADJUDICATOR_BAAL
+  PLAY_COMPONENT
+  PLAY_PROMISSORY_NOTE
+  PLAY_RELIC
+  PLAY_RIDER
+  PURGE_TECH
+  REMOVE_TECH
+  REPEAL_AGENDA
+  RESOLVE_AGENDA
+  REVEAL_AGENDA
+  REVEAL_OBJECTIVE
+  SCORE_OBJECTIVE
+  SELECT_ACTION
+  SELECT_ELIGIBLE_OUTCOMES
+  SELECT_SUB_AGENDA
+  SELECT_SUB_COMPONENT
+  SET_SPEAKER
+  SPEAKER_TIE_BREAK
+  START_VOTING
+  SWAP_MAP_TILES
+  SWAP_STRATEGY_CARDS
+  UNCLAIM_PLANET
+  UNPASS
+  UNSCORE_OBJECTIVE
+  UPDATE_LEADER_STATE
+
+=== OBJECTIVES (60) ===
+  Adapt New Strategies
+  Amass Wealth
+  Betray a Friend
+  Brave the Void
+  Build Defenses
+  Command an Armada
+  Conquer the Weak
+  Construct Massive Cities
+  Control the Region
+  Corner the Market
+  Cut Supply Lines
+  Demonstrate Your Power
+  Destroy Heretical Works
+  Destroy Their Greatest Ship
+  Develop Weaponry
+  Dictate Policy
+  Discover Lost Outposts
+  Diversify Research
+  Drive the Debate
+  Engineer a Marvel
+  Erect a Monument
+  Establish Hegemony
+  Establish a Perimeter
+  Expand Borders
+  Form Galactic Brain Trust
+  Form a Spy Network
+  Foster Cohesion
+  Found Research Outposts
+  Found a Golden Age
+  Fuel the War Machine
+  Gather a Mighty Fleet
+  Hoard Raw Materials
+  Intimidate Council
+  Lead from the Front
+  Learn the Secrets of the Cosmos
+  Make an Example of Their World
+  Master the Laws of Physics
+  Master the Sciences
+  Mechanize the Military
+  Monopolize Production
+  Negotiate Trade Routes
+  Occupy the Fringe
+  Occupy the Seat of the Empire
+  Populate the Outer Rim
+  Produce En Masse
+  Prove Endurance
+  Push Boundaries
+  Revolutionize Warfare
+  Rule Distant Lands
+  Seize an Icon
+  Spark a Rebellion
+  Stake your Claim
+  Strengthen Bonds
+  Subdue the Galaxy
+  Support for the Throne
+  Sway the Council
+  Threaten Enemies
+  Turn Their Fleets to Dust
+  Unify the Colonies
+  Unveil Flagship
+
+=== TECHS (71) ===
+  AI Development Algorithm
+  Advanced Carrier II
+  Aerie Hololattice
+  Agency Supply Network
+  Antimass Deflectors
+  Assault Cannon
+  Bio-Stims
+  Bioplasmosis
+  Carrier II
+  Cruiser II
+  Dark Energy Tap
+  Daxcive Animators
+  Deliverance Engine
+  Destroyer II
+  Dreadnought II
+  Duranium Armor
+  Exile II
+  Exotrireme II
+  Fighter II
+  Fleet Logistics
+  Graviton Laser System
+  Gravity Drive
+  Heavy Bomber II
+  Hel Titan II
+  Hyper Metabolism
+  IIHQ Modernization
+  Integrated Economy
+  Krovoz Strike Teams
+  Lancer Dreadnought II
+  Letani Warrior II
+  LightWave Deflector
+  Linkship II
+  Magen Defense Grid
+  Mageon Implants
+  Magmus Reactor
+  Midas Turbine
+  Mirror Computing
+  Nanomachines
+  Neural Motivator
+  Neural Parasite
+  PDS II
+  Planesplitter
+  Plasma Scoring
+  Pre-Fab Arcologies
+  Predictive Intelligence
+  Prototype War Sun II
+  Psychoarchaeology
+  Psychographics
+  Quantum Datahub Node
+  Radical Advancement
+  SEIDR Project
+  Salvage Operations
+  Sarween Tools
+  Saturn Engine II
+  Scanlink Drone Network
+  Seeker Drones
+  Self Assembly Routines
+  Shattered Sky II
+  Shrouded Skirmishers
+  Sling Relay
+  Space Dock II
+  Spec Ops II
+  Strike Wing Alpha II
+  Subatomic Splicer
+  Super-Dreadnought II
+  Tempest Drive
+  Valkyrie Particle Weave
+  Voidflare Warden II
+  Vortex
+  War Sun
+  X-89 Bacterial Weapon
+
+=== AGENDAS (34) ===
+  Archived Secret
+  Armed Forces Standardization
+  Articles of War
+  Checks and Balances
+  Classified Document Leaks
+  Committee Formation
+  Compensated Disarmament
+  Conventions of War
+  Covert Legislation
+  Executive Sanctions
+  Galactic Crisis Pact
+  Ixthian Artifact
+  Minister of Antiques
+  Minister of Commerce
+  Minister of Exploration
+  Minister of Industry
+  Minister of Peace
+  Minister of Policy
+  Minister of Sciences
+  Minister of War
+  Mutiny
+  New Constitution
+  Nexus Sovereignty
+  Political Censure
+  Prophecy of Ixth
+  Public Execution
+  Publicize Weapon Schematics
+  Rearmament Agreement
+  Research Grant Reallocation
+  Seed of an Empire
+  Swords to Plowshares
+  Unconventional Measures
+  Wormhole Reconstruction
+  Wormhole Research
+
+=== PLAYER NAMES (25) ===
+  Ben
+  Benny Boy
+  Big Willy Style
+  Chris
+  Christopher Soucems
+  KP
+  Kay Pizzle
+  Merrill
+  Michael Dusseldorf Comperchio
+  Mikey
+  Paul
+  Paulie Walnuts
+  Steve
+  Steven Soucems
+  TK
+  Tanya
+  Tanys
+  The Goose
+  The Player Formerly Known as TK
+  Tim
+  Tim "I Don't Like Bacon" Lawton
+  Will
+  William the Conqueror
+  Zach
+  Zacharakowski
+
