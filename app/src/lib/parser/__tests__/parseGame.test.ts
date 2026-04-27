@@ -106,4 +106,148 @@ describe('parseGame', () => {
     const result = parseGame(input);
     expect(result.vpEvents).toHaveLength(1);
   });
+
+  // ── startswith enrichment from SETUP ADVANCE_PHASE ───────────────────────
+
+  it('populates startingPlanets and startingTechs from the SETUP ADVANCE_PHASE event', () => {
+    const input = {
+      ...minimalInput(),
+      actionLog: [
+        {
+          timestampMillis: 0,
+          gameSeconds: 0,
+          data: {
+            action: 'ADVANCE_PHASE',
+            timestamp: 0,
+            event: {
+              state: { phase: 'SETUP', round: 1, speaker: 'Vaden Banking Clans', paused: false },
+              factions: {
+                'Vaden Banking Clans': {
+                  startswith: {
+                    planets: ['Vaden', 'Arcturus'],
+                    techs: ['Sarween Tools', 'Scanlink Drone Network'],
+                    units: { Carrier: 2 },
+                  },
+                },
+                "L'tokk Khrask": {
+                  startswith: {
+                    planets: ['Xxehan', 'Cwehers'],
+                    techs: ['Neural Motivator'],
+                    units: { Carrier: 2 },
+                  },
+                },
+              },
+              strategycards: {},
+            },
+          },
+        },
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.factions[0]?.startingPlanets).toEqual(['Vaden', 'Arcturus']);
+    expect(result.factions[0]?.startingTechs).toEqual(['Sarween Tools', 'Scanlink Drone Network']);
+    expect(result.factions[1]?.startingPlanets).toEqual(['Xxehan', 'Cwehers']);
+    expect(result.factions[1]?.startingTechs).toEqual(['Neural Motivator']);
+  });
+
+  it('takes initialSpeaker from event.state.speaker in the SETUP ADVANCE_PHASE (more reliable than raw.data.speaker index)', () => {
+    const input = {
+      ...minimalInput(),
+      data: { ...minimalInput().data, speaker: 0 }, // index says Vaden, but event says L'tokk
+      actionLog: [
+        {
+          timestampMillis: 0,
+          gameSeconds: 0,
+          data: {
+            action: 'ADVANCE_PHASE',
+            timestamp: 0,
+            event: {
+              state: { phase: 'SETUP', round: 1, speaker: "L'tokk Khrask", paused: false },
+              factions: {},
+              strategycards: {},
+            },
+          },
+        },
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.initialSpeaker).toBe("L'tokk Khrask");
+  });
+
+  it('seeds currentOwners from startingPlanets so first claim on a home system has the correct prevOwner', () => {
+    const input = {
+      ...minimalInput(),
+      actionLog: [
+        {
+          timestampMillis: 0,
+          gameSeconds: 0,
+          data: {
+            action: 'ADVANCE_PHASE',
+            timestamp: 0,
+            event: {
+              state: { phase: 'SETUP', round: 1, speaker: 'Vaden Banking Clans', paused: false },
+              factions: {
+                'Vaden Banking Clans': {
+                  startswith: { planets: ['Vaden'], techs: [], units: {} },
+                },
+              },
+              strategycards: {},
+            },
+          },
+        },
+        // Opponent conquers Vaden mid-game
+        {
+          timestampMillis: 1000,
+          gameSeconds: 500,
+          data: {
+            action: 'CLAIM_PLANET',
+            timestamp: 1000,
+            event: { faction: "L'tokk Khrask", planet: 'Vaden' },
+          },
+        },
+      ],
+    };
+    const result = parseGame(input);
+    const claimEvent = result.planetEvents.find((e) => e.planet === 'Vaden');
+    expect(claimEvent?.prevOwner).toBe('Vaden Banking Clans'); // not null
+  });
+
+  it('falls back to empty arrays when SETUP ADVANCE_PHASE is absent', () => {
+    const result = parseGame(minimalInput());
+    expect(result.factions[0]?.startingPlanets).toEqual([]);
+    expect(result.factions[0]?.startingTechs).toEqual([]);
+  });
+
+  it('falls back to raw.data.speaker index when no SETUP ADVANCE_PHASE is present', () => {
+    const result = parseGame({
+      ...minimalInput(),
+      data: { ...minimalInput().data, speaker: 1 },
+    });
+    expect(result.initialSpeaker).toBe("L'tokk Khrask");
+  });
+
+  it('handles SETUP ADVANCE_PHASE with missing factions field gracefully', () => {
+    const input = {
+      ...minimalInput(),
+      actionLog: [
+        {
+          timestampMillis: 0,
+          gameSeconds: 0,
+          data: {
+            action: 'ADVANCE_PHASE',
+            timestamp: 0,
+            event: {
+              state: { phase: 'SETUP', round: 1, speaker: 'Vaden Banking Clans', paused: false },
+              // no 'factions' key
+              strategycards: {},
+            },
+          },
+        },
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.factions[0]?.startingPlanets).toEqual([]);
+    expect(result.factions[0]?.startingTechs).toEqual([]);
+    expect(result.initialSpeaker).toBe('Vaden Banking Clans'); // speaker still extracted
+  });
 });

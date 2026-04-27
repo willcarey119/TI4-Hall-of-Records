@@ -116,6 +116,12 @@ const OBJECTIVES: Record<string, ObjectiveDefinition> = {
   'Shard of the Throne': { stage: 'relic', points: 1 },
   'Crown of Emphidia': { stage: 'relic', points: 1 },
   'Imperial Rider': { stage: 'agenda', points: 1 },
+  // Seed of an Empire: in some TI Assistant versions this is emitted as a
+  // SCORE_OBJECTIVE (1 VP to the winning faction) rather than RESOLVE_AGENDA.
+  // The RESOLVE_AGENDA handler in gameReducer.ts handles the leader/trailer
+  // VP swap when the full agenda resolution is present; this entry covers the
+  // simpler SCORE_OBJECTIVE representation.
+  'Seed of an Empire': { stage: 'agenda', points: 1 },
 
   // ── Discordant Stars (proactively added; not yet seen in 6 exports) ──
   'Styx': { stage: 'legendary', points: 1 },

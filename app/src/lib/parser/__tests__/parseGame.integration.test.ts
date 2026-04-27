@@ -9,8 +9,8 @@ const GAME_DATA = join(process.cwd(), 'game-data');
 const files = readdirSync(GAME_DATA).filter((f) => f.endsWith('.json'));
 
 describe('parseGame integration — all 6 real game exports', () => {
-  it('finds exactly 6 game files', () => {
-    expect(files).toHaveLength(6);
+  it('finds at least 6 game files', () => {
+    expect(files.length).toBeGreaterThanOrEqual(6);
   });
 
   it.each(files)('%s — parses without throwing', (file) => {

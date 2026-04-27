@@ -27,16 +27,59 @@ function extractFactions(raw: Record<string, unknown>): FactionSetup[] {
       playerName: typeof faction['playerName'] === 'string' ? faction['playerName'] : '',
       color: typeof faction['color'] === 'string' ? faction['color'] : '',
       mapPosition: idx,
-      // TODO(phase-1b): TI Assistant exports do not carry per-faction starting
-      // techs or starting planets. To populate these, build a faction-profile
-      // dictionary keyed on factionId (e.g. { 'Vaden Banking Clans': { startingTechs: [...], startingPlanets: [...] }, ... })
-      // and look up here. Until then, currentOwners will not reflect home-system
-      // ownership at game start, so the FIRST claim of a home-system planet will
-      // emit a PlanetEvent with prevOwner: null instead of the actual starting owner.
       startingTechs: [],
       startingPlanets: [],
     };
   });
+}
+
+/** Scans sorted log entries for the first ADVANCE_PHASE at phase "SETUP" (gameSeconds=0).
+ *  Extracts per-faction startswith data and the initial speaker.
+ *  This is more reliable than the raw.data.speaker index and gives us the
+ *  actual starting planets/techs that were not in the raw faction list. */
+function enrichFactionsFromSetupPhase(
+  entries: RawLogEntry[],
+  factions: FactionSetup[],
+): { enrichedFactions: FactionSetup[]; setupSpeaker: string | null } {
+  const setupEntry = entries.find(
+    (e) =>
+      e.action === 'ADVANCE_PHASE' &&
+      typeof e.event['state'] === 'object' &&
+      e.event['state'] !== null &&
+      (e.event['state'] as Record<string, unknown>)['phase'] === 'SETUP',
+  );
+
+  if (setupEntry === undefined) {
+    return { enrichedFactions: factions, setupSpeaker: null };
+  }
+
+  const stateData = setupEntry.event['state'] as Record<string, unknown>;
+  const setupSpeaker =
+    typeof stateData['speaker'] === 'string' ? stateData['speaker'] : null;
+
+  const rawFactionData = setupEntry.event['factions'];
+  if (typeof rawFactionData !== 'object' || rawFactionData === null) {
+    return { enrichedFactions: factions, setupSpeaker };
+  }
+  const factionsData = rawFactionData as Record<string, unknown>;
+
+  const enrichedFactions = factions.map((faction): FactionSetup => {
+    const factionRaw = factionsData[faction.factionId];
+    if (typeof factionRaw !== 'object' || factionRaw === null) return faction;
+    const factionObj = factionRaw as Record<string, unknown>;
+    const startswith = factionObj['startswith'];
+    if (typeof startswith !== 'object' || startswith === null) return faction;
+    const sw = startswith as Record<string, unknown>;
+    const startingPlanets = Array.isArray(sw['planets'])
+      ? sw['planets'].filter((p): p is string => typeof p === 'string')
+      : faction.startingPlanets;
+    const startingTechs = Array.isArray(sw['techs'])
+      ? sw['techs'].filter((t): t is string => typeof t === 'string')
+      : faction.startingTechs;
+    return { ...faction, startingPlanets, startingTechs };
+  });
+
+  return { enrichedFactions, setupSpeaker };
 }
 
 function extractLogEntries(raw: Record<string, unknown>): RawLogEntry[] {
@@ -90,15 +133,18 @@ export function parseGame(raw: unknown): ParsedGame {
   }
   const game = raw as Record<string, unknown>;
 
-  const factions = extractFactions(game);
+  const rawFactions = extractFactions(game);
   const entries = extractLogEntries(game);
+  const { enrichedFactions: factions, setupSpeaker } = enrichFactionsFromSetupPhase(entries, rawFactions);
   const timers = extractTimers(game, factions);
 
   const dataObj = (typeof game['data'] === 'object' && game['data'] !== null)
     ? (game['data'] as Record<string, unknown>)
     : {};
   const speakerIdx = typeof dataObj['speaker'] === 'number' ? dataObj['speaker'] : 0;
-  const initialSpeaker = factions[speakerIdx]?.factionId ?? '';
+  // Prefer the speaker declared in the SETUP ADVANCE_PHASE event (faction ID string),
+  // falling back to the raw.data.speaker array index for older exports.
+  const initialSpeaker = setupSpeaker ?? (factions[speakerIdx]?.factionId ?? '');
 
   const rawOptions = (typeof dataObj['options'] === 'object' && dataObj['options'] !== null)
     ? (dataObj['options'] as Record<string, unknown>)
