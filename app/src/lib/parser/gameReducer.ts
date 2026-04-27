@@ -576,6 +576,55 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       return { ...state, secondaryEvents: [...state.secondaryEvents, ev] };
     }
 
+    case 'PLAY_COMPONENT': {
+      const factionRaw = entry.event['factionId'];
+      const nameRaw = entry.event['name'];
+      if (typeof factionRaw !== 'string' || typeof nameRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `PLAY_COMPONENT missing fields at ${entry.timestamp}`] };
+      }
+      const ev: ComponentEvent = {
+        faction: factionRaw,
+        component: nameRaw,
+        timestamp: entry.timestamp,
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, componentEvents: [...state.componentEvents, ev] };
+    }
+
+    case 'END_TURN': {
+      const prevRaw = entry.event['prevFaction'];
+      if (typeof prevRaw !== 'string') return state;
+      return { ...state, currentTurnFaction: prevRaw };
+    }
+
+    case 'SELECT_ACTION':
+      return state;
+
+    case 'PLAY_ACTION_CARD': {
+      const cardRaw = entry.event['card'];
+      if (typeof cardRaw !== 'string') {
+        return { ...state, warnings: [...state.warnings, `PLAY_ACTION_CARD missing card at ${entry.timestamp}`] };
+      }
+      const targetRaw = entry.event['target'];
+      const faction = state.currentTurnFaction;
+      const warnings = faction === ''
+        ? [...state.warnings, `PLAY_ACTION_CARD with no known turn faction at ${entry.timestamp}`]
+        : state.warnings;
+      const ev: ActionCardEvent = {
+        faction,
+        card: cardRaw,
+        timestamp: entry.timestamp,
+        type: 'play',
+        ...(typeof targetRaw === 'string' ? { target: targetRaw } : {}),
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return {
+        ...state,
+        actionCardEvents: [...state.actionCardEvents, ev],
+        warnings,
+      };
+    }
+
     // Cases added in Tasks 5–12
     default:
       return {

@@ -581,3 +581,63 @@ describe('gameReducer — strategy card and secondary events', () => {
     expect(result.secondaryEvents).toHaveLength(0);
   });
 });
+
+describe('gameReducer — action cards and components', () => {
+  it('PLAY_COMPONENT emits a ComponentEvent using factionId and name', () => {
+    const result = reduce([
+      makeEntry('PLAY_COMPONENT', { factionId: 'barony', name: 'Exploration Probe' }),
+    ]);
+    expect(result.componentEvents[0]).toMatchObject({ faction: 'barony', component: 'Exploration Probe' });
+  });
+
+  it('PLAY_COMPONENT missing fields appends warning', () => {
+    const result = reduce([makeEntry('PLAY_COMPONENT', {})]);
+    expect(result.warnings.some((w) => w.includes('PLAY_COMPONENT'))).toBe(true);
+  });
+
+  it('END_TURN updates currentTurnFaction from prevFaction', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'barony' }),
+    ]);
+    expect(result.currentTurnFaction).toBe('barony');
+  });
+
+  it('PLAY_ACTION_CARD attributes to currentTurnFaction', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'barony' }, 1000),
+      makeEntry('PLAY_ACTION_CARD', { card: 'Direct Hit' }, 1100),
+    ]);
+    expect(result.actionCardEvents[0]).toMatchObject({ faction: 'barony', card: 'Direct Hit', type: 'play' });
+  });
+
+  it('PLAY_ACTION_CARD captures optional target', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'barony' }, 1000),
+      makeEntry('PLAY_ACTION_CARD', { card: 'Spy', target: 'arborec' }, 1100),
+    ]);
+    expect(result.actionCardEvents[0]?.target).toBe('arborec');
+  });
+
+  it('PLAY_ACTION_CARD emits with empty faction and warns when currentTurnFaction unknown', () => {
+    const result = reduce([
+      makeEntry('PLAY_ACTION_CARD', { card: 'Direct Hit' }),
+    ]);
+    expect(result.actionCardEvents).toHaveLength(1);
+    expect(result.actionCardEvents[0]?.faction).toBe('');
+    expect(result.warnings.some((w) => w.includes('PLAY_ACTION_CARD'))).toBe(true);
+  });
+
+  it('PLAY_ACTION_CARD missing card field appends warning and emits no event', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'barony' }),
+      makeEntry('PLAY_ACTION_CARD', {}),
+    ]);
+    expect(result.warnings.some((w) => w.includes('PLAY_ACTION_CARD'))).toBe(true);
+    expect(result.actionCardEvents).toHaveLength(0);
+  });
+
+  it('SELECT_ACTION is a no-op', () => {
+    const result = reduce([makeEntry('SELECT_ACTION', { action: 'Tactical' })]);
+    expect(result.warnings).toHaveLength(0);
+  });
+});
