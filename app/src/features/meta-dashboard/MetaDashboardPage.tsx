@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Rule } from '../../shared';
-import { MetaProvider } from './MetaContext';
+import { MetaProvider, useMeta } from './MetaContext';
 import { FactionSection } from './FactionSection';
 import { StrategyCardSection } from './StrategyCardSection';
 import { TechSection } from './TechSection';
@@ -125,12 +125,17 @@ function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
 }
 
 function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => void }) {
+  const { loading, error } = useMeta();
   const callbackRef = useRef(onSectionChange);
+
   useEffect(() => {
     callbackRef.current = onSectionChange;
   });
 
   useEffect(() => {
+    // Skip observer setup until sections are actually rendered
+    if (loading || error !== null) return;
+
     const observers: IntersectionObserver[] = [];
 
     SECTION_IDS.forEach((id) => {
@@ -157,7 +162,53 @@ function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => 
     return () => {
       observers.forEach((o) => { o.disconnect(); });
     };
-  }, []);
+  }, [loading, error]);
+
+  if (loading) {
+    return (
+      <div style={{ overflowY: 'scroll', flex: 1, padding: '32px 16px' }}>
+        <p
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 9,
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            color: 'var(--ink-3)',
+          }}
+        >
+          Loading…
+        </p>
+      </div>
+    );
+  }
+
+  if (error !== null) {
+    return (
+      <div style={{ overflowY: 'scroll', flex: 1, padding: '32px 16px' }}>
+        <p
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 11,
+            color: 'var(--accent)',
+            marginBottom: 8,
+          }}
+        >
+          {error}
+        </p>
+        <p
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 9,
+            color: 'var(--ink-3)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+          }}
+        >
+          Try refreshing the page.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ overflowY: 'scroll', flex: 1 }}>
