@@ -14,15 +14,26 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 
 ## Current Status
 
-**Phase 0 (Scaffolding) and Phase 1a (Parser Layer) are complete.** Phase 1b (Upload UI + Firestore adapter) is next.
+**Phases 0, 1, and most of Phase 2a are complete.** We are mid-Phase 2 (Single-Game Replay).
 
-All app code lives under `D:\_TI4 App\app\`. The parser layer (`app/src/lib/parser/`) outputs a typed `ParsedGame` from raw TI Assistant exports. 146 tests, ≥ 90 % coverage, all 6 real game exports parse cleanly with one minor agenda-VP-watchlist warning.
+| Phase | Status |
+|---|---|
+| Phase 0 — Scaffolding | ✅ Complete |
+| Phase 1a — Parser layer | ✅ Complete — 281 tests, ≥ 90% coverage, all 6 exports parse cleanly |
+| Phase 1b — Upload UI + Firestore adapter | ✅ Complete — DropZone → parse → preview → save round-trip working |
+| Phase 2a — Nav shell + shared primitives | ✅ Complete — Router, FrozenHeader (6-button), ScrollBody (6 sections), Mast/Kicker/Label/Rule/FactionChip |
+| Phase 2 — Tech & Agenda sections | ✅ Complete — `TechSection`, `AgendaSection`, `buildTechSummary`, `buildAgendaSummary`, agenda + tech dictionaries |
+| Phase 2 — VP Race, Timeline, Dashboard, Planets | 🔲 Stubs only — 4 sections have correct `id`/`data-section` but no real content yet |
+
+**Next up:** VP Race chart (Phase 2.1) — the hero section. `buildVpTimeline()` pure fn + slope chart component.
+
+All app code lives under `D:\_TI4 App\app\`.
 
 **Source of truth for the plan:** [`ROADMAP.md`](ROADMAP.md) — this supersedes the `Master Guidance Document.md`, which is deprecated.
 
 **Source of truth for how we work:** [`SKILLS.md`](SKILLS.md)
 
-**Source of truth for visual design:** [`design_handoff_ti4_tracker/`](design_handoff_ti4_tracker/) — newspaper / almanac editorial direction. Read its `README.md` before touching styling, fonts, or component layout in Phase 1b+.
+**Source of truth for visual design:** [`design_handoff_ti4_tracker/`](design_handoff_ti4_tracker/) — newspaper / almanac editorial direction. Read its `README.md` before touching styling, fonts, or component layout.
 
 ---
 
@@ -41,6 +52,9 @@ These are the most common ways an AI session goes wrong on this project:
 | A "Deep Space" dark-theme look (the original Phase 4 plan) | **Retired.** Visual direction is now **newspaper / almanac editorial broadsheet** — see `design_handoff_ti4_tracker/`. | Replaces the placeholder dark theme with a defined design language. The Tailwind tokens currently in `app/tailwind.config.ts` are stale — they will be replaced with the design's CSS custom properties (`--paper`, `--ink`, `--accent`, etc.) during Phase 1b/2 styling work. |
 | Setting up a custom dark color palette in `tailwind.config.ts` for Phase 1b UI | **Wrong direction.** Use the design tokens from `design_handoff_ti4_tracker/wireframes.css` (warm newsprint, oklch ink colors, vermillion accent). Load Newsreader + IBM Plex Sans + IBM Plex Mono + Caveat from Google Fonts. | See design handoff `README.md`. |
 | Designing a `RoundState[]` field as one entry per round | **Wrong shape.** Field is `phaseSnapshots: PhaseSnapshot[]` — one entry per phase transition (4× per round). Renamed during Phase 1a code-review follow-up. | The reducer pushes a snapshot on every `ADVANCE_PHASE`; treating it as per-round caused off-by-one assumptions. |
+| `AgendaEntry` as a flat interface with all optional fields | **Wrong shape.** `AgendaEntry` is a **discriminated union** on `elect`: when `elect === null` the entry has required `forEffect` + `againstEffect`; when `elect !== null` it has required `effect`. TypeScript enforces which fields are present. | All-optional interfaces shift invariants to runtime checks; the discriminated union catches misuse at compile time. |
+| `buildAgendaSummary(agendaResolutions, factions, lookupAgenda)` | **Wrong signature.** Function is `buildAgendaSummary(agendaResolutions, vpEvents)` — 2 params only. `factions` was removed (YAGNI; net beneficiaries come from `vpEvents` with `source: 'agenda'`). `lookupAgenda` is imported internally, not injected. | Simpler call site, fewer moving parts, no unused parameter. |
+| Reading round numbers from `PhaseSnapshot` timestamps | **Not possible.** `PhaseSnapshot` has **no timestamp field**. `deriveRoundBoundaries()` exists as an extension point but returns `[]` today; tech timeline entries default to `round: 0` (displayed as "—"). | `ADVANCE_PHASE` events carry no timestamp in the parsed output; round derivation would require a separate approach. |
 
 ---
 
@@ -86,14 +100,18 @@ All must succeed on a clean install. See ROADMAP §Phase 0 for full deliverables
 - `actionLog` is **reverse-chronological**. `parseGame` sorts ascending by `timestamp` before reducing.
 - `event` is `Record<string, unknown>` in the parser — narrowed with `typeof` guards in each switch case. Never `any`.
 - `factionId` in real exports is the full faction NAME with spaces and apostrophes (e.g. `"Vaden Banking Clans"`, `"L'tokk Khrask"`), not a slug.
-- Faction objects only carry `{ id, playerName, color }` — `mapPosition` is derived from array index, `startingTechs`/`startingPlanets` are TODO (Phase 1b+ via a faction-profile dictionary).
+- Faction objects carry `{ factionId, playerName, color, mapPosition, startingTechs, startingPlanets }` — `mapPosition` is derived from array index; `startingTechs`/`startingPlanets` are populated from `SETUP`/`ADVANCE_PHASE` events during parsing.
+- `techEvents: TechEvent[]` — type is `'research' | 'starting' | 'remove' | 'purge'`. The distinction between actively researched (`'research'`) and faction-starting tech (`'starting'`) matters for display — only `'research'` events appear in the "Research Order" timeline.
+- `agendaResolutions: AgendaResolution[]` — each entry has `agenda` (name string), `outcome`, `round`, `votes[]`, `riders[]`. Outcome is `'For'`/`'Against'` for law/directive agendas, or the elected item name for elect-type agendas.
+- `vpEvents: VpEvent[]` — entries with `source: 'agenda'` are the source for the Agenda section's Net Beneficiaries strip. Net beneficiary calculation ignores `factions`; use `vpEvents` directly.
+- `AgendaEntry` in `src/lib/parser/agendas.ts` is a **discriminated union** on `elect`: `elect === null` → `{ forEffect, againstEffect }`; `elect !== null` → `{ effect }`. Always narrow with `entry.elect === null` before accessing effect text fields.
 - See `app/src/lib/parser/SCHEMA.md` if it exists, otherwise the "Schema Findings" section at the top of `docs/superpowers/plans/2026-04-26-phase-1a-parser.md` is the canonical inventory of real action names + payload shapes.
 
 ---
 
 ## Game Data
 
-Six real game exports from the playgroup live at the root (to move to `app/game-data/` in Phase 0). These are the actual dataset — not throw-away fixtures:
+Six real game exports from the playgroup live at `app/game-data/`. These are the actual dataset — not throw-away fixtures:
 - `1.19.25 TI Assistant JSON Game Data.json`
 - `LjnqDB_data (2).json`
 - `TIAssistant_Game Data.json`
