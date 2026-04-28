@@ -92,4 +92,15 @@ describe('buildPlanetSummary', () => {
   it('handles empty inputs without throwing', () => {
     expect(() => buildPlanetSummary([], [])).not.toThrow();
   });
+
+  it('sorts Mecatol Rex first in a faction inventory with multiple planets', () => {
+    const events = [
+      makeClaim('Sol', 'Vefut II', 100),
+      makeClaim('Sol', 'Mecatol Rex', 200),
+    ];
+    const result = buildPlanetSummary(events, FACTIONS);
+    const sol = result.inventories.find(inv => inv.factionId === 'Sol');
+    expect(sol?.planets[0]?.planet).toBe('Mecatol Rex');
+    expect(sol?.planets[1]?.planet).toBe('Vefut II');
+  });
 });
