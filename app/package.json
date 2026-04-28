@@ -11,6 +11,7 @@
     "format": "prettier --write src",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
+    "deploy": "npm run build && firebase deploy --only hosting",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

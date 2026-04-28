@@ -173,7 +173,7 @@ export function PlayerSection() {
 
       {players.length > 0 && (
         <>
-          <Rule weight="single" />
+          <Rule weight="thin" />
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
