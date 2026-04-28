@@ -14,18 +14,18 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 
 ## Current Status
 
-**Phases 0, 1, and most of Phase 2a are complete.** We are mid-Phase 2 (Single-Game Replay).
+**Phases 0, 1, and 2 are complete.** We are in Phase 3 (Meta-Dashboard).
 
 | Phase | Status |
 |---|---|
 | Phase 0 — Scaffolding | ✅ Complete |
-| Phase 1a — Parser layer | ✅ Complete — 281 tests, ≥ 90% coverage, all 6 exports parse cleanly |
+| Phase 1a — Parser layer | ✅ Complete — all 7 exports parse cleanly, ≥ 90% coverage |
 | Phase 1b — Upload UI + Firestore adapter | ✅ Complete — DropZone → parse → preview → save round-trip working |
 | Phase 2a — Nav shell + shared primitives | ✅ Complete — Router, FrozenHeader (6-button), ScrollBody (6 sections), Mast/Kicker/Label/Rule/FactionChip |
-| Phase 2 — Tech & Agenda sections | ✅ Complete — `TechSection`, `AgendaSection`, `buildTechSummary`, `buildAgendaSummary`, agenda + tech dictionaries |
-| Phase 2 — VP Race, Timeline, Dashboard, Planets | 🔲 Stubs only — 4 sections have correct `id`/`data-section` but no real content yet |
+| Phase 2 — All 6 game-detail sections | ✅ Complete — VP Race, Timeline, Dashboard, Planets, Tech, Agenda all implemented |
+| Phase 3 — Meta-Dashboard aggregator layer | 🔲 In progress — Tasks 1–6 of 15 done (factionExpansions, roundBoundaries, factionStats, strategyCardStats, techStats) |
 
-**Next up:** VP Race chart (Phase 2.1) — the hero section. `buildVpTimeline()` pure fn + slope chart component.
+**Next up:** Task 7 — `buildGameStats` (Mecatol, action types, relics, VP diversity, Stage II first-scorer).
 
 All app code lives under `D:\_TI4 App\app\`.
 
@@ -111,7 +111,8 @@ All must succeed on a clean install. See ROADMAP §Phase 0 for full deliverables
 
 ## Game Data
 
-Six real game exports from the playgroup live at `app/game-data/`. These are the actual dataset — not throw-away fixtures:
+Seven real game exports from the playgroup live at `app/game-data/`. These are the actual dataset — not throw-away fixtures:
+- `1.11.25 Twilight Imperium Game.json`
 - `1.19.25 TI Assistant JSON Game Data.json`
 - `LjnqDB_data (2).json`
 - `TIAssistant_Game Data.json`
@@ -119,7 +120,7 @@ Six real game exports from the playgroup live at `app/game-data/`. These are the
 - `nMhFhJ_data (1).json`
 - `PgyXRx_data.json`
 
-These are the test fixtures for Phase 1 acceptance. The gating test: every parsed game's `finalScores` must match the actual game outcome for every faction.
+These are the test fixtures for Phase 1 acceptance. The gating test: every parsed game's `finalScores` must match the actual game outcome for every faction. The integration test in `parseGame.integration.test.ts` walks the directory automatically — adding a new export requires no test changes.
 
 ---
 

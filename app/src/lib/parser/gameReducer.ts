@@ -448,15 +448,10 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         }
       }
 
-      // TODO(phase-1b): Only Seed of an Empire is currently wired up for
-      // agenda-driven VP changes. Other agendas that affect VP per official
-      // TI4 rules and have appeared (or may appear) in real exports:
-      //   - Mutiny: each player who voted "For" gains 1 VP if the agenda passes
-      //   - Political Censure: elected player gains 1 VP (loses on next agenda phase)
-      //   - Crown of Thalnos: VP swing on combat outcome
-      //   - Classified Document Leaks: turns a hidden objective public
-      //   - Compensated Disarmament: VP-adjacent (units removed)
-      // When these are implemented, remove names from VP_AGENDA_WATCHLIST below.
+      // Only Seed of an Empire is currently wired up for agenda-driven VP changes.
+      // Other agendas that affect VP and may appear in future exports are listed
+      // in VP_AGENDA_WATCHLIST below — the parser emits a warning if any appear
+      // so they don't silently corrupt finalScores. Implement when observed in data:
       const VP_AGENDA_WATCHLIST = new Set([
         'Mutiny',
         'Political Censure',

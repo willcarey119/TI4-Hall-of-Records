@@ -39,3 +39,6 @@ yarn-error.log*
 
 # Git worktrees (project-local isolated workspaces)
 .worktrees/
+
+# Claude Code personal memory and session cache (machine-local)
+.claude/

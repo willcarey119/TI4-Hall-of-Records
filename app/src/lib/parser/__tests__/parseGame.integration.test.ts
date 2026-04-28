@@ -1,4 +1,4 @@
-// Reads the 6 real TI Assistant exports and asserts Phase 1a smoke acceptance.
+// Reads all real TI Assistant exports and asserts Phase 1a smoke acceptance.
 // NOT exact-score matching — that gating test happens in Phase 1 combined.
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'fs';
@@ -8,9 +8,9 @@ import { parseGame } from '../parseGame';
 const GAME_DATA = join(process.cwd(), 'game-data');
 const files = readdirSync(GAME_DATA).filter((f) => f.endsWith('.json'));
 
-describe('parseGame integration — all 6 real game exports', () => {
-  it('finds at least 6 game files', () => {
-    expect(files.length).toBeGreaterThanOrEqual(6);
+describe('parseGame integration — all real game exports', () => {
+  it('finds at least 7 game files', () => {
+    expect(files.length).toBeGreaterThanOrEqual(7);
   });
 
   it.each(files)('%s — parses without throwing', (file) => {
