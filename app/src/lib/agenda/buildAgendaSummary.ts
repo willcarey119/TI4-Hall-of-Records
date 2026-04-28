@@ -5,7 +5,6 @@ import type {
   AgendaVote,
   AgendaRider,
   VpEvent,
-  FactionSetup,
 } from '../parser/types';
 
 export interface AgendaDisplayEntry {
@@ -32,7 +31,6 @@ export interface AgendaSummary {
 export function buildAgendaSummary(
   agendaResolutions: AgendaResolution[],
   vpEvents: VpEvent[],
-  factions: FactionSetup[],
 ): AgendaSummary {
   // Sort ascending by timestamp
   const sorted = [...agendaResolutions].sort((a, b) => a.timestamp - b.timestamp);
@@ -42,7 +40,8 @@ export function buildAgendaSummary(
 
   const entries: AgendaDisplayEntry[] = sorted.map((res) => {
     roundCount[res.round] = (roundCount[res.round] ?? 0) + 1;
-    const indexInRound = roundCount[res.round] as 1 | 2;
+    const rawIndex = roundCount[res.round] ?? 1;
+    const indexInRound: 1 | 2 = rawIndex <= 1 ? 1 : 2;
 
     const dictEntry = lookupAgenda(res.agenda);
 

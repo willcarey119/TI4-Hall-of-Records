@@ -1,15 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildAgendaSummary } from './buildAgendaSummary';
-import type { AgendaResolution, VpEvent, FactionSetup } from '../parser/types';
-
-const makeFaction = (id: string): FactionSetup => ({
-  factionId: id,
-  playerName: 'Player',
-  color: '#aaa',
-  mapPosition: 0,
-  startingTechs: [],
-  startingPlanets: [],
-});
+import type { AgendaResolution, VpEvent } from '../parser/types';
 
 const makeResolution = (
   overrides: Partial<AgendaResolution> = {},
@@ -38,7 +29,6 @@ describe('buildAgendaSummary', () => {
         }),
       ],
       [],
-      [makeFaction('Sol'), makeFaction('Hacan')],
     );
     expect(result.entries).toHaveLength(2);
   });
@@ -50,7 +40,6 @@ describe('buildAgendaSummary', () => {
         makeResolution({ timestamp: 2000, round: 2 }),
       ],
       [],
-      [makeFaction('Sol')],
     );
     expect(result.entries[0]?.indexInRound).toBe(1);
     expect(result.entries[1]?.indexInRound).toBe(2);
@@ -60,7 +49,6 @@ describe('buildAgendaSummary', () => {
     const result = buildAgendaSummary(
       [makeResolution({ outcome: 'For' })],
       [],
-      [makeFaction('Sol')],
     );
     expect(result.entries[0]?.passed).toBe(true);
   });
@@ -69,7 +57,6 @@ describe('buildAgendaSummary', () => {
     const result = buildAgendaSummary(
       [makeResolution({ outcome: 'Against' })],
       [],
-      [makeFaction('Sol')],
     );
     expect(result.entries[0]?.passed).toBe(false);
   });
@@ -78,7 +65,6 @@ describe('buildAgendaSummary', () => {
     const result = buildAgendaSummary(
       [makeResolution()],
       [],
-      [makeFaction('Sol'), makeFaction('Hacan')],
     );
     const entry = result.entries[0]!;
     expect(entry.totalFor).toBe(8);
@@ -89,7 +75,6 @@ describe('buildAgendaSummary', () => {
     const result = buildAgendaSummary(
       [makeResolution({ agenda: 'Mutiny' })],
       [],
-      [makeFaction('Sol')],
     );
     expect(result.entries[0]?.entry).not.toBeNull();
     expect(result.entries[0]?.entry?.type).toBe('directive');
@@ -99,7 +84,6 @@ describe('buildAgendaSummary', () => {
     const result = buildAgendaSummary(
       [makeResolution({ agenda: 'Future Expansion Agenda XYZ' })],
       [],
-      [makeFaction('Sol')],
     );
     expect(result.entries[0]?.entry).toBeNull();
   });
@@ -117,7 +101,6 @@ describe('buildAgendaSummary', () => {
         }),
       ],
       [],
-      [makeFaction('Sol'), makeFaction('Hacan')],
     );
     expect(result.entries[0]?.electedFaction).toBe('Hacan');
   });
@@ -142,7 +125,6 @@ describe('buildAgendaSummary', () => {
     const result = buildAgendaSummary(
       [makeResolution()],
       vpEvents,
-      [makeFaction('Hacan'), makeFaction('Sol')],
     );
     const hacan = result.netBeneficiaries.find(
       (b) => b.factionId === 'Hacan',
@@ -156,7 +138,6 @@ describe('buildAgendaSummary', () => {
     const result = buildAgendaSummary(
       [makeResolution()],
       [],
-      [makeFaction('Sol'), makeFaction('Hacan')],
     );
     expect(result.netBeneficiaries).toHaveLength(0);
   });
@@ -165,7 +146,6 @@ describe('buildAgendaSummary', () => {
     const result = buildAgendaSummary(
       [makeResolution()],
       [],
-      [makeFaction('Sol')],
     );
     expect(typeof result.deckText).toBe('string');
     expect(result.deckText.length).toBeGreaterThan(0);
@@ -175,9 +155,26 @@ describe('buildAgendaSummary', () => {
     const result = buildAgendaSummary(
       [makeResolution({ timestamp: 5000 }), makeResolution({ timestamp: 1000 })],
       [],
-      [makeFaction('Sol')],
     );
     expect(result.entries[0]?.timestamp).toBe(1000);
     expect(result.entries[1]?.timestamp).toBe(5000);
+  });
+
+  it('deckText includes agenda counts when there are no agenda VP events', () => {
+    const result = buildAgendaSummary(
+      [makeResolution(), makeResolution({ timestamp: 2000 })],
+      [],
+    );
+    expect(result.deckText).toContain('2');
+    expect(result.deckText).toContain('resolved');
+  });
+
+  it('deckText shows negative VP delta without a + sign', () => {
+    const vpEvents: VpEvent[] = [
+      { faction: 'Sol', objective: 'Mutiny', points: -1, timestamp: 1000, source: 'agenda' },
+    ];
+    const result = buildAgendaSummary([makeResolution()], vpEvents);
+    expect(result.deckText).toContain('-1');
+    expect(result.deckText).not.toContain('+-1');
   });
 });
