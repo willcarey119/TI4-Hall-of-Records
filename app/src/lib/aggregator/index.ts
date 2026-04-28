@@ -9,3 +9,5 @@ export type {
   SftTransfer,
   FactionStatsSummary,
 } from './buildFactionStats';
+export { buildStrategyCardStats } from './buildStrategyCardStats';
+export type { StrategyCardStat, StrategyCardSummary } from './buildStrategyCardStats';
