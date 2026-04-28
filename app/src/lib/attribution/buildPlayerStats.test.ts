@@ -143,7 +143,11 @@ describe('buildPlayerStats', () => {
   });
 
   it('sorts players by gamesPlayed descending', () => {
-    const result = buildPlayerStats([g1, g2], { Tim: 'Tim', Jake: 'Jake' });
+    // Tim appears in g1 + g2 + g3 = 3 games; Jake appears only in g1 + g2 = 2 games
+    const result = buildPlayerStats([g1, g2, g3], { Tim: 'Tim', 'Tim L': 'Tim', Jake: 'Jake' });
     expect(result.players[0]?.canonicalName).toBe('Tim');
+    expect(result.players[0]?.gamesPlayed).toBe(3);
+    expect(result.players[1]?.canonicalName).toBe('Jake');
+    expect(result.players[1]?.gamesPlayed).toBe(2);
   });
 });

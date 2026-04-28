@@ -23,13 +23,14 @@ export function collectAllRawNames(games: ParsedGame[]): string[] {
 
   for (const game of games) {
     for (const faction of game.factions) {
-      if (faction.playerName.trim() !== '') {
-        names.add(faction.playerName);
+      const trimmed = faction.playerName.trim();
+      if (trimmed !== '') {
+        names.add(trimmed);
       }
     }
   }
 
-  return Array.from(names).sort();
+  return [...names].sort();
 }
 
 /**
@@ -73,16 +74,17 @@ export function buildPlayerStats(
       const canonical = validNameMap.get(faction.playerName);
       if (!canonical) continue; // Skip names not in the map
 
-      if (!playerData.has(canonical)) {
-        playerData.set(canonical, {
+      let player = playerData.get(canonical);
+      if (player === undefined) {
+        player = {
           rawNames: new Set<string>(),
           gamesPlayed: 0,
           wins: 0,
           factionAppearances: new Map<string, number>(),
-        });
+        };
+        playerData.set(canonical, player);
       }
 
-      const player = playerData.get(canonical)!;
       player.rawNames.add(faction.playerName);
       player.gamesPlayed += 1;
 
@@ -99,14 +101,13 @@ export function buildPlayerStats(
   const players: PlayerStat[] = [];
 
   for (const [canonicalName, data] of playerData) {
-    const winRate =
-      data.gamesPlayed === 0 ? 0 : data.wins / data.gamesPlayed;
+    const winRate = data.wins / data.gamesPlayed;
 
-    // Find the faction with the most appearances
+    // Find the faction with the most appearances; break ties alphabetically by factionId
     let favoriteFaction: string | null = null;
     let maxAppearances = 0;
     for (const [factionId, count] of data.factionAppearances) {
-      if (count > maxAppearances) {
+      if (count > maxAppearances || (count === maxAppearances && favoriteFaction !== null && factionId < favoriteFaction)) {
         maxAppearances = count;
         favoriteFaction = factionId;
       }
@@ -114,7 +115,7 @@ export function buildPlayerStats(
 
     players.push({
       canonicalName,
-      rawNames: Array.from(data.rawNames),
+      rawNames: [...data.rawNames].sort(),
       gamesPlayed: data.gamesPlayed,
       wins: data.wins,
       winRate,
