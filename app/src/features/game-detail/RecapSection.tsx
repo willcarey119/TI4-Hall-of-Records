@@ -37,7 +37,7 @@ export function RecapSection() {
           borderBottom: '1px solid var(--rule)',
           padding: '4px 0',
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '8px',
+          fontSize: '10px',
           display: 'flex',
           justifyContent: 'space-between',
         }}
@@ -66,7 +66,7 @@ export function RecapSection() {
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '8px',
+          fontSize: '10px',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           color: 'var(--ink-3)',
@@ -125,7 +125,7 @@ export function RecapSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '7px',
+              fontSize: '9px',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -196,7 +196,7 @@ export function RecapSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '7px',
+              fontSize: '9px',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -220,7 +220,7 @@ export function RecapSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '7px',
+              fontSize: '9px',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -274,7 +274,7 @@ export function RecapSection() {
             <div
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: '7px',
+                fontSize: '9px',
                 color: 'var(--ink-3)',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',

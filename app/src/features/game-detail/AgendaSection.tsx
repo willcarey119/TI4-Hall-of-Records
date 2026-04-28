@@ -258,7 +258,7 @@ export function AgendaSection() {
               <span
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 7,
+                  fontSize: 9,
                   padding: '0 3px',
                   lineHeight: '11px',
                   display: 'inline-block',

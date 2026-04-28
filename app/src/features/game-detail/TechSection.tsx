@@ -159,7 +159,7 @@ export function TechSection() {
                       <span
                         style={{
                           fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 7,
+                          fontSize: 9,
                           border: '1px solid var(--cool)',
                           color: 'var(--cool)',
                           padding: '0 3px',
