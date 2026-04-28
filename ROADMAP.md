@@ -2,8 +2,9 @@
 
 Phased delivery plan. Each phase has a goal, a set of deliverables, the test surface that proves it works, and an explicit acceptance bar. We do not start phase N+1 until phase N's acceptance bar is met.
 
-> **Current position (2026-04-28):** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 🔲 in progress
-> All 6 game-detail sections complete (VP Race, Timeline, Dashboard, Planets, Tech, Agenda). Aggregator layer underway.
+> **Current position (2026-04-28):** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5a ✅ · Phase 5b–5d 🔲 in progress
+> App is live at https://ti4-hall-of-records-da562.web.app (Firebase project: `ti4-hall-of-records-da562`).
+> 456 tests passing. Next: Phase 5b (UX/legibility improvements).
 > See `CLAUDE.md` for the full status table.
 
 The Master Guidance Document defines four phases (Ingestion → Single-Game Replay → Meta-Dashboard → Polish). This roadmap **prepends a Phase 0** for project scaffolding, which is currently missing, and breaks each phase into concrete TDD-sized tickets.
@@ -112,7 +113,7 @@ Dropzone → `parseGame` → preview → "Save to Firestore" button. Validation 
 **What's done:**
 - ✅ Design tokens + Google Fonts loaded (`wireframes.css`, Newsreader / IBM Plex Sans / IBM Plex Mono / Caveat)
 - ✅ Shared primitives: `Mast`, `Kicker`, `Label`, `Rule`, `FactionChip`
-- ✅ Always-visible chrome: `FrozenHeader` (6-button nav), `ScrollBody` (IntersectionObserver, 6 sections)
+- ✅ Always-visible chrome: `FrozenHeader` (7-button nav), `ScrollBody` (IntersectionObserver, 7 sections)
 - ✅ `GameContext` + `useGame` hook; `GameDetailPage` with loading/error states
 - ✅ Tech section: `buildTechSummary`, `lookupTechColor` (tech color dictionary), `TechSection` component
 - ✅ Agenda section: `buildAgendaSummary`, `lookupAgenda` (62-entry agenda dictionary), `AgendaSection` component
@@ -120,8 +121,9 @@ Dropzone → `parseGame` → preview → "Save to Firestore" button. Validation 
 - ✅ Timeline: `buildTimelineFeed`, `TimelineSection` chronological event feed
 - ✅ Dashboard: `DashboardSection` faction dossier
 - ✅ Planets: `PlanetsSection` planet control ledger
+- ✅ Recap: `buildRecapSummary`, `RecapSection` "The Galactic Chronicle" newspaper front page (masthead, headline, deck, 3-col grid, standings strip)
 
-### 2.1 — VP Race chart (HERO — Screen 7A) ← next up
+### 2.1 — VP Race chart (HERO — Screen 7A)
 Editorial slope chart: rounds on x-axis (or `gameTime` formatted h:mm:ss), cumulative VP on y-axis, one line per faction. Leader line highlighted in `--accent` (faded vermillion), 10/12/14-VP win-line drawn with `--rule`. Two-column body with editorial drop cap explaining the story. Animate the path on round change (1.2 s cubic-bezier).
 
 - **Test first:** `buildVpTimeline(vpEvents, factions)` returns one series per faction with running totals and a leading `(0, 0)` data point.
@@ -145,7 +147,7 @@ Editorial masthead: date, duration, expansions, faction lineup, final scores, wi
 
 ---
 
-## Phase 3 — Meta-Dashboard (Faction-First)
+## Phase 3 — Meta-Dashboard (Faction-First) ✅ COMPLETE
 
 **Goal:** Cross-game insights for the playgroup, organized around **factions** as the primary axis. Players change every game and are anonymized by default; first-name stats are a best-effort sidecar.
 
@@ -175,23 +177,93 @@ Average game length, average winning VP, "kingmaker" patterns (who scored last b
 
 **Phase 3 acceptance:** All six game exports visible in aggregate; the user can answer "what's the highest-win-rate Discordant Stars faction" in two clicks. Player names are anonymized by default everywhere; first-name attribution is opt-in per name.
 
+**What's done (390 tests at completion):**
+- ✅ `/meta` route — lazy-loaded `MetaDashboard` with Factions, Strategy, Techs, Stats tabs
+- ✅ Factions tab: pick rate, win rate, avg final VP, avg score time per faction
+- ✅ Strategy tab: most-picked strategy cards per round, faction correlations
+- ✅ Techs tab: most-researched techs overall and by faction
+- ✅ Stats tab: game-level aggregate stats (avg game length, avg winning VP, etc.)
+- ✅ `ErrorBoundary` wrapping MetaDashboard; loading/error states
+
 ---
 
-## Phase 4 — Polish & Deploy
+## Phase 4 — Polish & Deploy ✅ COMPLETE
 
-**Visual direction:** newspaper / almanac editorial broadsheet. See [`design_handoff_ti4_tracker/README.md`](design_handoff_ti4_tracker/README.md) for the full handoff (10 screens × 4 variations, type system, color tokens, suggested implementation order). The earlier "Deep Space" dark-theme placeholder is retired.
+**Visual direction:** newspaper / almanac editorial broadsheet. See [`design_handoff_ti4_tracker/README.md`](design_handoff_ti4_tracker/README.md) for the full handoff. The earlier "Deep Space" dark-theme placeholder is retired.
 
-- **Hi-fi pass on the design tokens** — port `wireframes.css` custom properties (`--paper`, `--paper-2`, `--rule`, `--ink`, `--ink-2/3/4`, `--accent`, `--cool`, `--gold`, `--moss`) into the Tailwind theme. Replace the stub Deep Space tokens currently in `app/tailwind.config.ts`.
-- **Fonts** — load Newsreader (display), IBM Plex Sans (body/UI), IBM Plex Mono (data/labels), Caveat (margin annotations) from Google Fonts. Configure subsetting + `display=swap`.
-- **Faction color palette** — replace the wireframes' placeholder oklch faction tokens with the official 25-faction palette (TI4 base + PoK + Codex + Discordant Stars).
-- **Iconography pass** — replace text/SVG glyph placeholders (`✦`, `♔`, `⚔`, `⚖`, `🜨`, `◆`, `▲`, `◌`, `⌖`, faction monograms) with proper SVG icons or commissioned faction crests.
-- **Animations** — VP slope chart path transitions (1.2 s cubic-bezier), round-dot pulse, recap stagger-in stats, combat feed fade-in, phase-clock needle rotation. (See design handoff §Animations.)
-- **Hero screens first** — Screen 7A (VP Race slope chart) and Screen 10A (End-Game Recap front page) are the highest-payoff hi-fi targets. Most other screens can stay mid-fi for the initial Phase 4 launch.
-- Loading skeletons, error boundaries, empty states.
-- Performance: code-split by route; lazy-load chart libraries.
-- Lighthouse ≥ 90 on the main dashboard.
-- Vercel deploy with `main` branch protection and preview deploys for PRs.
-- `README.md` final pass with screenshots.
+**What was delivered:**
+
+**Phase 4a — Robustness + Deploy (commit `054cea7`):**
+- `ErrorBoundary` shared component wrapping `<Routes>` in `App.tsx`
+- MetaDashboard loading/error states (was silently showing empty sections)
+- Firebase Hosting config in `firebase.json` with SPA rewrite
+- App deployed to https://ti4-hall-of-records-da562.web.app
+
+**Phase 4b — Bundle splitting (commit `054cea7`):**
+- `React.lazy` route splitting — main bundle 719 kB → 235 kB (67% reduction)
+- Firebase SDK in its own lazy chunk (only loads on `/meta` route)
+
+**Phase 4c — Hero screens hi-fi:**
+- VP Race: SVG circles at each VP point (r=1.5 interior, r=3 terminal), drop cap editorial prose, improved headline ("takes the throne.")
+- RecapSection "The Galactic Chronicle" — header strip, masthead, kicker, headline, deck, 3-col grid, standings strip; wired as first section with Recap nav tab; `buildRecapSummary` pure function
+
+**Phase 4d — Faction brand colors:**
+- `src/lib/factions/factionBrandColors.ts` — 39-key Record (25 standard + Mahact alias + 13 DS), `getFactionBrandColor(factionId, fallback)` helper
+- CSS `--f-*` custom properties on `:root` in `index.css`
+- `FactionChip` and RecapSection winner swatch use brand color with game-token color as fallback
+
+**Deferred (intentional):**
+- Iconography pass — not planned
+- Animations — not planned
+- Lighthouse ≥ 90 — not yet measured
+- README screenshots pass — not planned
+- Vercel deploy — using Firebase Hosting instead
+
+---
+
+## Phase 5 — Improvements, Cleanup & New Views
+
+**Goal:** Fix confirmed bugs surfaced after deploy, improve legibility and UX, consolidate shared code, and add new analytics views.
+
+### Phase 5a — Critical Bug Fixes ✅ COMPLETE (456 tests, 2026-04-28)
+
+All four bugs confirmed from live-app review:
+
+- ✅ `getVictoryPointThreshold` helper — reads `options['victory-points']` (real TI Assistant export key) with `victoryPoints` camelCase fallback. Fixes VP line position, recap prose, and dashboard winner detection for non-default VP thresholds.
+- ✅ VP chart terminal points — every faction series now has ≥ 2 points; 0-VP factions render as a flat line instead of being invisible.
+- ✅ Dashboard objective chips — removed broken `SOURCE_LABEL` map; chips now display actual objective names ("Diversify Research", "Custodians Token").
+- ✅ Planet inventory seeding — `buildPlanetSummary` and `buildDashboardSummary` now seed `finalOwner` with `startingPlanets` before walking events; home-system planets appear in faction totals.
+
+### Phase 5b — UX & Legibility Improvements 🔲
+
+- **Font size controls** — `A–`/`A+` toggle in `FrozenHeader` nav, adjusts `--font-scale` CSS variable (default `1`), persisted in `localStorage`. All text that currently uses `px` font sizes should use `calc(Npx * var(--font-scale))`.
+- **Default font size improvements** — audit and improve default sizes for legibility before shipping the font scale feature.
+- **Tech section reorder** — move "Final Inventories" above "Research Order" (currently Research Order renders first).
+- **Strategy card secondary tracking fix** — `MARK_SECONDARY` events require `state.activeStrategyCard` set by `SELECT_ACTION`; if that state is missing, secondary events get empty card names. Investigate parser state machine and fix.
+- **Tech round labels** — tech events currently show `round: 0` (displayed as "—") because `deriveRoundBoundaries` returns `[]`. Implement round boundary derivation from `phaseSnapshots` and pass to `TechSection`.
+
+### Phase 5c — Consolidation & Cleanup 🔲
+
+Driven by a comprehensive code review of the full app:
+
+- Extract `FactionDot` (the colored circle used in standings strip and legend) to `src/shared/` — currently duplicated across components.
+- Extract tech color constants (`COLOR_VAR` map) from `TechSection` to `src/shared/` — used or could be used in multiple places.
+- Fix `formatters` usage in `GamePreview` — uses raw date formatting instead of `formatDate` from `src/shared/formatters`.
+- Extract `useScrollSpy` hook from `ScrollBody` to `src/shared/hooks/` — reusable scroll intersection observer.
+- Delete `src/features/game-replay/` if it exists and is unused (leftover from early scaffolding).
+- Decide on `gameTime` field usage — audit whether `VpPoint.timestamp` vs `VpPoint.gameTimeSeconds` is consistently used.
+- Update `CLAUDE.md` status table — fix stale "6-button / 6 sections" reference (now 7 sections with Recap tab).
+
+### Phase 5d — New Analytics Views 🔲
+
+New views planned based on post-deploy feedback:
+
+- **Scoring pace curve** — in MetaDashboard, overlay normalized scoring pace across multiple games; shows "typical" VP trajectory vs outlier games.
+- **Dedicated `/agenda` route** — expand the Agenda breakdown beyond the current game-detail section into a full cross-game page: which agendas pass/fail most often, VP impact by agenda, vote distribution heatmap.
+- **Speaker order correlation** — does going first / last as speaker correlate with win rate? Show in MetaDashboard Stats tab.
+- **Relic performance** — track Shard of the Throne, Crown of Emphidia, and other relic VP sources across games.
+- **Tech path analysis** — "most common tech unlock order by faction" and "fastest tech researched" views.
+- **Round-by-round score snapshots** — extend RecapSection standings strip to show VP at each round boundary, not just final scores.
 
 ---
 

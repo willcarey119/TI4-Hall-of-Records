@@ -14,18 +14,23 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 
 ## Current Status
 
-**Phases 0, 1, 2, and 3 are complete.** Next: Phase 3.5 (player attribution) or Phase 4 (Polish & Deploy).
+**Phases 0–4 and Phase 5a are complete.** App is live at https://ti4-hall-of-records-da562.web.app. Next: Phase 5b (UX & legibility improvements).
 
 | Phase | Status |
 |---|---|
 | Phase 0 — Scaffolding | ✅ Complete |
 | Phase 1a — Parser layer | ✅ Complete — all 7 exports parse cleanly, ≥ 90% coverage |
 | Phase 1b — Upload UI + Firestore adapter | ✅ Complete — DropZone → parse → preview → save round-trip working |
-| Phase 2a — Nav shell + shared primitives | ✅ Complete — Router, FrozenHeader (6-button), ScrollBody (6 sections), Mast/Kicker/Label/Rule/FactionChip |
-| Phase 2 — All 6 game-detail sections | ✅ Complete — VP Race, Timeline, Dashboard, Planets, Tech, Agenda all implemented |
+| Phase 2a — Nav shell + shared primitives | ✅ Complete — Router, FrozenHeader (7-button), ScrollBody (7 sections), Mast/Kicker/Label/Rule/FactionChip |
+| Phase 2 — All 7 game-detail sections | ✅ Complete — Recap, VP Race, Timeline, Dashboard, Planets, Tech, Agenda |
 | Phase 3 — Meta-Dashboard | ✅ Complete — `/meta` route with Factions, Strategy, Techs, Stats; 390 tests |
+| Phase 4 — Polish & Deploy | ✅ Complete — hero screens hi-fi, faction brand colors, bundle splitting, Firebase Hosting deploy |
+| Phase 5a — Critical bug fixes | ✅ Complete — VP threshold key, chart terminal points, dashboard names, planet seeding; 456 tests |
+| Phase 5b — UX & legibility | 🔲 Planned — font size controls, tech reorder, strategy card fix, round labels |
+| Phase 5c — Consolidation | 🔲 Planned — shared extractions, cleanup, CLAUDE.md update |
+| Phase 5d — New analytics views | 🔲 Planned — /agenda route, scoring pace, speaker correlation, relics, tech paths |
 
-**Next up:** Phase 3.5 (opt-in first-name attribution) or Phase 4 (Polish & Deploy). See ROADMAP.md.
+**Next up:** Phase 5b. See ROADMAP.md for full spec.
 
 All app code lives under `D:\_TI4 App\app\`.
 
