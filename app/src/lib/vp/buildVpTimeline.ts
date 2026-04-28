@@ -1,4 +1,5 @@
 import type { VpEvent, FactionSetup } from '../parser/types';
+import { getVictoryPointThreshold } from '../parser/options';
 
 export interface VpPoint {
   timestamp: number;
@@ -30,8 +31,7 @@ export function buildVpTimeline(
   options: Record<string, unknown>,
   gameDurationSeconds: number,
 ): VpTimelineSummary {
-  const raw = options['victoryPoints'];
-  const victoryPoints = typeof raw === 'number' ? raw : 10;
+  const victoryPoints = getVictoryPointThreshold(options);
   const firstTimestamp = vpEvents[0]?.timestamp ?? 0;
 
   // Initialize running totals and series maps

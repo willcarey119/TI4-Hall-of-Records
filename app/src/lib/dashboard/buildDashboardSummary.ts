@@ -1,6 +1,7 @@
 import type { VpEvent, PlanetEvent, TechEvent, FactionSetup, VpSource } from '../parser/types';
 import { lookupTechColor } from '../parser/techs';
 import type { TechColor } from '../parser/techs';
+import { getVictoryPointThreshold } from '../parser/options';
 
 export interface ObjectiveScoredEntry {
   objective: string;
@@ -38,8 +39,7 @@ export function buildDashboardSummary(
   finalScores: Record<string, number>,
   options: Record<string, unknown>,
 ): DashboardSummary {
-  const raw = options['victoryPoints'];
-  const victoryPoints = typeof raw === 'number' ? raw : 10;
+  const victoryPoints = getVictoryPointThreshold(options);
 
   // Final planet ownership (last event per planet wins)
   const finalPlanetOwner: Record<string, string | null> = {};

@@ -1,4 +1,5 @@
 import type { ParsedGame } from '../parser/types';
+import { getVictoryPointThreshold } from '../parser/options';
 
 export interface RecapStanding {
   rank: number;
@@ -21,8 +22,7 @@ export interface RecapSummary {
 }
 
 export function buildRecapSummary(game: ParsedGame): RecapSummary {
-  const raw = game.options['victoryPoints'];
-  const victoryPoints = typeof raw === 'number' ? raw : 10;
+  const victoryPoints = getVictoryPointThreshold(game.options);
 
   const sortedFactions = game.factions
     .slice()
