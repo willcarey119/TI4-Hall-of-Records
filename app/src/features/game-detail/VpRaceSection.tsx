@@ -111,6 +111,19 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpTimelineSu
         stroke={stroke} strokeWidth={sw}
         strokeLinejoin="round" strokeLinecap="round"
       />
+      {s.points.map((p, i) => {
+        const cx = xScale(p.gameTimeSeconds, gameDurationSeconds);
+        const cy = yScale(p.cumulativeVp, victoryPoints);
+        const isLast = i === s.points.length - 1;
+        return (
+          <circle
+            key={i}
+            cx={cx} cy={cy}
+            r={isLast ? 3 : 1.5}
+            fill={stroke}
+          />
+        );
+      })}
       {lastPt !== undefined && (
         <text
           x={xScale(lastPt.gameTimeSeconds, gameDurationSeconds) + 4}
@@ -246,6 +259,21 @@ function VpRaceContent({
           </div>
         ))}
       </div>
+
+      {/* Editorial prose with drop cap */}
+      <p
+        className="dropcap"
+        style={{
+          fontFamily: "'Newsreader', Georgia, serif",
+          fontSize: 10,
+          lineHeight: 1.55,
+          color: 'var(--ink-2)',
+          marginTop: 10,
+          marginBottom: 0,
+        }}
+      >
+        {summary.editorialProse}
+      </p>
     </>
   );
 }

@@ -20,6 +20,7 @@ export interface VpTimelineSummary {
   gameDurationSeconds: number;
   headline: string;
   deckText: string;
+  editorialProse: string;
 }
 
 export function buildVpTimeline(
@@ -72,9 +73,11 @@ export function buildVpTimeline(
   const winner = series.find(s => s.isWinner);
   const leader = [...series].sort((a, b) => b.finalVp - a.finalVp)[0];
   const hours = Math.round((gameDurationSeconds / 3600) * 10) / 10;
+  const sortedByVp = [...series].sort((a, b) => b.finalVp - a.finalVp);
+  const secondVp = sortedByVp[1]?.finalVp ?? 0;
 
   const headline = winner !== undefined
-    ? `${winner.factionId} wins.`
+    ? `${winner.factionId} takes the throne.`
     : 'The race is unfinished.';
 
   const deckText = winner !== undefined
@@ -83,5 +86,11 @@ export function buildVpTimeline(
       ? `${leader.factionId} led with ${leader.finalVp} VP after ${hours}h.`
       : `${series.length} factions competed over ${hours}h.`;
 
-  return { series, victoryPoints, gameDurationSeconds, headline, deckText };
+  const editorialProse = winner !== undefined
+    ? `${winner.factionId} reached ${winner.finalVp} victory points in ${hours}h, claiming the galaxy by a margin of ${winner.finalVp - secondVp}. ${series.length} factions contested the stars; the campaign ran its full course before a victor emerged.`
+    : leader !== undefined
+      ? `After ${hours}h, ${leader.factionId} held the lead with ${leader.finalVp} VP. No empire reached the ${victoryPoints}-point threshold before the game concluded.`
+      : `${series.length} factions competed over ${hours}h without a decisive conclusion.`;
+
+  return { series, victoryPoints, gameDurationSeconds, headline, deckText, editorialProse };
 }

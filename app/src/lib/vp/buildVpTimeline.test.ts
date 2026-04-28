@@ -86,3 +86,35 @@ describe('buildVpTimeline', () => {
     expect(sol?.points[2]?.gameTimeSeconds).toBe(2000);  // second event = t0 + 2000
   });
 });
+
+describe('editorialProse and headline wording', () => {
+  const factions: FactionSetup[] = [
+    { factionId: 'Sol', playerName: 'Tim', color: '#aaa', mapPosition: 0, startingTechs: [], startingPlanets: [] },
+    { factionId: 'Hacan', playerName: 'Jake', color: '#bbb', mapPosition: 1, startingTechs: [], startingPlanets: [] },
+  ];
+  const winnerEvents: VpEvent[] = [
+    { faction: 'Sol', objective: 'Imperial', points: 1, timestamp: 100, source: 'imperial' },
+    { faction: 'Hacan', objective: 'Public I', points: 1, timestamp: 200, source: 'public_objective' },
+    { faction: 'Sol', objective: 'Imperial', points: 9, timestamp: 300, source: 'imperial' },
+  ];
+  const winnerScores = { Sol: 10, Hacan: 1 };
+
+  it('headline contains "takes the throne" when there is a winner', () => {
+    const summary = buildVpTimeline(winnerEvents, factions, winnerScores, { victoryPoints: 10 }, 3600);
+    expect(summary.headline).toContain('takes the throne');
+  });
+
+  it('editorialProse is a non-empty string containing the winner faction name', () => {
+    const summary = buildVpTimeline(winnerEvents, factions, winnerScores, { victoryPoints: 10 }, 3600);
+    expect(summary.editorialProse.length).toBeGreaterThan(20);
+    expect(summary.editorialProse).toContain('Sol');
+  });
+
+  it('editorialProse is non-empty when there is no winner', () => {
+    const noWinEvents: VpEvent[] = [
+      { faction: 'Sol', objective: 'Pub I', points: 3, timestamp: 100, source: 'public_objective' },
+    ];
+    const summary = buildVpTimeline(noWinEvents, factions, { Sol: 3, Hacan: 0 }, {}, 1800);
+    expect(summary.editorialProse.length).toBeGreaterThan(10);
+  });
+});

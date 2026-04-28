@@ -23,3 +23,13 @@ body {
   color: var(--ink);
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
 }
+
+.dropcap::first-letter {
+  float: left;
+  font-size: 2.8em;
+  font-weight: 800;
+  line-height: 0.82;
+  margin-right: 0.06em;
+  font-family: 'Newsreader', Georgia, serif;
+  color: var(--ink);
+}
