@@ -127,18 +127,19 @@ describe('buildTechSummary', () => {
     ];
     const factions: FactionSetup[] = [makeFaction('Sol')];
     const boundaries: RoundBoundary[] = [
-      { round: 1, phaseStartTimestamp: 0 },
-      { round: 2, phaseStartTimestamp: 1000 },
+      { round: 1, startTimestamp: 0 },
+      { round: 2, startTimestamp: 1000 },
     ];
     const result = buildTechSummary(events, factions, [], boundaries);
     expect(result.timeline[0]?.round).toBe(1);
   });
 });
 
-describe('deriveRoundBoundaries', () => {
-  it('returns empty array for any input', () => {
-    // PhaseSnapshot has no timestamp field; round boundary derivation
-    // requires timestamp-augmented data. Returns [] until that data exists.
-    expect(deriveRoundBoundaries([])).toEqual([]);
+describe('deriveRoundBoundaries (re-export from buildTechSummary)', () => {
+  it('is re-exported from the aggregator module for backward compatibility', () => {
+    // The canonical implementation lives in src/lib/aggregator/deriveRoundBoundaries.ts.
+    // buildTechSummary.ts re-exports it so existing imports keep working.
+    expect(typeof deriveRoundBoundaries).toBe('function');
+    expect(deriveRoundBoundaries([], 4)).toEqual([]);
   });
 });

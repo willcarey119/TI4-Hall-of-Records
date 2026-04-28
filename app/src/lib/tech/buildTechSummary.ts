@@ -1,6 +1,10 @@
 import { lookupTechColor } from '../parser/techs';
 import type { TechColor } from '../parser/techs';
 import type { TechEvent, FactionSetup, PhaseSnapshot } from '../parser/types';
+import { deriveRoundBoundaries, assignRound, type RoundBoundary } from '../aggregator/deriveRoundBoundaries';
+
+export { deriveRoundBoundaries, assignRound };
+export type { RoundBoundary };
 
 export interface TechTimelineEntry {
   round: number;
@@ -27,29 +31,6 @@ export interface TechSummary {
   totalResearched: number;
   totalStarting: number;
   deckText: string;
-}
-
-export interface RoundBoundary {
-  round: number;
-  phaseStartTimestamp: number;
-}
-
-/** Derive round boundaries from phaseSnapshots.
- *  PhaseSnapshot has no timestamp — this is an extension point for callers
- *  that have timestamp-augmented snapshots. Returns empty array as default. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function deriveRoundBoundaries(_snapshots: PhaseSnapshot[]): RoundBoundary[] {
-  return [];
-}
-
-function assignRound(timestamp: number, boundaries: RoundBoundary[]): number {
-  if (boundaries.length === 0) return 0;
-  let round = boundaries[0]?.round ?? 0;
-  for (const b of boundaries) {
-    if (b.phaseStartTimestamp <= timestamp) round = b.round;
-    else break;
-  }
-  return round;
 }
 
 export function buildTechSummary(
