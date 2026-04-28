@@ -16,7 +16,7 @@ export function StatsSection() {
     return <section id="stats" data-section="stats" style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }} />;
   }
 
-  const maxVpRound = Math.max(1, ...Object.values(gameStats.objectiveTiming.vpByRound));
+  const maxVpRound = Math.max(1, ...Object.values(gameStats.objectiveTiming.avgVpPerRound));
 
   return (
     <section id="stats" data-section="stats" style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }}>
@@ -49,7 +49,7 @@ export function StatsSection() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12, fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>
         <div><span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 16, fontWeight: 800 }}>{fmtPct(gameStats.mecatol.firstClaimerWinRate)}</span><div style={{ color: 'var(--ink-3)', fontSize: 7 }}>FIRST CLAIMER WINS</div></div>
         <div><span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 16, fontWeight: 800 }}>{gameStats.mecatol.avgFirstClaimRound === null ? '—' : `Rnd ${gameStats.mecatol.avgFirstClaimRound.toFixed(1)}`}</span><div style={{ color: 'var(--ink-3)', fontSize: 7 }}>AVG FIRST CLAIM</div></div>
-        <div><span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 16, fontWeight: 800 }}>{gameStats.mecatol.avgTurnoverPerGame.toFixed(1)}×</span><div style={{ color: 'var(--ink-3)', fontSize: 7 }}>AVG TURNOVERS / GAME</div></div>
+        <div><span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 16, fontWeight: 800 }}>{gameStats.mecatol.avgTurnover.toFixed(1)}×</span><div style={{ color: 'var(--ink-3)', fontSize: 7 }}>AVG TURNOVERS / GAME</div></div>
       </div>
 
       <Rule />
@@ -74,14 +74,14 @@ export function StatsSection() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
             <div>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 7, color: 'var(--ink-3)', textTransform: 'uppercase' }}>Tactical Leaders</div>
-              {gameStats.actionTypes.topTactical.map(t => (
-                <div key={t.factionId} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>{t.factionId} · {t.avgPerGame.toFixed(1)}/game</div>
+              {gameStats.actionTypes.topTacticalFactions.map(factionId => (
+                <div key={factionId} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>{factionId}</div>
               ))}
             </div>
             <div>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 7, color: 'var(--ink-3)', textTransform: 'uppercase' }}>Component Leaders</div>
-              {gameStats.actionTypes.topComponent.map(t => (
-                <div key={t.factionId} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>{t.factionId} · {t.avgPerGame.toFixed(1)}/game</div>
+              {gameStats.actionTypes.topComponentFactions.map(factionId => (
+                <div key={factionId} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>{factionId}</div>
               ))}
             </div>
           </div>
@@ -141,7 +141,7 @@ export function StatsSection() {
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11 }}>
         {gameStats.comingFromBehind.gamesWithRound3Data === 0
           ? <span style={{ color: 'var(--ink-3)' }}>Requires 3+ rounds of data.</span>
-          : <span>Round 3 leader wins: <strong>{gameStats.comingFromBehind.round3LeaderWins} of {gameStats.comingFromBehind.gamesWithRound3Data}</strong> ({fmtPct(gameStats.comingFromBehind.round3LeaderWinRate)})</span>
+          : <span>Round 3 leader wins: <strong>{gameStats.comingFromBehind.decidedGames} of {gameStats.comingFromBehind.gamesWithRound3Data}</strong> ({fmtPct(gameStats.comingFromBehind.round3LeaderWinRate)})</span>
         }
       </div>
 
@@ -164,11 +164,11 @@ export function StatsSection() {
       {/* Objective timing */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Objective Timing — VP per Round</div>
       <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: 50, marginBottom: 12 }}>
-        {Object.entries(gameStats.objectiveTiming.vpByRound).sort(([a], [b]) => Number(a) - Number(b)).map(([round, vp]) => (
+        {Object.entries(gameStats.objectiveTiming.avgVpPerRound).sort(([a], [b]) => Number(a) - Number(b)).map(([round, vp]) => (
           <div key={round} style={{ flex: 1, textAlign: 'center', fontFamily: "'IBM Plex Mono', monospace", fontSize: 8 }}>
             <div style={{ background: 'var(--ink)', width: '100%', height: (vp / maxVpRound) * 40 }} />
             <div style={{ color: 'var(--ink-3)' }}>R{round}</div>
-            <div>{vp}</div>
+            <div>{vp.toFixed(1)}</div>
           </div>
         ))}
       </div>
@@ -180,10 +180,10 @@ export function StatsSection() {
       {gameStats.heroActivations.length === 0 ? (
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)' }}>No hero activation data recorded.</div>
       ) : gameStats.heroActivations.map(h => (
-        <div key={`${h.factionId}::${h.leaderName}`} style={{ display: 'flex', gap: 6, padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>
-          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 10 }}>{h.factionId} · {h.leaderName}</span>
+        <div key={h.leaderName} style={{ display: 'flex', gap: 6, padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>
+          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 10 }}>{h.leaderName}</span>
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)' }}>
-            {h.avgActivationRound === null ? '—' : `Rnd ${h.avgActivationRound.toFixed(1)} avg`} · {h.gamesActivated}/{h.gamesPlayed} games
+            {h.avgActivationRound === null ? '—' : `Rnd ${h.avgActivationRound.toFixed(1)} avg`} · {h.gamesActivated} games
           </span>
         </div>
       ))}
