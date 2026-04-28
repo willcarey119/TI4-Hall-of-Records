@@ -47,10 +47,11 @@ export function buildVpTimeline(
     running[event.faction] = prev + event.points;
     const arr = pointsMap[event.faction];
     if (arr !== undefined) {
+      const cumulative = running[event.faction] ?? 0;
       arr.push({
         timestamp: event.timestamp,
         gameTimeSeconds: event.timestamp - firstTimestamp,
-        cumulativeVp: running[event.faction],
+        cumulativeVp: cumulative,
       });
     }
   }
