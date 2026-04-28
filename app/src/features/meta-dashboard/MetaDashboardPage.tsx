@@ -68,7 +68,7 @@ function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
               lineHeight: 1.1,
             }}
           >
-            League Stats
+            LEAGUE STATS
           </div>
           <div
             style={{

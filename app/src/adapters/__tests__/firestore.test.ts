@@ -1,7 +1,7 @@
 // src/adapters/__tests__/firestore.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { DocumentSnapshot, DocumentData, QuerySnapshot } from 'firebase/firestore';
-import { signInAnon, saveGame, listGames, loadGame } from '../firestore';
+import { signInAnon, saveGame, listGames, loadGame, loadAllGames } from '../firestore';
 import { setDoc, getDoc, getDocs } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 
@@ -121,6 +121,31 @@ describe('listGames', () => {
     } as unknown as QuerySnapshot<DocumentData>);
 
     const result = await listGames();
+    expect(result).toEqual([]);
+  });
+});
+
+describe('loadAllGames', () => {
+  it('returns all ParsedGame objects when docs are present', async () => {
+    vi.mocked(getDocs).mockResolvedValueOnce({
+      docs: [
+        { data: () => ({ ...mockGame }) },
+        { data: () => ({ ...mockGame, gameId: 'xyz789' }) },
+      ],
+    } as unknown as QuerySnapshot<DocumentData>);
+
+    const result = await loadAllGames();
+    expect(result).toHaveLength(2);
+    expect(result[0]?.gameId).toBe('abc123');
+    expect(result[1]?.gameId).toBe('xyz789');
+  });
+
+  it('returns an empty array when the collection is empty', async () => {
+    vi.mocked(getDocs).mockResolvedValueOnce({
+      docs: [],
+    } as unknown as QuerySnapshot<DocumentData>);
+
+    const result = await loadAllGames();
     expect(result).toEqual([]);
   });
 });
