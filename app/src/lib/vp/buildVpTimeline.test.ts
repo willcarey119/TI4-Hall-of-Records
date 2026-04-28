@@ -70,11 +70,12 @@ describe('buildVpTimeline', () => {
   it('silently drops VP events for unregistered factions', () => {
     const events = [makeVpEvent('Unknown', 5, 100)];
     const result = buildVpTimeline(events, FACTIONS, SCORES, OPTIONS, 3600);
-    // 'Unknown' is not in FACTIONS — should not appear in any points array
+    expect(result.series).toHaveLength(2);
+    // Known factions should have only the anchor point — no VP was added
     for (const s of result.series) {
-      expect(s.points.every(p => p.cumulativeVp === 0 || s.factionId !== 'Unknown')).toBe(true);
+      expect(s.points).toHaveLength(1);
+      expect(s.points[0]?.cumulativeVp).toBe(0);
     }
-    expect(result.series).toHaveLength(2); // still two series for known factions
   });
 
   it('gameTimeSeconds on each point is relative to the first event timestamp', () => {
