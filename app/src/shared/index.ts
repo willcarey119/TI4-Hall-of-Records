@@ -1,3 +1,4 @@
+export { ErrorBoundary } from './ErrorBoundary';
 export { Label } from './Label';
 export { Rule } from './Rule';
 export { Mast } from './Mast';
