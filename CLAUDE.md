@@ -14,7 +14,7 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 
 ## Current Status
 
-**Phases 0, 1, and 2 are complete.** We are in Phase 3 (Meta-Dashboard).
+**Phases 0, 1, 2, and 3 are complete.** Next: Phase 3.5 (player attribution) or Phase 4 (Polish & Deploy).
 
 | Phase | Status |
 |---|---|
@@ -23,9 +23,9 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 | Phase 1b — Upload UI + Firestore adapter | ✅ Complete — DropZone → parse → preview → save round-trip working |
 | Phase 2a — Nav shell + shared primitives | ✅ Complete — Router, FrozenHeader (6-button), ScrollBody (6 sections), Mast/Kicker/Label/Rule/FactionChip |
 | Phase 2 — All 6 game-detail sections | ✅ Complete — VP Race, Timeline, Dashboard, Planets, Tech, Agenda all implemented |
-| Phase 3 — Meta-Dashboard aggregator layer | 🔲 In progress — Tasks 1–6 of 15 done (factionExpansions, roundBoundaries, factionStats, strategyCardStats, techStats) |
+| Phase 3 — Meta-Dashboard | ✅ Complete — `/meta` route with Factions, Strategy, Techs, Stats; 390 tests |
 
-**Next up:** Task 7 — `buildGameStats` (Mecatol, action types, relics, VP diversity, Stage II first-scorer).
+**Next up:** Phase 3.5 (opt-in first-name attribution) or Phase 4 (Polish & Deploy). See ROADMAP.md.
 
 All app code lives under `D:\_TI4 App\app\`.
 
