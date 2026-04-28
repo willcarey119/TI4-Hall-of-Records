@@ -13,16 +13,6 @@ const COLOR_VAR: Record<TechColor, string> = {
   unit:   'var(--ink-2)',
 };
 
-const SOURCE_LABEL: Record<string, string> = {
-  objective: 'OBJ',
-  custodians: 'CUST',
-  imperial: 'IMP',
-  support: 'SUPP',
-  relic: 'RELIC',
-  agenda: 'AGD',
-  rider: 'RIDER',
-};
-
 function TechPip({ color }: { color: TechColor }) {
   return (
     <span
@@ -134,9 +124,8 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
                   lineHeight: '13px',
                   display: 'inline-block',
                 }}
-                title={obj.objective}
               >
-                {SOURCE_LABEL[obj.source] ?? 'OBJ'}{obj.points > 1 ? ` +${obj.points}` : ''}
+                {obj.objective}{obj.points > 1 ? ` +${obj.points}` : ''}
               </span>
             ))}
           </div>
