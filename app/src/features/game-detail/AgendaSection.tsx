@@ -272,7 +272,7 @@ export function AgendaSection() {
               </span>
               {entry.electedFaction !== undefined ? (
                 <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--ink-3)' }}>
-                  Elect: {entry.entry?.elect?.toString().replace(/-/g, ' ')} · <strong style={{ color: 'var(--ink)' }}>{entry.electedFaction} elected</strong>
+                  Elect: {entry.entry?.elect?.replace(/-/g, ' ')} · <strong style={{ color: 'var(--ink)' }}>{entry.electedFaction} elected</strong>
                 </span>
               ) : (
                 <>
