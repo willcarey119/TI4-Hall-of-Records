@@ -158,67 +158,71 @@ export function TechSection() {
 
       {/* Final Inventories */}
       <Label>Final Inventories</Label>
-      {summary.inventories.map((inv, i) => {
-        const faction = game.factions.find(f => f.factionId === inv.factionId);
-        if (!faction || inv.techs.length === 0) return null;
-        return (
-          <div key={inv.factionId}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: 5,
-                margin: '5px 0 2px',
-              }}
-            >
-              <FactionDot color={faction.color} />
-              <span
+      {summary.inventories
+        .filter((inv) => {
+          const faction = game.factions.find(f => f.factionId === inv.factionId);
+          return faction !== undefined && inv.techs.length > 0;
+        })
+        .map((inv, i, arr) => {
+          const faction = game.factions.find(f => f.factionId === inv.factionId)!;
+          return (
+            <div key={inv.factionId}>
+              <div
                 style={{
-                  fontFamily: "'Newsreader', Georgia, serif",
-                  fontWeight: 700,
-                  fontSize: 11,
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  gap: 5,
+                  margin: '5px 0 2px',
                 }}
               >
-                {faction.factionId}
-              </span>
-              <span
-                style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 8,
-                  color: 'var(--ink-3)',
-                  marginLeft: 'auto',
-                }}
-              >
-                {inv.techs.length} tech{inv.techs.length !== 1 ? 's' : ''}
-              </span>
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6, fontSize: 10 }}>
-              {inv.techs.map((t, j) => (
-                <span key={j} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <TechPip color={t.color} />
-                  {t.tech}
-                  {t.origin === 'starting' && (
-                    <span
-                      style={{
-                        fontFamily: "'IBM Plex Mono', monospace",
-                        fontSize: 7,
-                        border: '1px solid var(--cool)',
-                        color: 'var(--cool)',
-                        padding: '0 3px',
-                        lineHeight: '12px',
-                        display: 'inline-block',
-                      }}
-                    >
-                      start
-                    </span>
-                  )}
+                <FactionDot color={faction.color} />
+                <span
+                  style={{
+                    fontFamily: "'Newsreader', Georgia, serif",
+                    fontWeight: 700,
+                    fontSize: 11,
+                  }}
+                >
+                  {faction.factionId}
                 </span>
-              ))}
+                <span
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 8,
+                    color: 'var(--ink-3)',
+                    marginLeft: 'auto',
+                  }}
+                >
+                  {inv.techs.length} tech{inv.techs.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6, fontSize: 10 }}>
+                {inv.techs.map((t, j) => (
+                  <span key={j} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <TechPip color={t.color} />
+                    {t.tech}
+                    {t.origin === 'starting' && (
+                      <span
+                        style={{
+                          fontFamily: "'IBM Plex Mono', monospace",
+                          fontSize: 7,
+                          border: '1px solid var(--cool)',
+                          color: 'var(--cool)',
+                          padding: '0 3px',
+                          lineHeight: '12px',
+                          display: 'inline-block',
+                        }}
+                      >
+                        start
+                      </span>
+                    )}
+                  </span>
+                ))}
+              </div>
+              {i < arr.length - 1 && <Rule />}
             </div>
-            {i < summary.inventories.length - 1 && <Rule />}
-          </div>
-        );
-      })}
+          );
+        })}
     </section>
   );
 }
