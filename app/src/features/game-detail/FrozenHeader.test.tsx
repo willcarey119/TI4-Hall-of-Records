@@ -73,12 +73,14 @@ it('shows faction chips for all factions', () => {
   expect(screen.getByText(/Hacan/)).toBeInTheDocument();
 });
 
-it('renders all four nav buttons', () => {
+it('renders all six nav buttons', () => {
   renderHeader();
   expect(screen.getByRole('button', { name: /VP Race/i })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /Timeline/i })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /Dashboard/i })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /Planets/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Tech/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Agenda/i })).toBeInTheDocument();
 });
 
 it('highlights the active section nav button with heavier font weight', () => {

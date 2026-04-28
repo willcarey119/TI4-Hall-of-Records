@@ -1,6 +1,30 @@
 import { render, act } from '@testing-library/react';
 import { vi, beforeEach, afterEach } from 'vitest';
 import { ScrollBody } from './ScrollBody';
+import { GameContext } from './GameContext';
+import type { ParsedGame } from '../../lib/parser/types';
+
+const minimalGame = {
+  gameId: 'test', playedAt: 0, durationSeconds: 0,
+  factions: [], options: {}, initialSpeaker: '',
+  phaseSnapshots: [], vpEvents: [], planetEvents: [],
+  techEvents: [], agendaResolutions: [], strategyCardEvents: [],
+  actionCardEvents: [], componentEvents: [], relicEvents: [],
+  leaderEvents: [], objectiveReveals: [], speakerEvents: [],
+  attachmentEvents: [], allianceEvents: [], promissoryNoteEvents: [],
+  expeditionEvents: [], secondaryEvents: [], actionEvents: [],
+  finalScores: {}, winner: null,
+  timers: { game: 0, factions: {}, secondaries: {}, agendas: { first: 0, second: 0 } },
+  warnings: [],
+} as unknown as ParsedGame;
+
+function renderScrollBody(onSectionChange = vi.fn()) {
+  return render(
+    <GameContext.Provider value={{ game: minimalGame, loading: false, error: null }}>
+      <ScrollBody onSectionChange={onSectionChange} />
+    </GameContext.Provider>
+  );
+}
 
 // IntersectionObserver is not implemented in jsdom — stub it.
 let observerCallbacks: IntersectionObserverCallback[] = [];
@@ -20,22 +44,24 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it('renders all four section stubs', () => {
-  render(<ScrollBody onSectionChange={vi.fn()} />);
+it('renders all six section stubs', () => {
+  renderScrollBody();
   expect(document.getElementById('vp-race')).toBeInTheDocument();
   expect(document.getElementById('timeline')).toBeInTheDocument();
   expect(document.getElementById('dashboard')).toBeInTheDocument();
   expect(document.getElementById('planets')).toBeInTheDocument();
+  expect(document.getElementById('tech')).toBeInTheDocument();
+  expect(document.getElementById('agenda')).toBeInTheDocument();
 });
 
 it('creates IntersectionObservers on mount', () => {
-  render(<ScrollBody onSectionChange={vi.fn()} />);
-  expect(IntersectionObserver).toHaveBeenCalledTimes(4);
+  renderScrollBody();
+  expect(IntersectionObserver).toHaveBeenCalledTimes(6);
 });
 
 it('calls onSectionChange when a section enters the viewport', () => {
   const onSectionChange = vi.fn();
-  render(<ScrollBody onSectionChange={onSectionChange} />);
+  renderScrollBody(onSectionChange);
 
   // Fire the timeline observer (index 1) with an intersecting entry
   act(() => {

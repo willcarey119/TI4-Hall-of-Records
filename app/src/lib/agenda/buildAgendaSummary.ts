@@ -70,7 +70,7 @@ export function buildAgendaSummary(
       entry: dictEntry,
       outcome: res.outcome,
       passed,
-      electedFaction,
+      ...(electedFaction !== undefined ? { electedFaction } : {}),
       totalFor,
       totalAgainst,
       votes: res.votes,

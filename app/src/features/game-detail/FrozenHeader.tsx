@@ -7,10 +7,12 @@ function scrollToSection(id: string): void {
 }
 
 const SECTIONS = [
-  { id: 'vp-race', label: 'VP Race' },
-  { id: 'timeline', label: 'Timeline' },
+  { id: 'vp-race',   label: 'VP Race' },
+  { id: 'timeline',  label: 'Timeline' },
   { id: 'dashboard', label: 'Dashboard' },
-  { id: 'planets', label: 'Planets' },
+  { id: 'planets',   label: 'Planets' },
+  { id: 'tech',      label: 'Tech' },
+  { id: 'agenda',    label: 'Agenda' },
 ] as const;
 
 interface FrozenHeaderProps {

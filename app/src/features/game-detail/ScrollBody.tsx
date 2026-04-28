@@ -3,12 +3,14 @@ import { VpRaceSection } from './VpRaceSection';
 import { TimelineSection } from './TimelineSection';
 import { DashboardSection } from './DashboardSection';
 import { PlanetsSection } from './PlanetsSection';
+import { TechSection } from './TechSection';
+import { AgendaSection } from './AgendaSection';
 
 interface ScrollBodyProps {
   onSectionChange: (sectionId: string) => void;
 }
 
-const SECTION_IDS = ['vp-race', 'timeline', 'dashboard', 'planets'] as const;
+const SECTION_IDS = ['vp-race', 'timeline', 'dashboard', 'planets', 'tech', 'agenda'] as const;
 
 export function ScrollBody({ onSectionChange }: ScrollBodyProps) {
   // Stable ref so the effect closure always calls the latest callback
@@ -53,6 +55,8 @@ export function ScrollBody({ onSectionChange }: ScrollBodyProps) {
       <TimelineSection />
       <DashboardSection />
       <PlanetsSection />
+      <TechSection />
+      <AgendaSection />
     </div>
   );
 }
