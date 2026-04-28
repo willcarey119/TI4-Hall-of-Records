@@ -58,6 +58,7 @@ export interface ReducerState {
   currentPhase: string;
   currentSpeaker: string;
   currentTurnFaction: string; // updated by END_TURN.prevFaction
+  activeStrategyCard: string; // set by SELECT_ACTION when action is a card name
   revealedObjectives: string[];
   custodiansTaken: boolean;
   // Pending agenda buffers — drained at RESOLVE_AGENDA
@@ -104,6 +105,7 @@ export function createInitialState(factions: FactionSetup[]): ReducerState {
     currentPhase: 'strategy',
     currentSpeaker: '',
     currentTurnFaction: '',
+    activeStrategyCard: '',
     revealedObjectives: [],
     custodiansTaken: false,
     pendingAgenda: null,
@@ -596,14 +598,25 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       } else {
         return { ...state, warnings: [...state.warnings, `MARK_SECONDARY unknown state "${stateRaw}" at ${entry.timestamp}`] };
       }
-      const ev: SecondaryEvent = {
+      const secondaryEv: SecondaryEvent = {
         faction: factionRaw,
-        strategyCard: '',
+        strategyCard: state.activeStrategyCard,
         timestamp: entry.timestamp,
         type: secondaryType,
         ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
       };
-      return { ...state, secondaryEvents: [...state.secondaryEvents, ev] };
+      const cardEv: StrategyCardEvent = {
+        faction: factionRaw,
+        card: state.activeStrategyCard,
+        timestamp: entry.timestamp,
+        type: stateRaw === 'DONE' ? 'play_secondary' : 'pass_secondary',
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return {
+        ...state,
+        secondaryEvents: [...state.secondaryEvents, secondaryEv],
+        strategyCardEvents: [...state.strategyCardEvents, cardEv],
+      };
     }
 
     case 'PLAY_COMPONENT': {
@@ -636,7 +649,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         PASS: 'pass',
       };
       const actionType = actionTypeMap[raw];
-      if (actionType === undefined) return state;
+      if (actionType === undefined) return { ...state, activeStrategyCard: raw };
       const ev: ActionTypeEvent = {
         faction: state.currentTurnFaction,
         actionType,

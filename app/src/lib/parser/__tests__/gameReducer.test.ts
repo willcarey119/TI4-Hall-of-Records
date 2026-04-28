@@ -566,6 +566,61 @@ describe('gameReducer — strategy card and secondary events', () => {
     expect(result.warnings.some((w) => w.includes('MARK_SECONDARY'))).toBe(true);
     expect(result.secondaryEvents).toHaveLength(0);
   });
+
+  it('SELECT_ACTION with a card name sets activeStrategyCard', () => {
+    const result = reduce([makeEntry('SELECT_ACTION', { action: 'Politics' }, 100)]);
+    expect(result.activeStrategyCard).toBe('Politics');
+  });
+
+  it('SELECT_ACTION with TACTICAL/COMPONENT/PASS does not overwrite activeStrategyCard', () => {
+    const result = reduce([
+      makeEntry('SELECT_ACTION', { action: 'Warfare' }, 100),
+      makeEntry('SELECT_ACTION', { action: 'TACTICAL' }, 200),
+    ]);
+    expect(result.activeStrategyCard).toBe('Warfare');
+  });
+
+  it('MARK_SECONDARY DONE emits play_secondary StrategyCardEvent with active card', () => {
+    const result = reduce([
+      makeEntry('SELECT_ACTION', { action: 'Technology' }, 100),
+      makeEntry('MARK_SECONDARY', { faction: 'barony', state: 'DONE' }, 200),
+    ]);
+    const scEv = result.strategyCardEvents.find(e => e.type === 'play_secondary');
+    expect(scEv).toMatchObject({ faction: 'barony', card: 'Technology', type: 'play_secondary' });
+  });
+
+  it('MARK_SECONDARY SKIPPED emits pass_secondary StrategyCardEvent with active card', () => {
+    const result = reduce([
+      makeEntry('SELECT_ACTION', { action: 'Imperial' }, 100),
+      makeEntry('MARK_SECONDARY', { faction: 'arborec', state: 'SKIPPED' }, 200),
+    ]);
+    const scEv = result.strategyCardEvents.find(e => e.type === 'pass_secondary');
+    expect(scEv).toMatchObject({ faction: 'arborec', card: 'Imperial', type: 'pass_secondary' });
+  });
+
+  it('MARK_SECONDARY without prior SELECT_ACTION emits event with empty card (graceful)', () => {
+    const result = reduce([
+      makeEntry('MARK_SECONDARY', { faction: 'barony', state: 'DONE' }, 100),
+    ]);
+    const scEv = result.strategyCardEvents.find(e => e.type === 'play_secondary');
+    expect(scEv?.card).toBe('');
+  });
+
+  it('MARK_SECONDARY DONE sets SecondaryEvent.strategyCard from activeStrategyCard', () => {
+    const result = reduce([
+      makeEntry('SELECT_ACTION',  { action: 'Technology' }),
+      makeEntry('MARK_SECONDARY', { faction: 'Sol', state: 'DONE' }),
+    ]);
+    expect(result.secondaryEvents[0]?.strategyCard).toBe('Technology');
+  });
+
+  it('MARK_SECONDARY SKIPPED sets SecondaryEvent.strategyCard from activeStrategyCard', () => {
+    const result = reduce([
+      makeEntry('SELECT_ACTION',  { action: 'Politics' }),
+      makeEntry('MARK_SECONDARY', { faction: 'Hacan', state: 'SKIPPED' }),
+    ]);
+    expect(result.secondaryEvents[0]?.strategyCard).toBe('Politics');
+  });
 });
 
 describe('gameReducer — action cards and components', () => {
