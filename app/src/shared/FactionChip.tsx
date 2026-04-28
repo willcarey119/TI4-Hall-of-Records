@@ -1,3 +1,5 @@
+import { getFactionBrandColor } from '../lib/factions/factionBrandColors';
+
 interface FactionChipProps {
   factionId: string;
   color: string;
@@ -33,7 +35,7 @@ export function FactionChip({
           width: '7px',
           height: '7px',
           borderRadius: '50%',
-          background: color,
+          background: getFactionBrandColor(factionId, color),
           flexShrink: 0,
           display: 'inline-block',
         }}

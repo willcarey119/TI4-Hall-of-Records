@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildRecapSummary } from '../../lib/recap/buildRecapSummary';
 import { Rule, formatDate, formatDuration } from '../../shared';
+import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 
 export function RecapSection() {
   const { game } = useGame();
@@ -139,7 +140,7 @@ export function RecapSection() {
                 style={{
                   width: 36,
                   height: 36,
-                  background: winner.color,
+                  background: getFactionBrandColor(winner.factionId, winner.color),
                   opacity: 0.7,
                   marginBottom: 4,
                 }}
