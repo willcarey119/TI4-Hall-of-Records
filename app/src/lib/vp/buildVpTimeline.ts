@@ -57,6 +57,19 @@ export function buildVpTimeline(
     }
   }
 
+  // Push a terminal point at gameDurationSeconds so every series has ≥ 2 points
+  for (const f of factions) {
+    const arr = pointsMap[f.factionId];
+    const lastPt = arr?.[arr.length - 1];
+    if (arr !== undefined && lastPt !== undefined && lastPt.gameTimeSeconds < gameDurationSeconds) {
+      arr.push({
+        timestamp: lastPt.timestamp,
+        gameTimeSeconds: gameDurationSeconds,
+        cumulativeVp: finalScores[f.factionId] ?? 0,
+      });
+    }
+  }
+
   // Build series ordered by mapPosition
   const series: FactionVpSeries[] = factions
     .slice()

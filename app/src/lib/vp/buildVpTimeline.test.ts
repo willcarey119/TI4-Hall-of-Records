@@ -40,9 +40,9 @@ describe('buildVpTimeline', () => {
     ];
     const result = buildVpTimeline(events, FACTIONS, SCORES, OPTIONS, 3600);
     const sol = result.series.find(s => s.factionId === 'Sol');
-    expect(sol?.points.map(p => p.cumulativeVp)).toEqual([0, 1, 3]);
+    expect(sol?.points.map(p => p.cumulativeVp)).toEqual([0, 1, 3, 7]);
     const hacan = result.series.find(s => s.factionId === 'Hacan');
-    expect(hacan?.points.map(p => p.cumulativeVp)).toEqual([0, 3]);
+    expect(hacan?.points.map(p => p.cumulativeVp)).toEqual([0, 3, 10]);
   });
 
   it('marks the winner (faction at or above victoryPoints in finalScores)', () => {
@@ -71,9 +71,9 @@ describe('buildVpTimeline', () => {
     const events = [makeVpEvent('Unknown', 5, 100)];
     const result = buildVpTimeline(events, FACTIONS, SCORES, OPTIONS, 3600);
     expect(result.series).toHaveLength(2);
-    // Known factions should have only the anchor point — no VP was added
+    // Each registered faction has anchor + terminal; the unknown faction's event is discarded
     for (const s of result.series) {
-      expect(s.points).toHaveLength(1);
+      expect(s.points).toHaveLength(2);
       expect(s.points[0]?.cumulativeVp).toBe(0);
     }
   });
@@ -84,6 +84,45 @@ describe('buildVpTimeline', () => {
     const sol = result.series.find(s => s.factionId === 'Sol');
     expect(sol?.points[1]?.gameTimeSeconds).toBe(0);     // first event = t0
     expect(sol?.points[2]?.gameTimeSeconds).toBe(2000);  // second event = t0 + 2000
+  });
+});
+
+describe('terminal point', () => {
+  it('every series ends at gameTimeSeconds equal to gameDurationSeconds', () => {
+    const result = buildVpTimeline([], FACTIONS, SCORES, OPTIONS, 3600);
+    for (const s of result.series) {
+      const last = s.points[s.points.length - 1];
+      expect(last?.gameTimeSeconds).toBe(3600);
+    }
+  });
+
+  it('terminal point cumulativeVp matches finalVp', () => {
+    const result = buildVpTimeline([], FACTIONS, SCORES, OPTIONS, 3600);
+    for (const s of result.series) {
+      const last = s.points[s.points.length - 1];
+      expect(last?.cumulativeVp).toBe(s.finalVp);
+    }
+  });
+
+  it('a faction with no VP events has exactly 2 points: anchor and terminal', () => {
+    const result = buildVpTimeline([], FACTIONS, SCORES, OPTIONS, 3600);
+    const sol = result.series.find(s => s.factionId === 'Sol');
+    expect(sol?.points).toHaveLength(2);
+    expect(sol?.points[0]?.cumulativeVp).toBe(0);
+    expect(sol?.points[1]?.cumulativeVp).toBe(7);
+  });
+
+  it('a faction with VP events has anchor + events + terminal', () => {
+    const events = [
+      makeVpEvent('Sol', 3, 100),
+      makeVpEvent('Sol', 4, 200),
+    ];
+    const result = buildVpTimeline(events, FACTIONS, SCORES, OPTIONS, 3600);
+    const sol = result.series.find(s => s.factionId === 'Sol');
+    // anchor(0) + event(3) + event(7) + terminal(7) = 4 points
+    expect(sol?.points).toHaveLength(4);
+    expect(sol?.points[3]?.gameTimeSeconds).toBe(3600);
+    expect(sol?.points[3]?.cumulativeVp).toBe(7);
   });
 });
 
