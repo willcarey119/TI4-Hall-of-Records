@@ -134,31 +134,37 @@ case 'SELECT_ACTION': {
 
 **File:** `src/lib/aggregator/deriveRoundBoundaries.ts`
 
-Uses `ObjectiveReveal` events as anchors — the only event type that carries both a `round` number and a `timestamp`. The reveal of round N's objectives marks the end of round N's Status Phase; all events before that timestamp (and after round N-1's last reveal) are assigned to round N.
+Uses **strategy card pick events** as anchors. The Strategy Phase is the first real action of every round — the first pick in each round's strategy phase marks round start. Since every faction picks exactly one strategy card per round, sorted pick events form clusters of exactly `factionCount` events. Chunking by `factionCount` gives clean round boundaries with no ambiguity.
+
+The single exception is game start: initial setup events (starting techs, starting planets) precede round 1's strategy phase, but these carry timestamps before the first pick and are correctly assigned to round 1 by the `assignRound` helper.
 
 ```ts
 export interface RoundBoundary {
   round: number;
-  /** Timestamp of the last ObjectiveReveal for this round (end of Status Phase). */
-  endTimestamp: number;
+  /** Timestamp of the first strategy card pick in this round. */
+  startTimestamp: number;
 }
 
 /**
- * Returns round boundaries derived from objective reveal timestamps.
- * Events with timestamp ≤ boundaries[i].endTimestamp belong to round boundaries[i].round.
- * Events after the last boundary are assigned to the final round.
- * Returns [] if no objective reveals exist (pre-Phase-3 data or very short games).
+ * Returns round boundaries derived from strategy card pick timestamps.
+ *
+ * Sort all 'pick' events by timestamp ascending. Chunk into groups of
+ * factionCount — each group is one round's strategy phase. The minimum
+ * timestamp in each chunk is that round's startTimestamp.
+ *
+ * Returns [] if no pick events exist (very short / incomplete games).
  */
 export function deriveRoundBoundaries(
-  objectiveReveals: ObjectiveReveal[]
+  strategyCardEvents: StrategyCardEvent[],
+  factionCount: number
 ): RoundBoundary[]
 ```
 
 **Implementation logic:**
-1. Group `objectiveReveals` by `round`.
-2. For each round, take the **maximum** timestamp across all reveals in that round.
-3. Sort by round ascending.
-4. Return `[{ round: 1, endTimestamp: T1 }, { round: 2, endTimestamp: T2 }, ...]`.
+1. Filter `strategyCardEvents` to `type === 'pick'`, sort by timestamp ascending.
+2. Chunk into groups of `factionCount`.
+3. For each chunk at index `i`, emit `{ round: i + 1, startTimestamp: chunk[0].timestamp }`.
+4. Return sorted array (already in order by construction).
 
 **Helper used by aggregators:**
 
@@ -167,22 +173,24 @@ export function assignRound(
   timestamp: number,
   boundaries: RoundBoundary[]
 ): number {
-  // Returns the round number for a given timestamp.
-  // Assigns to the first boundary whose endTimestamp >= timestamp.
-  // Falls back to the last boundary's round if beyond all boundaries.
+  // Find the latest boundary whose startTimestamp <= timestamp.
+  // Falls back to round 1 if timestamp precedes all boundaries (setup events).
+  let assigned = boundaries[0]?.round ?? 1;
   for (const b of boundaries) {
-    if (timestamp <= b.endTimestamp) return b.round;
+    if (b.startTimestamp <= timestamp) assigned = b.round;
+    else break;
   }
-  return boundaries.length > 0 ? (boundaries[boundaries.length - 1]?.round ?? 1) : 1;
+  return assigned;
 }
 ```
 
 **Tests required:**
-- Returns sorted array with one entry per round
-- `assignRound` returns correct round for timestamps in each range
-- `assignRound` falls back to final round for post-game timestamps
-- Returns `[]` for empty `objectiveReveals`
-- Handles multiple reveals in one round (takes max timestamp)
+- 3 factions × 2 rounds → 6 picks → 2 boundaries with correct startTimestamps
+- `assignRound` returns round 1 for timestamps before first pick (setup events)
+- `assignRound` returns correct round for timestamps mid-round
+- `assignRound` returns final round for post-game timestamps
+- Returns `[]` for empty strategyCardEvents
+- Partial final round (game ends before all picks): last chunk smaller than factionCount → still emits a boundary for that round
 
 ---
 
@@ -495,7 +503,7 @@ export function MetaProvider({ children }: { children: React.ReactNode }): JSX.E
 export function useMeta(): MetaState
 ```
 
-**On mount:** call `loadAllGames()`, compute `deriveRoundBoundaries` per game, build `roundBoundariesByGame: Map<string, RoundBoundary[]>` keyed on `gameId`, then run all four aggregators. All computation runs synchronously after the async load.
+**On mount:** call `loadAllGames()`, then for each game compute `deriveRoundBoundaries(game.strategyCardEvents, game.factions.length)`. Build `roundBoundariesByGame: Map<string, RoundBoundary[]>` keyed on `gameId`. Run all four aggregators synchronously after the async load.
 
 ---
 
