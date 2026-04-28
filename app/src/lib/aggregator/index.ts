@@ -11,3 +11,5 @@ export type {
 } from './buildFactionStats';
 export { buildStrategyCardStats } from './buildStrategyCardStats';
 export type { StrategyCardStat, StrategyCardSummary } from './buildStrategyCardStats';
+export { buildTechStats } from './buildTechStats';
+export type { TechStat, TechSummary } from './buildTechStats';
