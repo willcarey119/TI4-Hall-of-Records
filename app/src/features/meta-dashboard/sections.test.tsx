@@ -4,12 +4,14 @@ import { FactionSection } from './FactionSection';
 import { StrategyCardSection } from './StrategyCardSection';
 import { TechSection } from './TechSection';
 import { StatsSection } from './StatsSection';
+import { PlayerSection } from './PlayerSection';
 
 const cases = [
   { Component: FactionSection,      id: 'factions' },
   { Component: StrategyCardSection, id: 'strategy' },
   { Component: TechSection,         id: 'techs'    },
   { Component: StatsSection,        id: 'stats'    },
+  { Component: PlayerSection,       id: 'players'  },
 ] as const;
 
 cases.forEach(({ Component, id }) => {

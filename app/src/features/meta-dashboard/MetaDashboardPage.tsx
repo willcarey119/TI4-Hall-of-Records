@@ -6,12 +6,14 @@ import { FactionSection } from './FactionSection';
 import { StrategyCardSection } from './StrategyCardSection';
 import { TechSection } from './TechSection';
 import { StatsSection } from './StatsSection';
+import { PlayerSection } from './PlayerSection';
 
 const META_SECTIONS = [
   { id: 'factions', label: 'Factions' },
   { id: 'strategy', label: 'Strategy' },
   { id: 'techs',    label: 'Techs'    },
   { id: 'stats',    label: 'Stats'    },
+  { id: 'players',  label: 'Players'  },
 ] as const;
 
 type MetaSectionId = typeof META_SECTIONS[number]['id'];
@@ -163,6 +165,7 @@ function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => 
       <StrategyCardSection />
       <TechSection />
       <StatsSection />
+      <PlayerSection />
     </div>
   );
 }
