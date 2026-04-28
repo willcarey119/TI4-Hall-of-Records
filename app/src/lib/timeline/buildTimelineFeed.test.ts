@@ -84,4 +84,21 @@ describe('buildTimelineFeed', () => {
   it('handles empty inputs without throwing', () => {
     expect(() => buildTimelineFeed([], [], [], [])).not.toThrow();
   });
+
+  it('agenda subLabel shows vote totals when votes are present', () => {
+    const agenda: AgendaResolution = {
+      agenda: 'Mining Initiative',
+      outcome: 'For',
+      round: 2,
+      timestamp: 100,
+      votes: [
+        { faction: 'Sol', outcome: 'For', votes: 5 },
+        { faction: 'Hacan', outcome: 'For', votes: 3 },
+        { faction: 'Jol-Nar', outcome: 'Against', votes: 4 },
+      ],
+      riders: [],
+    };
+    const result = buildTimelineFeed([], [agenda], [], []);
+    expect(result.items[0]?.subLabel).toBe('8 for · 4 against');
+  });
 });

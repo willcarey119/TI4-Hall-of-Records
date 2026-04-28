@@ -97,6 +97,9 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpTimelineSu
     })
     .join(' ');
 
+  // Intentional editorial design: winner highlighted in accent, others in neutral ink.
+  // Faction identity is communicated via the legend's color dots, not the line strokes.
+  // This creates clear visual hierarchy and matches the newspaper/almanac aesthetic.
   const stroke = s.isWinner ? 'var(--accent)' : 'var(--ink-3)';
   const sw = s.isWinner ? 2 : 1;
   const lastPt = s.points[s.points.length - 1];
