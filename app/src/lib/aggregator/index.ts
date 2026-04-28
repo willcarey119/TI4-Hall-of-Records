@@ -13,3 +13,10 @@ export { buildStrategyCardStats } from './buildStrategyCardStats';
 export type { StrategyCardStat, StrategyCardSummary } from './buildStrategyCardStats';
 export { buildTechStats } from './buildTechStats';
 export type { TechStat, TechSummary } from './buildTechStats';
+export { buildGameStats } from './buildGameStats';
+export type {
+  ActionTypeBreakdown, MecatolStat, HeroActivation, RelicStat,
+  AgendaStat, VpSourceStat, ComingFromBehindStat, ObjectiveTimingStat,
+  VpDiversityStat, Stage2Stat, GameStatsSummary,
+} from './buildGameStats';
+export { isHeroLeader, HERO_LEADERS } from './heroLeaders';
