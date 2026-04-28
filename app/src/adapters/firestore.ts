@@ -68,3 +68,10 @@ export async function loadGame(gameId: string): Promise<ParsedGame> {
   }
   return snap.data() as unknown as ParsedGame;
 }
+
+/** Returns all stored games ordered by playedAt descending. */
+export async function loadAllGames(): Promise<ParsedGame[]> {
+  const q = query(collection(db, 'games'), orderBy('playedAt', 'desc'));
+  const snap = await getDocs(q);
+  return snap.docs.map(docSnap => docSnap.data() as unknown as ParsedGame);
+}
