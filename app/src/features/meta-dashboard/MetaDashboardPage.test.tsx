@@ -40,5 +40,6 @@ describe('MetaDashboardPage', () => {
     );
 
     expect(await screen.findByText('Network failure')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /refresh/i })).toBeInTheDocument();
   });
 });
