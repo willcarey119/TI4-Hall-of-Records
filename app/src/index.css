@@ -33,3 +33,45 @@ body {
   font-family: 'Newsreader', Georgia, serif;
   color: var(--ink);
 }
+
+/* Faction brand colors — 25 standard factions + DS corpus */
+:root {
+  --f-arborec:               #2d6a4f;
+  --f-barony-of-letnev:      #7a1c1c;
+  --f-clan-of-saar:          #8b7d2a;
+  --f-embers-of-muaat:       #d44418;
+  --f-emirates-of-hacan:     #c8900c;
+  --f-federation-of-sol:     #1a5eb0;
+  --f-ghosts-of-creuss:      #1a4ab5;
+  --f-l1z1x-mindnet:         #3a0c14;
+  --f-mentak-coalition:      #8a4c10;
+  --f-naalu-collective:      #1a8a3a;
+  --f-nekro-virus:           #a01010;
+  --f-sardakk-norr:          #3a1010;
+  --f-universities-of-jol-nar: #1a30a0;
+  --f-winnu:                 #c07a18;
+  --f-xxcha-kingdom:         #1a7a6a;
+  --f-yin-brotherhood:       #50188a;
+  --f-yssaril-tribes:        #5a7820;
+  --f-argent-flight:         #d97c2b;
+  --f-council-keleres:       #9a7840;
+  --f-empyrean:              #6b2fb0;
+  --f-mahact-gene-sorcerers: #c8b010;
+  --f-naaz-rokha-alliance:   #5a8a18;
+  --f-nomad:                 #3030a0;
+  --f-titans-of-ul:          #c04a7a;
+  --f-vuil-raith-cabal:      #6a0c18;
+  --f-augurs-of-ilyxum:      #9a7030;
+  --f-crimson-rebellion:     #a01818;
+  --f-deepwrought-scholarate: #1a3a8a;
+  --f-firmament:             #3a90c8;
+  --f-free-systems-compact:  #2a8a5a;
+  --f-kollecc-society:       #7a3a2a;
+  --f-kortali-tribunal:      #5a3a7a;
+  --f-l-tokk-khrask:         #7a5a2a;
+  --f-li-zho-dynasty:        #c83a1a;
+  --f-nivyn-star-kings:      #c8a020;
+  --f-ral-nel-consortium:    #5a8a3a;
+  --f-vaden-banking-clans:   #9a8a1a;
+  --f-veldyr-sovereignty:    #3a1a6a;
+}
