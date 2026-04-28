@@ -75,11 +75,13 @@ export function buildTechSummary(
   const factionsSorted = [...factions].sort((a, b) => a.mapPosition - b.mapPosition);
   const inventories: FactionTechInventory[] = factionsSorted.map((faction) => {
     const techs: FactionTechInventoryItem[] = sorted
-      .filter((e) => e.faction === faction.factionId && (e.type === 'research' || e.type === 'starting'))
+      .filter((e): e is TechEvent & { type: 'research' | 'starting' } =>
+        e.faction === faction.factionId && (e.type === 'research' || e.type === 'starting')
+      )
       .map((e) => ({
         tech: e.tech,
         color: lookupTechColor(e.tech),
-        origin: e.type as 'research' | 'starting',
+        origin: e.type,
       }));
     return { factionId: faction.factionId, techs };
   });

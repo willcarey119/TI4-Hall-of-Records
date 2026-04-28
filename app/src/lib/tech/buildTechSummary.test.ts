@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildTechSummary } from './buildTechSummary';
+import { buildTechSummary, deriveRoundBoundaries } from './buildTechSummary';
 import type { TechEvent, FactionSetup } from '../parser/types';
 
 const makeFaction = (id: string, map = 0): FactionSetup => ({
@@ -118,5 +118,13 @@ describe('buildTechSummary', () => {
     const result = buildTechSummary(events, [makeFaction('Sol')], []);
     expect(typeof result.deckText).toBe('string');
     expect(result.deckText.length).toBeGreaterThan(0);
+  });
+});
+
+describe('deriveRoundBoundaries', () => {
+  it('returns empty array for any input', () => {
+    // PhaseSnapshot has no timestamp field; round boundary derivation
+    // requires timestamp-augmented data. Returns [] until that data exists.
+    expect(deriveRoundBoundaries([])).toEqual([]);
   });
 });
