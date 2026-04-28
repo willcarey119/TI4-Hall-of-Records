@@ -22,7 +22,7 @@ describe('buildTechSummary', () => {
       makeTechEvent('Hacan', 'Sarween Tools', 'starting', 100),
       makeTechEvent('Sol', 'Bio-Stims', 'research', 1000),
     ];
-    const result = buildTechSummary(events, [makeFaction('Sol'), makeFaction('Hacan')], []);
+    const result = buildTechSummary(events, [makeFaction('Sol'), makeFaction('Hacan')]);
     expect(result.timeline).toHaveLength(2);
     expect(result.timeline[0]?.tech).toBe('Bio-Stims');
     expect(result.timeline[1]?.tech).toBe('Neural Motivator');
@@ -32,7 +32,7 @@ describe('buildTechSummary', () => {
     const events: TechEvent[] = [
       makeTechEvent('Sol', 'Bio-Stims', 'research', 1000),
     ];
-    const result = buildTechSummary(events, [makeFaction('Sol')], []);
+    const result = buildTechSummary(events, [makeFaction('Sol')]);
     expect(result.timeline[0]?.factionId).toBe('Sol');
   });
 
@@ -40,7 +40,7 @@ describe('buildTechSummary', () => {
     const events: TechEvent[] = [
       makeTechEvent('Sol', 'Sarween Tools', 'research', 1000),
     ];
-    const result = buildTechSummary(events, [makeFaction('Sol')], []);
+    const result = buildTechSummary(events, [makeFaction('Sol')]);
     expect(result.timeline[0]?.color).toBe('yellow');
   });
 
@@ -49,7 +49,7 @@ describe('buildTechSummary', () => {
       makeTechEvent('Sol', 'Neural Motivator', 'starting', 100),
       makeTechEvent('Sol', 'Bio-Stims', 'research', 1000),
     ];
-    const result = buildTechSummary(events, [makeFaction('Sol')], []);
+    const result = buildTechSummary(events, [makeFaction('Sol')]);
     expect(result.inventories[0]?.techs).toHaveLength(2);
   });
 
@@ -58,7 +58,7 @@ describe('buildTechSummary', () => {
       makeTechEvent('Sol', 'Neural Motivator', 'starting', 100),
       makeTechEvent('Sol', 'Bio-Stims', 'research', 1000),
     ];
-    const result = buildTechSummary(events, [makeFaction('Sol')], []);
+    const result = buildTechSummary(events, [makeFaction('Sol')]);
     const techs = result.inventories[0]?.techs ?? [];
     expect(techs.find(t => t.tech === 'Neural Motivator')?.origin).toBe('starting');
     expect(techs.find(t => t.tech === 'Bio-Stims')?.origin).toBe('research');
@@ -72,7 +72,6 @@ describe('buildTechSummary', () => {
     const result = buildTechSummary(
       events,
       [makeFaction('Sol', 1), makeFaction('Hacan', 0)],
-      [],
     );
     expect(result.inventories[0]?.factionId).toBe('Hacan');
     expect(result.inventories[1]?.factionId).toBe('Sol');
@@ -84,7 +83,7 @@ describe('buildTechSummary', () => {
       makeTechEvent('Sol', 'Bio-Stims', 'research', 1000),
       makeTechEvent('Sol', 'Sarween Tools', 'research', 2000),
     ];
-    const result = buildTechSummary(events, [makeFaction('Sol')], []);
+    const result = buildTechSummary(events, [makeFaction('Sol')]);
     expect(result.totalResearched).toBe(2);
   });
 
@@ -97,7 +96,6 @@ describe('buildTechSummary', () => {
     const result = buildTechSummary(
       events,
       [makeFaction('Sol'), makeFaction('Hacan')],
-      [],
     );
     expect(result.totalStarting).toBe(2);
   });
@@ -107,7 +105,7 @@ describe('buildTechSummary', () => {
       makeTechEvent('Sol', 'Bio-Stims', 'research', 1000),
       makeTechEvent('Sol', 'Bio-Stims', 'purge', 2000),
     ];
-    const result = buildTechSummary(events, [makeFaction('Sol')], []);
+    const result = buildTechSummary(events, [makeFaction('Sol')]);
     expect(result.totalResearched).toBe(1);
     expect(result.timeline).toHaveLength(1);
   });
@@ -116,22 +114,30 @@ describe('buildTechSummary', () => {
     const events: TechEvent[] = [
       makeTechEvent('Sol', 'Bio-Stims', 'research', 1000),
     ];
-    const result = buildTechSummary(events, [makeFaction('Sol')], []);
+    const result = buildTechSummary(events, [makeFaction('Sol')]);
     expect(typeof result.deckText).toBe('string');
     expect(result.deckText.length).toBeGreaterThan(0);
   });
 
-  it('assigns round from boundaries when provided', () => {
-    const events: TechEvent[] = [
-      makeTechEvent('Sol', 'Bio-Stims', 'research', 500),
-    ];
+  it('assigns round from boundaries', () => {
     const factions: FactionSetup[] = [makeFaction('Sol')];
     const boundaries: RoundBoundary[] = [
       { round: 1, startTimestamp: 0 },
       { round: 2, startTimestamp: 1000 },
     ];
-    const result = buildTechSummary(events, factions, [], boundaries);
-    expect(result.timeline[0]?.round).toBe(1);
+    const r1result = buildTechSummary(
+      [makeTechEvent('Sol', 'Bio-Stims', 'research', 500)],
+      factions,
+      boundaries,
+    );
+    expect(r1result.timeline[0]?.round).toBe(1);
+
+    const r2result = buildTechSummary(
+      [makeTechEvent('Sol', 'Neural Motivator', 'research', 1500)],
+      factions,
+      boundaries,
+    );
+    expect(r2result.timeline[0]?.round).toBe(2);
   });
 });
 

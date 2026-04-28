@@ -1,6 +1,6 @@
 import { lookupTechColor } from '../parser/techs';
 import type { TechColor } from '../parser/techs';
-import type { TechEvent, FactionSetup, PhaseSnapshot } from '../parser/types';
+import type { TechEvent, FactionSetup } from '../parser/types';
 import { deriveRoundBoundaries, assignRound, type RoundBoundary } from '../aggregator/deriveRoundBoundaries';
 
 export { deriveRoundBoundaries, assignRound };
@@ -36,7 +36,6 @@ export interface TechSummary {
 export function buildTechSummary(
   techEvents: TechEvent[],
   factions: FactionSetup[],
-  _phaseSnapshots: PhaseSnapshot[],
   roundBoundaries: RoundBoundary[] = [],
 ): TechSummary {
   const sorted = [...techEvents].sort((a, b) => a.timestamp - b.timestamp);

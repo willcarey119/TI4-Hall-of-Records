@@ -1,7 +1,7 @@
 // app/src/features/game-detail/TechSection.tsx
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
-import { buildTechSummary } from '../../lib/tech/buildTechSummary';
+import { buildTechSummary, deriveRoundBoundaries } from '../../lib/tech/buildTechSummary';
 import type { TechColor } from '../../lib/parser/techs';
 import { Label, Rule } from '../../shared';
 
@@ -51,7 +51,11 @@ export function TechSection() {
   const summary = useMemo(
     () =>
       game
-        ? buildTechSummary(game.techEvents, game.factions, game.phaseSnapshots)
+        ? buildTechSummary(
+            game.techEvents,
+            game.factions,
+            deriveRoundBoundaries(game.strategyCardEvents, game.factions.length),
+          )
         : null,
     [game],
   );
@@ -105,56 +109,6 @@ export function TechSection() {
       </div>
 
       <Rule weight="double" />
-
-      {/* Research Order */}
-      <Label>Research Order</Label>
-      <div
-        style={{
-          borderLeft: '2px solid var(--cool)',
-          paddingLeft: 8,
-          marginBottom: 8,
-        }}
-      >
-        {summary.timeline.length === 0 ? (
-          <div
-            style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
-              color: 'var(--ink-3)',
-              padding: '4px 0',
-            }}
-          >
-            No technologies researched.
-          </div>
-        ) : (
-          summary.timeline.map((entry, i) => (
-            <div
-              key={i}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '28px 1fr 8px',
-                gap: 4,
-                alignItems: 'center',
-                padding: '2px 0',
-                borderBottom: '1px dotted var(--ink-4)',
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 9,
-              }}
-            >
-              <span style={{ color: 'var(--ink-3)' }}>
-                {entry.round === 0 ? '—' : `R${entry.round}`}
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Newsreader', Georgia, serif", fontSize: 10 }}>
-                <FactionDot color={factionColorMap[entry.factionId] ?? '#aaa'} />
-                {entry.tech}
-              </span>
-              <TechPip color={entry.color} />
-            </div>
-          ))
-        )}
-      </div>
-
-      <Rule />
 
       {/* Final Inventories */}
       <Label>Final Inventories</Label>
@@ -223,6 +177,56 @@ export function TechSection() {
             </div>
           );
         })}
+
+      <Rule />
+
+      {/* Research Order */}
+      <Label>Research Order</Label>
+      <div
+        style={{
+          borderLeft: '2px solid var(--cool)',
+          paddingLeft: 8,
+          marginBottom: 8,
+        }}
+      >
+        {summary.timeline.length === 0 ? (
+          <div
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 9,
+              color: 'var(--ink-3)',
+              padding: '4px 0',
+            }}
+          >
+            No technologies researched.
+          </div>
+        ) : (
+          summary.timeline.map((entry, i) => (
+            <div
+              key={i}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '28px 1fr 8px',
+                gap: 4,
+                alignItems: 'center',
+                padding: '2px 0',
+                borderBottom: '1px dotted var(--ink-4)',
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 9,
+              }}
+            >
+              <span style={{ color: 'var(--ink-3)' }}>
+                {entry.round === 0 ? '—' : `R${entry.round}`}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Newsreader', Georgia, serif", fontSize: 10 }}>
+                <FactionDot color={factionColorMap[entry.factionId] ?? '#aaa'} />
+                {entry.tech}
+              </span>
+              <TechPip color={entry.color} />
+            </div>
+          ))
+        )}
+      </div>
     </section>
   );
 }
