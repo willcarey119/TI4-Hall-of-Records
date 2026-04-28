@@ -37,7 +37,7 @@ function withGame(ui: React.ReactElement) {
 const cases = [
   { Component: VpRaceSection,    id: 'vp-race',   needsGame: true },
   { Component: TimelineSection,  id: 'timeline',  needsGame: false },
-  { Component: DashboardSection, id: 'dashboard', needsGame: false },
+  { Component: DashboardSection, id: 'dashboard', needsGame: true },
   { Component: PlanetsSection,   id: 'planets',   needsGame: true },
   { Component: TechSection,      id: 'tech',      needsGame: true  },
   { Component: AgendaSection,    id: 'agenda',    needsGame: true  },
