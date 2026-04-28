@@ -6,10 +6,12 @@ import {
   type FactionStatsSummary, type StrategyCardSummary, type TechSummary, type GameStatsSummary,
   type RoundBoundary,
 } from '../../lib/aggregator';
+import type { ParsedGame } from '../../lib/parser/types';
 
 export interface MetaState {
   loading: boolean;
   error: string | null;
+  games: ParsedGame[];
   factionStats: FactionStatsSummary | null;
   strategyCardStats: StrategyCardSummary | null;
   techStats: TechSummary | null;
@@ -19,6 +21,7 @@ export interface MetaState {
 const initialState: MetaState = {
   loading: true,
   error: null,
+  games: [],
   factionStats: null,
   strategyCardStats: null,
   techStats: null,
@@ -41,6 +44,7 @@ export function MetaProvider({ children }: { children: ReactNode }) {
         const next: MetaState = {
           loading: false,
           error: null,
+          games,
           factionStats:      buildFactionStats(games),
           strategyCardStats: buildStrategyCardStats(games, boundariesByGame),
           techStats:         buildTechStats(games, boundariesByGame),
