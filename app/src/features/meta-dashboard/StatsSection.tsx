@@ -56,13 +56,18 @@ export function StatsSection() {
 
       {/* Action types */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Action Type Breakdown</div>
-      {gameStats.actionTypes.tacticalPct === null ? (
-        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)' }}>
-          Re-upload game files to enable action tracking.
-        </div>
-      ) : (
-        <>
-          {([['Tactical', gameStats.actionTypes.tacticalPct], ['Component', gameStats.actionTypes.componentPct], ['Pass', gameStats.actionTypes.passPct]] as const).map(([label, pct]) => (
+      {(() => {
+        const { tacticalPct, componentPct, passPct } = gameStats.actionTypes;
+        if (tacticalPct === null || componentPct === null || passPct === null) {
+          return (
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)' }}>
+              Re-upload game files to enable action tracking.
+            </div>
+          );
+        }
+        return (
+          <>
+            {([['Tactical', tacticalPct], ['Component', componentPct], ['Pass', passPct]] as const).map(([label, pct]) => (
             <div key={label} style={{ display: 'grid', gridTemplateColumns: '70px 1fr 40px', gap: 6, alignItems: 'center', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>
               <span>{label}</span>
               <div style={{ background: 'var(--ink-4)', height: 6 }}>
@@ -86,7 +91,8 @@ export function StatsSection() {
             </div>
           </div>
         </>
-      )}
+        );
+      })()}
 
       <Rule />
 
