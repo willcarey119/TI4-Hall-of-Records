@@ -142,6 +142,22 @@ describe('buildPlayerStats', () => {
     expect(result.totalRawNames).toBe(4);
   });
 
+  it('attributes a playerName with surrounding whitespace using the trimmed key', () => {
+    // Simulates Firestore data where playerName was stored with trailing whitespace
+    const whitespaceGame = makeGame({
+      gameId: 'ws',
+      factions: [{ id: 'Sol', playerName: ' Tim ' }],
+      finalScores: { Sol: 10 },
+      winner: 'Sol',
+    });
+    // nameMap uses the trimmed name 'Tim' (as set via the UI, which shows trimmed names)
+    const result = buildPlayerStats([whitespaceGame], { Tim: 'Tim' });
+    expect(result.players).toHaveLength(1);
+    expect(result.players[0]?.canonicalName).toBe('Tim');
+    expect(result.players[0]?.gamesPlayed).toBe(1);
+    expect(result.players[0]?.rawNames).toContain('Tim');
+  });
+
   it('sorts players by gamesPlayed descending', () => {
     // Tim appears in g1 + g2 + g3 = 3 games; Jake appears only in g1 + g2 = 2 games
     const result = buildPlayerStats([g1, g2, g3], { Tim: 'Tim', 'Tim L': 'Tim', Jake: 'Jake' });

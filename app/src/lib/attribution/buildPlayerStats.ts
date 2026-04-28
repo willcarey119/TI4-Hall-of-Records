@@ -71,7 +71,8 @@ export function buildPlayerStats(
 
   for (const game of games) {
     for (const faction of game.factions) {
-      const canonical = validNameMap.get(faction.playerName);
+      const trimmedPlayerName = faction.playerName.trim();
+      const canonical = validNameMap.get(trimmedPlayerName);
       if (!canonical) continue; // Skip names not in the map
 
       let player = playerData.get(canonical);
@@ -85,7 +86,7 @@ export function buildPlayerStats(
         playerData.set(canonical, player);
       }
 
-      player.rawNames.add(faction.playerName);
+      player.rawNames.add(trimmedPlayerName);
       player.gamesPlayed += 1;
 
       if (game.winner === faction.factionId) {
