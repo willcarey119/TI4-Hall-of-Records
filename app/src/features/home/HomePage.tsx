@@ -40,6 +40,22 @@ export function HomePage() {
         subtitle="Twilight Imperium IV · Game Archive"
       />
 
+      <div style={{ marginBottom: '16px' }}>
+        <a
+          href="/meta"
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 9,
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            color: 'var(--accent)',
+            textDecoration: 'none',
+          }}
+        >
+          League Stats →
+        </a>
+      </div>
+
       {/* Upload section */}
       <section style={{ marginBottom: '24px' }}>
         <div style={{ marginBottom: '8px' }}>
