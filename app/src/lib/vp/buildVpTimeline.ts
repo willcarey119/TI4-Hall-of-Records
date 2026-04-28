@@ -29,7 +29,8 @@ export function buildVpTimeline(
   options: Record<string, unknown>,
   gameDurationSeconds: number,
 ): VpTimelineSummary {
-  const victoryPoints = (options['victoryPoints'] as number | undefined) ?? 10;
+  const raw = options['victoryPoints'];
+  const victoryPoints = typeof raw === 'number' ? raw : 10;
   const firstTimestamp = vpEvents[0]?.timestamp ?? 0;
 
   // Initialize running totals and series maps
@@ -75,9 +76,11 @@ export function buildVpTimeline(
     ? `${winner.factionId} wins.`
     : 'The race is unfinished.';
 
-  const deckText = leader !== undefined
-    ? `${leader.factionId} led with ${leader.finalVp} VP over ${hours}h.`
-    : `${series.length} factions competed over ${hours}h.`;
+  const deckText = winner !== undefined
+    ? `Victory in ${hours}h. Final scores: ${series.map(s => `${s.factionId} ${s.finalVp}`).join(', ')}.`
+    : leader !== undefined
+      ? `${leader.factionId} led with ${leader.finalVp} VP after ${hours}h.`
+      : `${series.length} factions competed over ${hours}h.`;
 
   return { series, victoryPoints, gameDurationSeconds, headline, deckText };
 }
