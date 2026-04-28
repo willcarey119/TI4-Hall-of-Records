@@ -14,15 +14,9 @@ export function GameDetailPage() {
   const [activeSection, setActiveSection] = useState('vp-race');
 
   useEffect(() => {
-    if (gameId === undefined) {
-      setError('No game ID in URL');
-      setLoading(false);
-      return;
-    }
+    if (gameId === undefined) return;
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
     import('../../adapters/firestore')
       .then(({ loadGame }) => loadGame(gameId))
@@ -30,6 +24,7 @@ export function GameDetailPage() {
         if (!cancelled) {
           setGame(g);
           setLoading(false);
+          setError(null);
         }
       })
       .catch((e: unknown) => {
@@ -43,6 +38,8 @@ export function GameDetailPage() {
       cancelled = true;
     };
   }, [gameId]);
+
+  const missingGameId = gameId === undefined;
 
   if (loading) {
     return (
@@ -63,7 +60,8 @@ export function GameDetailPage() {
     );
   }
 
-  if (error !== null) {
+  if (missingGameId || error !== null) {
+    const message = missingGameId ? 'No game ID in URL' : error;
     return (
       <main
         style={{
@@ -73,7 +71,7 @@ export function GameDetailPage() {
         }}
       >
         <p className="font-mono text-xs text-accent" style={{ marginBottom: '16px' }}>
-          {error}
+          {message}
         </p>
         <button
           type="button"

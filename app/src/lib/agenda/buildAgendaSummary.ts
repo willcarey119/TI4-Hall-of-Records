@@ -54,12 +54,15 @@ export function buildAgendaSummary(
       .filter((v) => v.outcome !== forOutcome)
       .reduce((sum, v) => sum + v.votes, 0);
 
-    // passed: true when outcome matches the FOR side
-    const passed = res.outcome === forOutcome;
+    // passed: elect-type agendas always resolve (the elected item is the outcome);
+    // for/against agendas pass only when outcome === 'For'.
+    const isElectType = dictEntry !== null && dictEntry.elect !== null;
+    const passed = isElectType ? true : res.outcome === forOutcome;
 
-    // electedFaction: the outcome string for elect-player agendas
+    // electedFaction: the outcome string for all elect-type agendas
+    // (covers elect:'player', elect:'technology', elect:'planet', etc.)
     let electedFaction: string | undefined;
-    if (dictEntry !== null && dictEntry.elect === 'player') {
+    if (dictEntry !== null && dictEntry.elect !== null) {
       electedFaction = res.outcome;
     }
 

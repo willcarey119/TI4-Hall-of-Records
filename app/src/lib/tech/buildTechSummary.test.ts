@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildTechSummary, deriveRoundBoundaries } from './buildTechSummary';
+import type { RoundBoundary } from './buildTechSummary';
 import type { TechEvent, FactionSetup } from '../parser/types';
 
 const makeFaction = (id: string, map = 0): FactionSetup => ({
@@ -118,6 +119,19 @@ describe('buildTechSummary', () => {
     const result = buildTechSummary(events, [makeFaction('Sol')], []);
     expect(typeof result.deckText).toBe('string');
     expect(result.deckText.length).toBeGreaterThan(0);
+  });
+
+  it('assigns round from boundaries when provided', () => {
+    const events: TechEvent[] = [
+      makeTechEvent('Sol', 'Bio-Stims', 'research', 500),
+    ];
+    const factions: FactionSetup[] = [makeFaction('Sol')];
+    const boundaries: RoundBoundary[] = [
+      { round: 1, phaseStartTimestamp: 0 },
+      { round: 2, phaseStartTimestamp: 1000 },
+    ];
+    const result = buildTechSummary(events, factions, [], boundaries);
+    expect(result.timeline[0]?.round).toBe(1);
   });
 });
 

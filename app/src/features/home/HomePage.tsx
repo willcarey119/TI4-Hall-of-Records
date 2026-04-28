@@ -9,22 +9,22 @@ export function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchGames = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { listGames } = await import('../../adapters/firestore');
-      const result = await listGames();
-      setGames(result);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load archive');
-    } finally {
-      setLoading(false);
-    }
+  const fetchGames = useCallback(() => {
+    import('../../adapters/firestore')
+      .then(({ listGames }) => listGames())
+      .then((result) => {
+        setGames(result);
+        setError(null);
+        setLoading(false);
+      })
+      .catch((e: unknown) => {
+        setError(e instanceof Error ? e.message : 'Failed to load archive');
+        setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
-    void fetchGames();
+    fetchGames();
   }, [fetchGames]);
 
   return (
@@ -45,7 +45,7 @@ export function HomePage() {
         <div style={{ marginBottom: '8px' }}>
           <Label>File Dispatch</Label>
         </div>
-        <UploadPage onSaved={() => { void fetchGames(); }} />
+        <UploadPage onSaved={() => { fetchGames(); }} />
       </section>
 
       <Rule weight="thick" />
