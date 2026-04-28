@@ -2,8 +2,8 @@
 
 Phased delivery plan. Each phase has a goal, a set of deliverables, the test surface that proves it works, and an explicit acceptance bar. We do not start phase N+1 until phase N's acceptance bar is met.
 
-> **Current position (2026-04-27):** Phase 0 ✅ · Phase 1 ✅ · Phase 2 🔲 in progress
-> Nav shell + Tech/Agenda sections complete. VP Race, Timeline, Dashboard, Planets sections are stubs.
+> **Current position (2026-04-28):** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 🔲 in progress
+> All 6 game-detail sections complete (VP Race, Timeline, Dashboard, Planets, Tech, Agenda). Aggregator layer underway.
 > See `CLAUDE.md` for the full status table.
 
 The Master Guidance Document defines four phases (Ingestion → Single-Game Replay → Meta-Dashboard → Polish). This roadmap **prepends a Phase 0** for project scaffolding, which is currently missing, and breaks each phase into concrete TDD-sized tickets.
@@ -101,7 +101,7 @@ Dropzone → `parseGame` → preview → "Save to Firestore" button. Validation 
 
 ---
 
-## Phase 2 — Single-Game Replay 🔲 IN PROGRESS
+## Phase 2 — Single-Game Replay ✅ COMPLETE
 
 **Goal:** Pick a saved game, see the story.
 
@@ -116,7 +116,10 @@ Dropzone → `parseGame` → preview → "Save to Firestore" button. Validation 
 - ✅ `GameContext` + `useGame` hook; `GameDetailPage` with loading/error states
 - ✅ Tech section: `buildTechSummary`, `lookupTechColor` (tech color dictionary), `TechSection` component
 - ✅ Agenda section: `buildAgendaSummary`, `lookupAgenda` (62-entry agenda dictionary), `AgendaSection` component
-- 🔲 VP Race, Timeline, Dashboard, Planets — sections exist as `id`/`data-section` stubs with no real content
+- ✅ VP Race: `buildVpTimeline`, `VpRaceSection` slope chart
+- ✅ Timeline: `buildTimelineFeed`, `TimelineSection` chronological event feed
+- ✅ Dashboard: `DashboardSection` faction dossier
+- ✅ Planets: `PlanetsSection` planet control ledger
 
 ### 2.1 — VP Race chart (HERO — Screen 7A) ← next up
 Editorial slope chart: rounds on x-axis (or `gameTime` formatted h:mm:ss), cumulative VP on y-axis, one line per faction. Leader line highlighted in `--accent` (faded vermillion), 10/12/14-VP win-line drawn with `--rule`. Two-column body with editorial drop cap explaining the story. Animate the path on round change (1.2 s cubic-bezier).

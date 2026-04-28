@@ -71,7 +71,7 @@ describe('buildTechStats', () => {
     ];
     const result = buildTechStats(games, new Map());
     const st = result.topTechs.find(t => t.tech === 'Sarween Tools');
-    expect(st?.winnerHeldRate).toBe(0);  // 0 / 0 → 0 by convention (no winner games)
+    expect(st?.winnerHeldRate).toBeNull();  // no winner games → null (no denominator)
   });
 
   it('avgRoundFirstResearched is null when no boundaries available', () => {

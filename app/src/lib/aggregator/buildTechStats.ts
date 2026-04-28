@@ -8,7 +8,7 @@ export interface TechStat {
   researchCount: number;
   researchingFactions: string[];
   avgRoundFirstResearched: number | null;
-  winnerHeldRate: number;
+  winnerHeldRate: number | null;
   winnerHeldCount: number;
 }
 
@@ -84,7 +84,7 @@ export function buildTechStats(
     avgRoundFirstResearched: a.firstRoundsPerGame.length > 0
       ? a.firstRoundsPerGame.reduce((s, n) => s + n, 0) / a.firstRoundsPerGame.length
       : null,
-    winnerHeldRate: winnerGames > 0 ? a.winnerHeldCount / winnerGames : 0,
+    winnerHeldRate: winnerGames > 0 ? a.winnerHeldCount / winnerGames : null,
     winnerHeldCount: a.winnerHeldCount,
   }));
 
