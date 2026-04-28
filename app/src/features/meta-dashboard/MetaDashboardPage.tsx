@@ -170,7 +170,7 @@ function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => 
         <p
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 9,
+            fontSize: '9px',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             color: 'var(--ink-3)',
@@ -188,24 +188,31 @@ function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => 
         <p
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 11,
+            fontSize: '9px',
             color: 'var(--accent)',
             marginBottom: 8,
           }}
         >
           {error}
         </p>
-        <p
+        <button
+          type="button"
+          onClick={() => { window.location.reload(); }}
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 9,
-            color: 'var(--ink-3)',
+            fontSize: '9px',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
+            textDecoration: 'underline',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--ink-3)',
+            padding: 0,
           }}
         >
-          Try refreshing the page.
-        </p>
+          Refresh
+        </button>
       </div>
     );
   }
