@@ -205,6 +205,15 @@ export interface ActionEvent {
   gameTime?: number;
 }
 
+export type PlayerActionType = 'tactical' | 'component' | 'pass';
+
+export interface ActionTypeEvent {
+  faction: string;
+  actionType: PlayerActionType;
+  timestamp: number;
+  gameTime?: number;
+}
+
 export interface ParsedGame {
   // Identity
   gameId: string;
@@ -233,6 +242,9 @@ export interface ParsedGame {
   expeditionEvents: ExpeditionEvent[];
   secondaryEvents: SecondaryEvent[];
   actionEvents: ActionEvent[];
+  /** Optional for backward compatibility with documents uploaded before Phase 3.
+   *  Aggregators treat absence as []. */
+  actionTypeEvents?: ActionTypeEvent[];
   // Aggregates
   finalScores: Record<string, number>;
   winner: string | null;

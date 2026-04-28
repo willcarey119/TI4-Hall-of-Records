@@ -23,6 +23,8 @@ import type {
   ExpeditionEvent,
   SecondaryEvent,
   ActionEvent,
+  ActionTypeEvent,
+  PlayerActionType,
   PhaseSnapshot,
 } from './types';
 import { getObjectivePoints } from './objectives';
@@ -46,6 +48,7 @@ export interface ReducerState {
   expeditionEvents: ExpeditionEvent[];
   secondaryEvents: SecondaryEvent[];
   actionEvents: ActionEvent[];
+  actionTypeEvents: ActionTypeEvent[];
   phaseSnapshots: PhaseSnapshot[];
   // Live game state
   currentScores: Record<string, number>;
@@ -92,6 +95,7 @@ export function createInitialState(factions: FactionSetup[]): ReducerState {
     expeditionEvents: [],
     secondaryEvents: [],
     actionEvents: [],
+    actionTypeEvents: [],
     phaseSnapshots: [],
     currentScores,
     currentOwners,
@@ -628,8 +632,24 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       return { ...state, currentTurnFaction: prevRaw };
     }
 
-    case 'SELECT_ACTION':
-      return state;
+    case 'SELECT_ACTION': {
+      const raw = entry.event['action'];
+      if (typeof raw !== 'string') return state;
+      const actionTypeMap: Record<string, PlayerActionType> = {
+        TACTICAL: 'tactical',
+        COMPONENT: 'component',
+        PASS: 'pass',
+      };
+      const actionType = actionTypeMap[raw];
+      if (actionType === undefined) return state;
+      const ev: ActionTypeEvent = {
+        faction: state.currentTurnFaction,
+        actionType,
+        timestamp: entry.timestamp,
+        ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+      };
+      return { ...state, actionTypeEvents: [...state.actionTypeEvents, ev] };
+    }
 
     case 'PLAY_ACTION_CARD': {
       const cardRaw = entry.event['card'];

@@ -190,6 +190,7 @@ export function parseGame(raw: unknown): ParsedGame {
     expeditionEvents: finalState.expeditionEvents,
     secondaryEvents: finalState.secondaryEvents,
     actionEvents: finalState.actionEvents,
+    actionTypeEvents: finalState.actionTypeEvents,
     finalScores: finalState.currentScores,
     winner,
     timers,

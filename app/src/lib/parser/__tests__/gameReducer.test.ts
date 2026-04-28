@@ -804,4 +804,35 @@ describe('gameReducer — Task 12.5 edge case fixes', () => {
     ]);
     expect(result.expeditionEvents[0]?.faction).toBe('arborec');
   });
+
+  describe('SELECT_ACTION', () => {
+    it('captures TACTICAL/COMPONENT/PASS as actionTypeEvents', () => {
+      const result = reduce([
+        makeEntry('END_TURN', { prevFaction: 'sol' }, 50),
+        makeEntry('SELECT_ACTION', { action: 'TACTICAL' }, 100),
+        makeEntry('SELECT_ACTION', { action: 'COMPONENT' }, 200),
+        makeEntry('SELECT_ACTION', { action: 'PASS' }, 300),
+      ]);
+      expect(result.actionTypeEvents.map((e) => e.actionType)).toEqual([
+        'tactical',
+        'component',
+        'pass',
+      ]);
+      expect(result.actionTypeEvents.every((e) => e.faction === 'sol')).toBe(true);
+    });
+
+    it('ignores SELECT_ACTION with unknown action string', () => {
+      const result = reduce([
+        makeEntry('SELECT_ACTION', { action: 'UNKNOWN' }, 100),
+      ]);
+      expect(result.actionTypeEvents).toEqual([]);
+    });
+
+    it('ignores SELECT_ACTION with non-string action field', () => {
+      const result = reduce([
+        makeEntry('SELECT_ACTION', {}, 100),
+      ]);
+      expect(result.actionTypeEvents).toEqual([]);
+    });
+  });
 });
