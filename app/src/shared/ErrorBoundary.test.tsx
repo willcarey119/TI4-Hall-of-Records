@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { ErrorBoundary } from './ErrorBoundary';
 
-function Bomb({ shouldThrow }: { shouldThrow: boolean }): React.ReactNode {
+function Bomb({ shouldThrow }: { shouldThrow: boolean }): ReactNode {
   if (shouldThrow) throw new Error('Explosion');
   return <div>Safe content</div>;
 }
@@ -11,6 +12,10 @@ describe('ErrorBoundary', () => {
   beforeEach(() => {
     // Suppress React's console.error output for expected errors in tests
     vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('renders children when no error occurs', () => {
