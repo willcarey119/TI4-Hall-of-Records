@@ -166,16 +166,6 @@ export function RecapSection() {
               >
                 {winner.finalVp} VP
               </div>
-              <div
-                style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: '8px',
-                  color: 'var(--ink-3)',
-                  marginTop: 3,
-                }}
-              >
-                {winner.playerName}
-              </div>
             </>
           ) : (
             <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '8px', color: 'var(--ink-3)' }}>

@@ -44,9 +44,10 @@ export function buildRecapSummary(game: ParsedGame): RecapSummary {
       ? Math.max(...game.phaseSnapshots.map(s => s.round))
       : 0;
 
+  const sortedScores = sortedFactions.map(f => game.finalScores[f.factionId] ?? 0);
   const vpMargin =
-    winner !== null
-      ? winner.finalVp - (standings.find(s => !s.isWinner)?.finalVp ?? 0)
+    winner !== null && sortedScores.length >= 2
+      ? (sortedScores[0] ?? 0) - (sortedScores[1] ?? 0)
       : 0;
 
   const hours = Math.round((game.durationSeconds / 3600) * 10) / 10;

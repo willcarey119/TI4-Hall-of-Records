@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildRecapSummary } from './buildRecapSummary';
-import type { ParsedGame, FactionSetup, PhaseSnapshot } from '../parser/types';
+import type { ParsedGame, FactionSetup } from '../parser/types';
 
 function makeFaction(id: string, playerName: string, color: string): FactionSetup {
   return { factionId: id, playerName, color, mapPosition: 0, startingTechs: [], startingPlanets: [] };
@@ -17,10 +17,10 @@ function makeGame(overrides: Partial<ParsedGame> = {}): ParsedGame {
     options: { victoryPoints: 10 },
     initialSpeaker: 'Sol',
     phaseSnapshots: [
-      { round: 1, phase: 'strategy', speaker: 'Sol' },
-      { round: 2, phase: 'strategy', speaker: 'Hacan' },
-      { round: 3, phase: 'strategy', speaker: 'Sol' },
-    ] as PhaseSnapshot[],
+      { round: 1, phase: 'strategy', speaker: 'Sol', strategyCards: {} },
+      { round: 2, phase: 'strategy', speaker: 'Hacan', strategyCards: {} },
+      { round: 3, phase: 'strategy', speaker: 'Sol', strategyCards: {} },
+    ],
     vpEvents: [], planetEvents: [], techEvents: [], agendaResolutions: [],
     strategyCardEvents: [], actionCardEvents: [], componentEvents: [], relicEvents: [],
     leaderEvents: [], objectiveReveals: [], speakerEvents: [], attachmentEvents: [],
