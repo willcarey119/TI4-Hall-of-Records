@@ -104,3 +104,33 @@ describe('buildPlanetSummary', () => {
     expect(sol?.planets[1]?.planet).toBe('Vefut II');
   });
 });
+
+describe('starting planet seeding', () => {
+  it('factions with startingPlanets but no events appear in inventory', () => {
+    const factions: FactionSetup[] = [
+      { factionId: 'Sol', playerName: 'P', color: '#aaa', mapPosition: 0, startingTechs: [], startingPlanets: ['Jord'] },
+      { factionId: 'Hacan', playerName: 'P', color: '#bbb', mapPosition: 1, startingTechs: [], startingPlanets: ['Hercant', 'Arretze'] },
+    ];
+    const result = buildPlanetSummary([], factions);
+    const sol = result.inventories.find(i => i.factionId === 'Sol');
+    const hacan = result.inventories.find(i => i.factionId === 'Hacan');
+    expect(sol?.totalPlanets).toBe(1);
+    expect(hacan?.totalPlanets).toBe(2);
+    expect(result.totalControlled).toBe(3);
+  });
+
+  it('a starting planet claimed by another faction shows the new owner', () => {
+    const factions: FactionSetup[] = [
+      { factionId: 'Sol', playerName: 'P', color: '#aaa', mapPosition: 0, startingTechs: [], startingPlanets: ['Jord'] },
+      { factionId: 'Hacan', playerName: 'P', color: '#bbb', mapPosition: 1, startingTechs: [], startingPlanets: [] },
+    ];
+    const events: PlanetEvent[] = [
+      { faction: 'Hacan', planet: 'Jord', prevOwner: 'Sol', timestamp: 100, type: 'claim' },
+    ];
+    const result = buildPlanetSummary(events, factions);
+    const sol = result.inventories.find(i => i.factionId === 'Sol');
+    const hacan = result.inventories.find(i => i.factionId === 'Hacan');
+    expect(sol?.totalPlanets ?? 0).toBe(0);
+    expect(hacan?.totalPlanets).toBe(1);
+  });
+});

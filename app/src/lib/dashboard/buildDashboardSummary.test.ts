@@ -75,6 +75,18 @@ describe('buildDashboardSummary', () => {
     expect(result.factions.find(f => f.factionId === 'Hacan')?.planetsControlled).toBe(0);
   });
 
+  it('counts starting planets even with no planetEvents', () => {
+    const factionsWithPlanets: FactionSetup[] = [
+      { factionId: 'Sol', playerName: 'P', color: '#aaa', mapPosition: 0, startingTechs: [], startingPlanets: ['Jord', 'Moll Primus'] },
+      { factionId: 'Hacan', playerName: 'P', color: '#bbb', mapPosition: 1, startingTechs: [], startingPlanets: ['Hercant', 'Arretze', 'Kamdorn'] },
+    ];
+    const result = buildDashboardSummary([], [], [], factionsWithPlanets, { Sol: 7, Hacan: 10 }, { victoryPoints: 10 });
+    const sol = result.factions.find(f => f.factionId === 'Sol');
+    const hacan = result.factions.find(f => f.factionId === 'Hacan');
+    expect(sol?.planetsControlled).toBe(2);
+    expect(hacan?.planetsControlled).toBe(3);
+  });
+
   it('winner is null when no faction reached victoryPoints', () => {
     const result = buildDashboardSummary([], [], [], FACTIONS, { Sol: 5, Hacan: 8 }, OPTIONS);
     expect(result.winner).toBeNull();

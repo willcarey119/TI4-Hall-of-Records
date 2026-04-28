@@ -29,6 +29,12 @@ export function buildPlanetSummary(
   const finalOwner: Record<string, string | null> = {};
   const changeCounts: Record<string, number> = {};
 
+  for (const f of factions) {
+    for (const planet of f.startingPlanets) {
+      finalOwner[planet] = f.factionId;
+    }
+  }
+
   for (const event of planetEvents) {
     if (event.type === 'claim') {
       // prevOwner not null means it transferred between factions

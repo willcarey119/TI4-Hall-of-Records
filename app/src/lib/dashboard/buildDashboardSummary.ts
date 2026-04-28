@@ -43,6 +43,15 @@ export function buildDashboardSummary(
 
   // Final planet ownership (last event per planet wins)
   const finalPlanetOwner: Record<string, string | null> = {};
+
+  for (const f of factions) {
+    for (const planet of f.startingPlanets) {
+      if (finalPlanetOwner[planet] === undefined) {
+        finalPlanetOwner[planet] = f.factionId;
+      }
+    }
+  }
+
   for (const event of planetEvents) {
     finalPlanetOwner[event.planet] =
       event.type === 'claim' ? event.faction : null;
