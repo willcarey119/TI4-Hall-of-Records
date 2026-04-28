@@ -7,6 +7,7 @@ function scrollToSection(id: string): void {
 }
 
 const SECTIONS = [
+  { id: 'recap',     label: 'Recap' },
   { id: 'vp-race',   label: 'VP Race' },
   { id: 'timeline',  label: 'Timeline' },
   { id: 'dashboard', label: 'Dashboard' },

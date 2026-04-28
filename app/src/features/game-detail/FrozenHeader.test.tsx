@@ -73,8 +73,9 @@ it('shows faction chips for all factions', () => {
   expect(screen.getByText(/Hacan/)).toBeInTheDocument();
 });
 
-it('renders all six nav buttons', () => {
+it('renders all seven nav buttons', () => {
   renderHeader();
+  expect(screen.getByRole('button', { name: /Recap/i })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /VP Race/i })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /Timeline/i })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /Dashboard/i })).toBeInTheDocument();

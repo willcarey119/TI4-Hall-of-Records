@@ -44,8 +44,9 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it('renders all six section stubs', () => {
+it('renders all seven section stubs', () => {
   renderScrollBody();
+  expect(document.getElementById('recap')).toBeInTheDocument();
   expect(document.getElementById('vp-race')).toBeInTheDocument();
   expect(document.getElementById('timeline')).toBeInTheDocument();
   expect(document.getElementById('dashboard')).toBeInTheDocument();
@@ -56,20 +57,20 @@ it('renders all six section stubs', () => {
 
 it('creates IntersectionObservers on mount', () => {
   renderScrollBody();
-  expect(IntersectionObserver).toHaveBeenCalledTimes(6);
+  expect(IntersectionObserver).toHaveBeenCalledTimes(7);
 });
 
 it('calls onSectionChange when a section enters the viewport', () => {
   const onSectionChange = vi.fn();
   renderScrollBody(onSectionChange);
 
-  // Fire the timeline observer (index 1) with an intersecting entry
+  // Fire the timeline observer (index 2) with an intersecting entry
   act(() => {
     const fakeEntry = {
       isIntersecting: true,
       target: { dataset: { section: 'timeline' } },
     } as unknown as IntersectionObserverEntry;
-    observerCallbacks[1]?.([fakeEntry], {} as IntersectionObserver);
+    observerCallbacks[2]?.([fakeEntry], {} as IntersectionObserver);
   });
 
   expect(onSectionChange).toHaveBeenCalledWith('timeline');

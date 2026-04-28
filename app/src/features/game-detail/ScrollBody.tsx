@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { RecapSection } from './RecapSection';
 import { VpRaceSection } from './VpRaceSection';
 import { TimelineSection } from './TimelineSection';
 import { DashboardSection } from './DashboardSection';
@@ -10,7 +11,7 @@ interface ScrollBodyProps {
   onSectionChange: (sectionId: string) => void;
 }
 
-const SECTION_IDS = ['vp-race', 'timeline', 'dashboard', 'planets', 'tech', 'agenda'] as const;
+const SECTION_IDS = ['recap', 'vp-race', 'timeline', 'dashboard', 'planets', 'tech', 'agenda'] as const;
 
 export function ScrollBody({ onSectionChange }: ScrollBodyProps) {
   // Stable ref so the effect closure always calls the latest callback
@@ -51,6 +52,7 @@ export function ScrollBody({ onSectionChange }: ScrollBodyProps) {
 
   return (
     <div style={{ overflowY: 'scroll', flex: 1 }}>
+      <RecapSection />
       <VpRaceSection />
       <TimelineSection />
       <DashboardSection />
