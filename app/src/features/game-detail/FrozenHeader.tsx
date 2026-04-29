@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Kicker, FactionChip, Rule, formatKicker, formatGameTitle } from '../../shared';
 import { useGame } from './GameContext';
+import { useFontScale } from '../../shared/useFontScale';
 
 function scrollToSection(id: string): void {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -23,6 +24,7 @@ interface FrozenHeaderProps {
 export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
   const navigate = useNavigate();
   const { game } = useGame();
+  const { scale, up, down } = useFontScale();
 
   if (game === null) return null;
 
@@ -89,7 +91,7 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
             onClick={() => { scrollToSection(id); }}
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '9px',
+              fontSize: 'calc(9px * var(--font-scale))',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               padding: '7px 12px',
@@ -109,6 +111,43 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
             {label}
           </button>
         ))}
+        {/* Font scale controls */}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2, paddingRight: 4 }}>
+          <button
+            type="button"
+            onClick={down}
+            disabled={scale <= 0.85}
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: '9px',
+              border: '1px solid var(--ink-4)',
+              background: 'none',
+              cursor: scale <= 0.85 ? 'default' : 'pointer',
+              color: scale <= 0.85 ? 'var(--ink-4)' : 'var(--ink-3)',
+              padding: '2px 5px',
+              lineHeight: 1,
+            }}
+          >
+            A–
+          </button>
+          <button
+            type="button"
+            onClick={up}
+            disabled={scale >= 1.2}
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: '11px',
+              border: '1px solid var(--ink-4)',
+              background: 'none',
+              cursor: scale >= 1.2 ? 'default' : 'pointer',
+              color: scale >= 1.2 ? 'var(--ink-4)' : 'var(--ink-3)',
+              padding: '2px 5px',
+              lineHeight: 1,
+            }}
+          >
+            A+
+          </button>
+        </div>
       </nav>
     </div>
   );
