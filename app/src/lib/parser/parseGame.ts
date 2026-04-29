@@ -152,6 +152,47 @@ export function parseGame(raw: unknown): ParsedGame {
 
   const finalState = entries.reduce(gameReducer, createInitialState(factions));
 
+  // data.imperialVPOverrides: Record<factionId, number>
+  // Corrects cases where TI Assistant records an eligible Imperial Strategy Card use
+  // (faction held Mecatol Rex at the time) but the table did not actually apply the VP.
+  // TI Assistant has no explicit "VP claimed" event, so we can't auto-detect this.
+  // The override specifies the EXACT number of Imperial Point VPs for each named faction.
+  // Both finalScores and vpEvents are adjusted together to stay consistent.
+  const imperialVPOverridesRaw =
+    typeof dataObj['imperialVPOverrides'] === 'object' && dataObj['imperialVPOverrides'] !== null
+      ? (dataObj['imperialVPOverrides'] as Record<string, unknown>)
+      : {};
+
+  let adjustedVpEvents = finalState.vpEvents;
+  const adjustedScores: Record<string, number> = { ...finalState.currentScores };
+
+  for (const [faction, targetRaw] of Object.entries(imperialVPOverridesRaw)) {
+    if (typeof targetRaw !== 'number') continue;
+    const target = Math.max(0, Math.floor(targetRaw));
+    const existing = adjustedVpEvents.filter(
+      (e) => e.faction === faction && e.source === 'imperial_point',
+    ).length;
+    if (existing === target) continue;
+
+    const delta = target - existing;
+    adjustedScores[faction] = (adjustedScores[faction] ?? 0) + delta;
+
+    if (delta < 0) {
+      // Remove the |delta| most-recent imperial_point events for this faction.
+      let toRemove = -delta;
+      const removeIndices = new Set<number>();
+      for (let i = adjustedVpEvents.length - 1; i >= 0 && toRemove > 0; i--) {
+        const e = adjustedVpEvents[i];
+        if (e !== undefined && e.faction === faction && e.source === 'imperial_point') {
+          removeIndices.add(i);
+          toRemove--;
+        }
+      }
+      adjustedVpEvents = adjustedVpEvents.filter((_, i) => !removeIndices.has(i));
+    }
+    // Positive delta (parser undercount) is not currently needed; add if required.
+  }
+
   const firstTimestamp = entries[0]?.timestamp ?? 0;
   const sortedFactionIds = [...factions.map((f) => f.factionId)].sort();
   const gameId = hashGameId(firstTimestamp, sortedFactionIds);
@@ -159,7 +200,7 @@ export function parseGame(raw: unknown): ParsedGame {
   const vpThreshold = typeof rawOptions['victory-points'] === 'number'
     ? rawOptions['victory-points']
     : 10;
-  const scoreEntries = Object.entries(finalState.currentScores);
+  const scoreEntries = Object.entries(adjustedScores);
   const topScore = scoreEntries.reduce((max, [, s]) => Math.max(max, s), 0);
   const inferredWinner = topScore >= vpThreshold
     ? (scoreEntries.find(([, s]) => s === topScore)?.[0] ?? null)
@@ -180,7 +221,7 @@ export function parseGame(raw: unknown): ParsedGame {
     options: rawOptions,
     initialSpeaker,
     phaseSnapshots: finalState.phaseSnapshots,
-    vpEvents: finalState.vpEvents,
+    vpEvents: adjustedVpEvents,
     planetEvents: finalState.planetEvents,
     techEvents: finalState.techEvents,
     agendaResolutions: finalState.agendaResolutions,
@@ -198,7 +239,7 @@ export function parseGame(raw: unknown): ParsedGame {
     secondaryEvents: finalState.secondaryEvents,
     actionEvents: finalState.actionEvents,
     actionTypeEvents: finalState.actionTypeEvents,
-    finalScores: finalState.currentScores,
+    finalScores: adjustedScores,
     winner,
     timers,
     warnings: finalState.warnings,

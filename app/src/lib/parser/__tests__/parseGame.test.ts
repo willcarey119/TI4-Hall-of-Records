@@ -299,3 +299,150 @@ describe('parseGame', () => {
     expect(result.winner).toBe('Vaden Banking Clans');
   });
 });
+
+// ── imperialVPOverrides ──────────────────────────────────────────────────────
+// data.imperialVPOverrides: Record<factionId, number>
+// Lets game JSON correct the parser when TI Assistant records an eligible
+// Imperial use (faction owned Mecatol Rex) but the table did not apply the VP.
+// Adjusts both finalScores AND vpEvents to stay consistent.
+
+/** Builds a wrapped END_TURN action log entry for an Imperial card use. */
+function makeImperialTurn(faction: string, ts: number) {
+  return {
+    timestampMillis: ts,
+    gameSeconds: ts / 100,
+    data: {
+      action: 'END_TURN',
+      timestamp: ts,
+      event: { prevFaction: faction, selectedAction: 'Imperial', secondaries: {} },
+    },
+  };
+}
+
+/** Builds a SETUP ADVANCE_PHASE entry that seeds Mecatol Rex as a starting planet
+ *  for the given faction.  Using startingPlanets avoids firing a CLAIM_PLANET event,
+ *  so the Custodians Token VP is NOT granted — tests stay focused on Imperial VP only. */
+function setupWithMecatol(faction: string) {
+  return {
+    timestampMillis: 0,
+    gameSeconds: 0,
+    data: {
+      action: 'ADVANCE_PHASE',
+      timestamp: 0,
+      event: {
+        state: { phase: 'SETUP', round: 1, speaker: faction, paused: false },
+        factions: {
+          [faction]: { startswith: { planets: ['Mecatol Rex'], techs: [], units: {} } },
+        },
+        strategycards: {},
+      },
+    },
+  };
+}
+
+describe('parseGame — imperialVPOverrides', () => {
+  it('overriding to 0 removes all imperial_point vpEvents and adjusts finalScores', () => {
+    const input = {
+      ...minimalInput(),
+      data: { ...minimalInput().data, imperialVPOverrides: { 'Vaden Banking Clans': 0 } },
+      actionLog: [
+        setupWithMecatol('Vaden Banking Clans'),
+        makeImperialTurn('Vaden Banking Clans', 200),
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(0);
+    expect(result.finalScores['Vaden Banking Clans']).toBe(0);
+  });
+
+  it('overriding to 0 removes only imperial_point events, leaving other VP sources intact', () => {
+    const input = {
+      ...minimalInput(),
+      data: { ...minimalInput().data, imperialVPOverrides: { 'Vaden Banking Clans': 0 } },
+      actionLog: [
+        setupWithMecatol('Vaden Banking Clans'),
+        { timestampMillis: 150, gameSeconds: 1, data: { action: 'SCORE_OBJECTIVE', timestamp: 150, event: { faction: 'Vaden Banking Clans', objective: 'Lead from the Front' } } },
+        makeImperialTurn('Vaden Banking Clans', 200),
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.finalScores['Vaden Banking Clans']).toBe(1); // objective only, not Imperial
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(0);
+    expect(result.vpEvents.filter((e) => e.source === 'score_objective')).toHaveLength(1);
+  });
+
+  it('overriding to 1 when 2 exist removes the most recent imperial_point event', () => {
+    const input = {
+      ...minimalInput(),
+      data: { ...minimalInput().data, imperialVPOverrides: { 'Vaden Banking Clans': 1 } },
+      actionLog: [
+        setupWithMecatol('Vaden Banking Clans'),
+        makeImperialTurn('Vaden Banking Clans', 200),
+        makeImperialTurn('Vaden Banking Clans', 300),
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(1);
+    expect(result.finalScores['Vaden Banking Clans']).toBe(1);
+  });
+
+  it('override is a no-op when the computed count already matches', () => {
+    const input = {
+      ...minimalInput(),
+      data: { ...minimalInput().data, imperialVPOverrides: { 'Vaden Banking Clans': 1 } },
+      actionLog: [
+        setupWithMecatol('Vaden Banking Clans'),
+        makeImperialTurn('Vaden Banking Clans', 200),
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(1);
+    expect(result.finalScores['Vaden Banking Clans']).toBe(1);
+  });
+
+  it('does not affect other factions when only one faction is overridden', () => {
+    const input = {
+      ...minimalInput(),
+      data: { ...minimalInput().data, imperialVPOverrides: { 'Vaden Banking Clans': 0 } },
+      actionLog: [
+        setupWithMecatol('Vaden Banking Clans'),
+        makeImperialTurn('Vaden Banking Clans', 200),
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.finalScores["L'tokk Khrask"]).toBe(0); // untouched
+  });
+
+  it('absent imperialVPOverrides field leaves normal Imperial VP computation unchanged', () => {
+    const input = {
+      ...minimalInput(),
+      actionLog: [
+        setupWithMecatol('Vaden Banking Clans'),
+        makeImperialTurn('Vaden Banking Clans', 200),
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.finalScores['Vaden Banking Clans']).toBe(1);
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(1);
+  });
+
+  it('winner computed from adjusted scores (not raw computed scores)', () => {
+    // Vaden gets 2 Imperial VPs → score=2, threshold=2 → normally wins.
+    // Override to 1 → score=1 < 2 → no winner.
+    const input = {
+      ...minimalInput(),
+      data: {
+        ...minimalInput().data,
+        options: { 'victory-points': 2 },
+        imperialVPOverrides: { 'Vaden Banking Clans': 1 },
+      },
+      actionLog: [
+        setupWithMecatol('Vaden Banking Clans'),
+        makeImperialTurn('Vaden Banking Clans', 200),
+        makeImperialTurn('Vaden Banking Clans', 300),
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.winner).toBeNull(); // adjusted score (1) doesn't reach threshold (2)
+  });
+});

@@ -19,7 +19,7 @@ const EXPECTED_WINNERS: Record<string, string> = {
   'TIAssistant_Game Data.json': 'Kollecc Society',
   'nHg8Hw_data.json': 'Emirates of Hacan',
   'nMhFhJ_data (1).json': 'Crimson Rebellion',     // 12 VP = threshold; Prophecy of Ixth + Imperial now handled
-  'PgyXRx_data.json': 'Titans of Ul',              // Covert Legislation + Imperial now handled; override redundant
+  'PgyXRx_data.json': 'Titans of Ul',              // imperialVPOverrides:{Titans:0} — table didn't apply the 2 eligible Imperial VPs
 };
 
 describe('parseGame integration — all real game exports', () => {
