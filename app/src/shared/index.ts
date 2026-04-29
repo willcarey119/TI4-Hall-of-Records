@@ -10,3 +10,4 @@ export {
   formatGameTitle,
   formatKicker,
 } from './formatters';
+export { useFontScale } from './useFontScale';

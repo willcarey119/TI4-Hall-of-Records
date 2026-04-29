@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { Kicker, FactionChip, Rule, formatKicker, formatGameTitle } from '../../shared';
+import { Kicker, FactionChip, Rule, formatKicker, formatGameTitle, useFontScale } from '../../shared';
 import { useGame } from './GameContext';
-import { useFontScale } from '../../shared/useFontScale';
 
 function scrollToSection(id: string): void {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -24,7 +23,7 @@ interface FrozenHeaderProps {
 export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
   const navigate = useNavigate();
   const { game } = useGame();
-  const { scale, up, down } = useFontScale();
+  const { scale, atMin, atMax, up, down } = useFontScale();
 
   if (game === null) return null;
 
@@ -116,14 +115,14 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
           <button
             type="button"
             onClick={down}
-            disabled={scale <= 0.85}
+            disabled={atMin}
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: '9px',
               border: '1px solid var(--ink-4)',
               background: 'none',
-              cursor: scale <= 0.85 ? 'default' : 'pointer',
-              color: scale <= 0.85 ? 'var(--ink-4)' : 'var(--ink-3)',
+              cursor: atMin ? 'default' : 'pointer',
+              color: atMin ? 'var(--ink-4)' : 'var(--ink-3)',
               padding: '2px 5px',
               lineHeight: 1,
             }}
@@ -133,14 +132,14 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
           <button
             type="button"
             onClick={up}
-            disabled={scale >= 1.2}
+            disabled={atMax}
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: '11px',
               border: '1px solid var(--ink-4)',
               background: 'none',
-              cursor: scale >= 1.2 ? 'default' : 'pointer',
-              color: scale >= 1.2 ? 'var(--ink-4)' : 'var(--ink-3)',
+              cursor: atMax ? 'default' : 'pointer',
+              color: atMax ? 'var(--ink-4)' : 'var(--ink-3)',
               padding: '2px 5px',
               lineHeight: 1,
             }}

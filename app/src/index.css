@@ -13,7 +13,7 @@
   --ink-3:   oklch(0.52 0.01 60);    /* tertiary / captions */
   --ink-4:   oklch(0.72 0.01 60);    /* dividers, disabled */
   --accent:  oklch(0.45 0.12 25);    /* faded vermillion — "stop press" */
-  --font-scale: 1;          /* set by useFontScale hook */
+  --font-scale: 1;
   --cool:    oklch(0.45 0.08 240);   /* faded ink-blue — secondary accent */
   --gold:    oklch(0.62 0.10 75);    /* tech color: yellow */
   --moss:    oklch(0.45 0.06 145);   /* tech color: green */

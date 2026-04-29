@@ -18,12 +18,8 @@ function readStoredIndex(): number {
   return clampStep(parsed);
 }
 
-export function useFontScale(): { scale: number; up: () => void; down: () => void } {
-  const [stepIdx, setStepIdx] = useState<number>(() => {
-    const idx = readStoredIndex();
-    applyScale(STEPS[idx] ?? 1.0);
-    return idx;
-  });
+export function useFontScale(): { scale: number; atMin: boolean; atMax: boolean; up: () => void; down: () => void } {
+  const [stepIdx, setStepIdx] = useState<number>(() => readStoredIndex());
 
   useEffect(() => {
     localStorage.setItem(LS_KEY, stepIdx.toString());
@@ -32,6 +28,8 @@ export function useFontScale(): { scale: number; up: () => void; down: () => voi
 
   return {
     scale: STEPS[stepIdx] ?? 1.0,
+    atMin: stepIdx === 0,
+    atMax: stepIdx === STEPS.length - 1,
     up:   () => setStepIdx(i => clampStep(i + 1)),
     down: () => setStepIdx(i => clampStep(i - 1)),
   };
