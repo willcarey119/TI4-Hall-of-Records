@@ -27,10 +27,10 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 | Phase 4 — Polish & Deploy | ✅ Complete — hero screens hi-fi, faction brand colors, bundle splitting, Firebase Hosting deploy |
 | Phase 5a — Critical bug fixes | ✅ Complete — VP threshold key, chart terminal points, dashboard names, planet seeding; 456 tests |
 | Phase 5b — UX & legibility | ✅ Complete — A–/A+ font scale toggle, font floor 7px→9px, tech section reorder, strategy card fix, round labels; 458 tests |
-| Phase 5c — Consolidation | 🔲 Planned — shared extractions, cleanup, CLAUDE.md update |
-| Phase 5d — New analytics views | 🔲 Planned — /agenda route, scoring pace, speaker correlation, relics, tech paths |
+| Phase 5c — Consolidation | ✅ Complete — FactionDot/TechPip shared, useScrollSpy extracted, formatters deduped, dead code removed; 463 tests |
+| Phase 5d — New analytics views | ✅ Complete — round scores table, speaker stats, scoring pace SVG, relic stats, /agenda route, tech paths; 493 tests |
 
-**Next up:** Phase 5c. See ROADMAP.md for full spec.
+**Next up:** Deploy Phase 5d. See ROADMAP.md for full spec.
 
 All app code lives under `D:\_TI4 App\app\`.
 
