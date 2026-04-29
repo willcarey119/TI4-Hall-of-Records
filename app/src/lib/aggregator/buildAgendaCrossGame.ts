@@ -12,6 +12,7 @@ export interface AgendaAppearance {
   gameWinner: string | null;
   round: number;
   indexInRound: 1 | 2;
+  agenda: string;
   outcome: string;
   passed: boolean | null;
   totalFor: number;
@@ -128,6 +129,7 @@ export function buildAgendaCrossGame(games: ParsedGame[]): AgendaCrossGameSummar
         gameWinner,
         round: res.round,
         indexInRound,
+        agenda: res.agenda,
         outcome: res.outcome,
         passed,
         totalFor,
