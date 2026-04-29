@@ -52,7 +52,7 @@ export function GameDetailPage() {
       >
         <p
           className="font-mono text-ink-3"
-          style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+          style={{ fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em' }}
         >
           Loading…
         </p>
@@ -78,7 +78,7 @@ export function GameDetailPage() {
           onClick={() => { navigate(-1); }}
           className="font-mono text-ink-3"
           style={{
-            fontSize: '9px',
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             textDecoration: 'underline',

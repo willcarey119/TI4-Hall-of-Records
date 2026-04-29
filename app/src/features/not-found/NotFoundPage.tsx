@@ -12,7 +12,7 @@ export function NotFoundPage() {
         <p
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: '9px',
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             color: 'var(--ink-3)',
@@ -24,7 +24,7 @@ export function NotFoundPage() {
         <h2
           style={{
             fontFamily: "'Newsreader', Georgia, serif",
-            fontSize: '32px',
+            fontSize: 'var(--font-display-lg)',
             fontStyle: 'italic',
             fontWeight: 800,
             color: 'var(--ink)',
@@ -37,7 +37,7 @@ export function NotFoundPage() {
         <p
           style={{
             fontFamily: "'Newsreader', Georgia, serif",
-            fontSize: '14px',
+            fontSize: 'var(--font-body)',
             color: 'var(--ink-2)',
             lineHeight: 1.5,
             maxWidth: '440px',
@@ -51,7 +51,7 @@ export function NotFoundPage() {
           to="/"
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: '9px',
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             color: 'var(--accent)',

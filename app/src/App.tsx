@@ -33,7 +33,7 @@ function RouteLoadingFallback() {
       <p
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '9px',
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           color: 'var(--ink-3)',

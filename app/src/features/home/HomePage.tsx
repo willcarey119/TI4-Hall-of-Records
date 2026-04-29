@@ -7,7 +7,7 @@ import { GameCard } from './GameCard';
 
 const monoSm: React.CSSProperties = {
   fontFamily: "'IBM Plex Mono', monospace",
-  fontSize: 9,
+  fontSize: 'var(--font-micro)',
   textTransform: 'uppercase' as const,
   letterSpacing: '0.1em',
   cursor: 'pointer',
@@ -104,7 +104,7 @@ export function HomePage() {
           href="/meta"
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 9,
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             color: 'var(--accent)',
@@ -178,7 +178,7 @@ export function HomePage() {
           <div style={{ marginBottom: '12px' }}>
             {confirmDelete ? (
               <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Remove {n} game{n !== 1 ? 's' : ''} permanently?
                 </span>
                 <button
@@ -211,17 +211,17 @@ export function HomePage() {
         )}
 
         {loading && (
-          <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)' }}>
+          <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)' }}>
             Loading…
           </p>
         )}
 
         {!loading && error !== null && (
-          <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--accent)' }}>{error}</p>
+          <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--accent)' }}>{error}</p>
         )}
 
         {!loading && error === null && games.length === 0 && (
-          <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-3)' }}>
+          <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
             No games yet — upload one above.
           </p>
         )}

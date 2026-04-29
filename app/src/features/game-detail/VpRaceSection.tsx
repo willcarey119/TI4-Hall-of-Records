@@ -207,7 +207,7 @@ function VpRaceContent({
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 8,
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           color: 'var(--ink-3)',
@@ -226,7 +226,7 @@ function VpRaceContent({
       <div
         style={{
           fontFamily: "'Newsreader', Georgia, serif",
-          fontSize: 22,
+          fontSize: 'var(--font-display-sm)',
           fontWeight: 800,
           fontStyle: 'italic',
           lineHeight: 1.1,
@@ -237,7 +237,7 @@ function VpRaceContent({
       </div>
 
       {/* Deck */}
-      <div style={{ fontSize: 10, color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
+      <div style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
         {editorial.deckText}
       </div>
 
@@ -251,7 +251,7 @@ function VpRaceContent({
       {/* Legend */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 12px', marginTop: 4 }}>
         {summary.series.map(s => (
-          <div key={s.factionId} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10 }}>
+          <div key={s.factionId} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 'var(--font-micro)' }}>
             <span
               style={{
                 width: 16,
@@ -269,7 +269,7 @@ function VpRaceContent({
             >
               {s.factionId}
             </span>
-            <span style={{ color: 'var(--ink-3)', fontSize: 9 }}>{s.finalVp}</span>
+            <span style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)' }}>{s.finalVp}</span>
             {/* color dot */}
             <FactionDot color={factionColorMap[s.factionId] ?? 'var(--ink-4)'} size={6} />
           </div>
@@ -281,7 +281,7 @@ function VpRaceContent({
         className="dropcap"
         style={{
           fontFamily: "'Newsreader', Georgia, serif",
-          fontSize: 10,
+          fontSize: 'var(--font-micro)',
           lineHeight: 1.55,
           color: 'var(--ink-2)',
           marginTop: 10,

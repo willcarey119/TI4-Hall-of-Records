@@ -22,7 +22,7 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
               fontWeight: 700,
-              fontSize: 12,
+              fontSize: 'var(--font-sm)',
               color: fd.isWinner ? 'var(--accent)' : 'var(--ink)',
             }}
           >
@@ -32,7 +32,7 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
             <span
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 9,
+                fontSize: 'var(--font-micro)',
                 background: 'var(--accent)',
                 color: 'var(--paper)',
                 padding: '0 3px',
@@ -49,7 +49,7 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
           style={{
             fontFamily: "'Newsreader', Georgia, serif",
             fontWeight: 800,
-            fontSize: 18,
+            fontSize: 'var(--font-subhead)',
             color: fd.isWinner ? 'var(--accent)' : 'var(--ink)',
           }}
         >
@@ -57,7 +57,7 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 'var(--font-micro)',
               color: 'var(--ink-3)',
               fontWeight: 400,
             }}
@@ -77,7 +77,7 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
                 key={i}
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 9,
+                  fontSize: 'var(--font-micro)',
                   border: `1px solid ${obj.points >= 2 ? 'var(--ink)' : 'var(--ink-4)'}`,
                   background: obj.points >= 2 ? 'var(--ink)' : 'var(--paper-2)',
                   color: obj.points >= 2 ? 'var(--paper)' : 'var(--ink-2)',
@@ -99,7 +99,7 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
           <Label>Techs</Label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2px 8px', marginTop: 2 }}>
             {fd.startingTechs.map((t, i) => (
-              <span key={`s${i}`} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9 }}>
+              <span key={`s${i}`} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 'var(--font-micro)' }}>
                 <TechPip color={t.color} size={6} />
                 <span style={{ fontFamily: "'Newsreader', Georgia, serif", color: 'var(--ink-3)', fontStyle: 'italic' }}>
                   {t.tech}
@@ -107,7 +107,7 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
               </span>
             ))}
             {fd.techsResearched.map((t, i) => (
-              <span key={`r${i}`} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9 }}>
+              <span key={`r${i}`} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 'var(--font-micro)' }}>
                 <TechPip color={t.color} size={6} />
                 <span style={{ fontFamily: "'Newsreader', Georgia, serif" }}>{t.tech}</span>
               </span>
@@ -117,7 +117,7 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
       )}
 
       {/* Planet count */}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink-3)' }}>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-sm)', color: 'var(--ink-3)' }}>
         {fd.planetsControlled} planet{fd.planetsControlled !== 1 ? 's' : ''} at game end
       </div>
     </div>
@@ -154,7 +154,7 @@ export function DashboardSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
+              fontSize: 'var(--font-sm)',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -173,7 +173,7 @@ export function DashboardSection() {
           <div
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: 22,
+              fontSize: 'var(--font-display-sm)',
               fontWeight: 800,
               fontStyle: 'italic',
               lineHeight: 1.1,
@@ -184,7 +184,7 @@ export function DashboardSection() {
           </div>
 
           {/* Deck */}
-          <div style={{ fontSize: 10, color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
+          <div style={{ fontSize: 'var(--font-sm)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
             {summary.winner !== null
               ? `${summary.winner} claimed victory.`
               : `No faction reached the victory threshold.`}

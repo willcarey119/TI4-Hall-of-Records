@@ -45,7 +45,7 @@ function FeedItem({
       <span
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 8,
+          fontSize: 'var(--font-micro)',
           color: 'var(--ink-4)',
           paddingTop: 1,
         }}
@@ -57,7 +57,7 @@ function FeedItem({
       {item.factionId !== null ? (
         <FactionDot color={factionColorMap[item.factionId] ?? 'var(--ink-4)'} />
       ) : (
-        <span style={{ fontSize: 8, color: 'var(--ink-3)', paddingTop: 1 }}>
+        <span style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-3)', paddingTop: 1 }}>
           {TYPE_ICON[item.type] ?? '·'}
         </span>
       )}
@@ -67,7 +67,7 @@ function FeedItem({
         <span
           style={{
             fontFamily: "'Newsreader', Georgia, serif",
-            fontSize: 11,
+            fontSize: 'var(--font-micro)',
             fontWeight: item.isHighlight ? 700 : 400,
             color,
           }}
@@ -79,7 +79,7 @@ function FeedItem({
             style={{
               display: 'block',
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 8,
+              fontSize: 'var(--font-micro)',
               color: 'var(--ink-3)',
               marginTop: 1,
             }}
@@ -131,7 +131,7 @@ export function TimelineSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 8,
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -150,7 +150,7 @@ export function TimelineSection() {
           <div
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: 22,
+              fontSize: 'var(--font-display-sm)',
               fontWeight: 800,
               fontStyle: 'italic',
               lineHeight: 1.1,
@@ -161,14 +161,14 @@ export function TimelineSection() {
           </div>
 
           {/* Deck */}
-          <div style={{ fontSize: 10, color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
+          <div style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
             {summary.deckText}
           </div>
 
           <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
 
           {/* Event legend */}
-          <div style={{ display: 'flex', gap: 10, fontSize: 9, marginBottom: 6, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 10, fontSize: 'var(--font-micro)', marginBottom: 6, flexWrap: 'wrap' }}>
             {[
               { icon: '✦', label: 'VP scored',          color: 'var(--ink)' },
               { icon: '⚖', label: 'Agenda',             color: 'var(--ink)' },
@@ -176,7 +176,7 @@ export function TimelineSection() {
               { icon: '⌖', label: 'Mecatol Rex',        color: 'var(--ink)' },
             ].map(({ icon, label, color }) => (
               <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                <span style={{ color, fontSize: 8 }}>{icon}</span>
+                <span style={{ color, fontSize: 'var(--font-micro)' }}>{icon}</span>
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
@@ -197,7 +197,7 @@ export function TimelineSection() {
           {summary.items.length === 0 ? (
             <div
               style={{
-                fontSize: 10,
+                fontSize: 'var(--font-micro)',
                 color: 'var(--ink-3)',
                 fontStyle: 'italic',
                 padding: '8px 0',

@@ -18,7 +18,7 @@ function PlanetsContent({
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 8,
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           color: 'var(--ink-3)',
@@ -40,7 +40,7 @@ function PlanetsContent({
       <div
         style={{
           fontFamily: "'Newsreader', Georgia, serif",
-          fontSize: 22,
+          fontSize: 'var(--font-display-sm)',
           fontWeight: 800,
           fontStyle: 'italic',
           lineHeight: 1.1,
@@ -51,7 +51,7 @@ function PlanetsContent({
       </div>
 
       {/* Deck */}
-      <div style={{ fontSize: 10, color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
+      <div style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
         {summary.deckText}
       </div>
 
@@ -67,7 +67,7 @@ function PlanetsContent({
               alignItems: 'center',
               gap: 6,
               padding: '4px 0 6px',
-              fontSize: 11,
+              fontSize: 'var(--font-micro)',
             }}
           >
             <FactionDot color={factionColorMap[summary.mecatol.factionId] ?? 'var(--ink-4)'} />
@@ -83,7 +83,7 @@ function PlanetsContent({
               <span
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 7,
+                  fontSize: 'var(--font-micro)',
                   background: 'var(--paper-2)',
                   border: '1px solid var(--rule)',
                   padding: '0 4px',
@@ -139,7 +139,7 @@ function FactionInventory({
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
               fontWeight: 700,
-              fontSize: 12,
+              fontSize: 'var(--font-sm)',
             }}
           >
             {inv.factionId}
@@ -148,7 +148,7 @@ function FactionInventory({
         <span
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 9,
+            fontSize: 'var(--font-micro)',
             color: 'var(--ink-3)',
           }}
         >
@@ -161,7 +161,7 @@ function FactionInventory({
           flexWrap: 'wrap',
           gap: '2px 6px',
           paddingBottom: 4,
-          fontSize: 10,
+          fontSize: 'var(--font-micro)',
           color: 'var(--ink-2)',
         }}
       >
@@ -180,7 +180,7 @@ function FactionInventory({
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 7,
+                    fontSize: 'var(--font-micro)',
                     marginLeft: 2,
                     color: 'var(--accent)',
                   }}

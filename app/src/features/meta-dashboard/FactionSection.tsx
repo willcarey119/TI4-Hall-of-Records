@@ -58,20 +58,20 @@ export function FactionSection() {
   return (
     <section id="factions" data-section="factions" style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }}>
       {/* Kicker */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', borderBottom: '1px solid var(--ink-4)', paddingBottom: 3, marginBottom: 6 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', borderBottom: '1px solid var(--ink-4)', paddingBottom: 3, marginBottom: 6 }}>
         <span>Factions · League Standings</span>
         <span>{factionStats.totalGames} games · {factionStats.factions.length} factions</span>
       </div>
 
-      <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 17, fontWeight: 800, lineHeight: 1.1, marginBottom: 2 }}>
+      <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800, lineHeight: 1.1, marginBottom: 2 }}>
         The leaderboard.
       </div>
-      <div style={{ fontSize: 10, color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 6 }}>
+      <div style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 6 }}>
         Sample sizes are small — based on {factionStats.totalGames} game{factionStats.totalGames !== 1 ? 's' : ''}.
       </div>
 
       {/* View / sort toggles */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
         <span style={{ color: 'var(--ink-3)' }}>View</span>
         <button type="button" onClick={() => { setView('table'); }} style={{ background: view === 'table' ? 'var(--ink)' : 'transparent', color: view === 'table' ? 'var(--paper)' : 'var(--ink)', border: '1px solid var(--ink)', padding: '2px 6px', cursor: 'pointer' }}>Table</button>
         <button type="button" onClick={() => { setView('cards'); }} style={{ background: view === 'cards' ? 'var(--ink)' : 'transparent', color: view === 'cards' ? 'var(--paper)' : 'var(--ink)', border: '1px solid var(--ink)', padding: '2px 6px', cursor: 'pointer' }}>Cards</button>
@@ -86,11 +86,11 @@ export function FactionSection() {
       </div>
 
       {view === 'table' ? (
-        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>
+        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
           {sorted.map(f => (
-            <div key={f.factionId} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 60px 50px 60px', gap: 8, padding: '3px 0', borderBottom: '1px dotted var(--ink-4)' }}>
-              <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 11, fontWeight: 700 }}>
-                {f.factionId} <span style={{ fontSize: 7, color: 'var(--ink-3)', textTransform: 'uppercase' }}>{f.expansion}</span>
+            <div key={f.factionId} style={{ display: 'grid', gridTemplateColumns: '1fr 72px 72px 64px 80px', gap: 8, padding: '3px 0', borderBottom: '1px dotted var(--ink-4)' }}>
+              <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)', fontWeight: 700 }}>
+                {f.factionId} <span style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase' }}>{f.expansion}</span>
               </span>
               <span style={{ color: 'var(--ink-3)' }}>{f.gamesPlayed}/{factionStats.totalGames}</span>
               <span>{Math.round(f.winRate * 100)}%</span>
@@ -100,18 +100,18 @@ export function FactionSection() {
           ))}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
           {sorted.map(f => (
             <div key={f.factionId} style={{ border: f.winRate === topWinRate && f.winRate > 0 ? '2px solid var(--rule)' : '1px solid var(--ink-4)', padding: 8, background: 'var(--paper-2)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                 <FactionDot color={getFactionBrandColor(f.factionId, 'var(--ink-4)')} size={8} />
-                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 11 }}>{f.factionId}</span>
+                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 'var(--font-micro)' }}>{f.factionId}</span>
               </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 7, color: 'var(--ink-3)', textTransform: 'uppercase', marginBottom: 2 }}>{f.expansion}</div>
-              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 24, fontWeight: 800, color: f.winRate === topWinRate && f.winRate > 0 ? 'var(--accent)' : 'var(--ink)' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', marginBottom: 2 }}>{f.expansion}</div>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-display-sm)', fontWeight: 800, color: f.winRate === topWinRate && f.winRate > 0 ? 'var(--accent)' : 'var(--ink)' }}>
                 {Math.round(f.winRate * 100)}%
               </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--ink-3)' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
                 {f.gamesPlayed} game{f.gamesPlayed !== 1 ? 's' : ''} · {f.avgFinalVp.toFixed(1)} avg VP
               </div>
               <div style={{ marginTop: 4 }}><Sparkline values={f.avgVpPerRound} /></div>
@@ -123,16 +123,16 @@ export function FactionSection() {
       <Rule />
 
       {/* Frequent Pairings */}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4 }}>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4 }}>
         Frequent Pairings
       </div>
       {factionStats.topPairings.slice(0, 5).map((p, i) => (
-        <div key={i} style={{ display: 'flex', gap: 6, fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, padding: '2px 0' }}>
-          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 10 }}>{p.factionA} · {p.factionB}</span>
+        <div key={i} style={{ display: 'flex', gap: 6, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', padding: '2px 0' }}>
+          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{p.factionA} · {p.factionB}</span>
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)' }}>{p.coAppearances} game{p.coAppearances !== 1 ? 's' : ''}</span>
         </div>
       ))}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 7, color: 'var(--ink-3)', marginTop: 4 }}>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>
         Win-rate split by pairing requires 10+ games.
       </div>
 
@@ -140,22 +140,22 @@ export function FactionSection() {
       {factionStats.factions.some(f => f.winningVoteRate !== null) && (
         <>
           <Rule />
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4 }}>
             Senate Power · Voted with Outcome
           </div>
           {[...factionStats.factions]
             .filter(f => f.winningVoteRate !== null)
             .sort((a, b) => (b.winningVoteRate ?? 0) - (a.winningVoteRate ?? 0))
             .map(f => (
-              <div key={f.factionId} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 50px', gap: 6, alignItems: 'center', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>
-                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 10 }}>{f.factionId}</span>
+              <div key={f.factionId} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 50px', gap: 6, alignItems: 'center', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
+                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{f.factionId}</span>
                 <div style={{ background: 'var(--ink-4)', height: 4 }}>
                   <div style={{ background: 'var(--cool)', height: 4, width: `${(f.winningVoteRate ?? 0) * 100}%` }} />
                 </div>
                 <span style={{ textAlign: 'right' }}>{Math.round((f.winningVoteRate ?? 0) * 100)}%</span>
               </div>
             ))}
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 7, color: 'var(--ink-3)', marginTop: 4 }}>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>
             Share of votes cast that backed the resolved outcome. Soft power without VP.
           </div>
         </>
@@ -165,11 +165,11 @@ export function FactionSection() {
       {factionStats.sftTransfers.length > 0 && (
         <>
           <Rule />
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4 }}>
             Support for the Throne
           </div>
           {factionStats.sftTransfers.map((t, i) => (
-            <div key={i} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, padding: '2px 0' }}>
+            <div key={i} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', padding: '2px 0' }}>
               {t.fromFaction} → {t.toFaction} <span style={{ color: 'var(--ink-3)', marginLeft: 4 }}>({t.count} game{t.count !== 1 ? 's' : ''})</span>
             </div>
           ))}

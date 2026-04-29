@@ -8,7 +8,7 @@ export function Label({ children }: LabelProps) {
   return (
     <span
       className="font-mono uppercase tracking-widest text-ink-3"
-      style={{ fontSize: '9px' }}
+      style={{ fontSize: 'var(--font-micro)' }}
     >
       {children}
     </span>

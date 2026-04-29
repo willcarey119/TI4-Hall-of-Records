@@ -15,14 +15,14 @@ export function Mast({ title, subtitle }: MastProps) {
     >
       <h1
         className="font-display font-extrabold italic text-ink"
-        style={{ fontSize: '28px', lineHeight: 1.05, margin: 0 }}
+        style={{ fontSize: 'var(--font-display-md)', lineHeight: 1.05, margin: 0 }}
       >
         {title}
       </h1>
       <p
         className="font-mono text-ink-3"
         style={{
-          fontSize: '9px',
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           marginTop: '3px',

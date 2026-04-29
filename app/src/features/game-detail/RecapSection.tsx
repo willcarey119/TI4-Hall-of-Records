@@ -51,7 +51,7 @@ export function RecapSection() {
           borderBottom: '1px solid var(--rule)',
           padding: '4px 0',
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '10px',
+          fontSize: 'var(--font-micro)',
           display: 'flex',
           justifyContent: 'space-between',
         }}
@@ -65,7 +65,7 @@ export function RecapSection() {
       <div
         style={{
           fontFamily: "'Newsreader', Georgia, serif",
-          fontSize: 30,
+          fontSize: 'var(--font-display-lg)',
           fontStyle: 'italic',
           textAlign: 'center',
           padding: '8px 0',
@@ -80,7 +80,7 @@ export function RecapSection() {
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '10px',
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           color: 'var(--ink-3)',
@@ -98,7 +98,7 @@ export function RecapSection() {
       <div
         style={{
           fontFamily: "'Newsreader', Georgia, serif",
-          fontSize: 26,
+          fontSize: 'var(--font-display-md)',
           fontWeight: 800,
           textAlign: 'center',
           lineHeight: 1.05,
@@ -113,7 +113,7 @@ export function RecapSection() {
         style={{
           fontFamily: "'Newsreader', Georgia, serif",
           fontStyle: 'italic',
-          fontSize: 11,
+          fontSize: 'var(--font-micro)',
           textAlign: 'center',
           color: 'var(--ink-2)',
           marginTop: 4,
@@ -139,7 +139,7 @@ export function RecapSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '9px',
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -163,7 +163,7 @@ export function RecapSection() {
                 style={{
                   fontFamily: "'Newsreader', Georgia, serif",
                   fontWeight: 800,
-                  fontSize: 14,
+                  fontSize: 'var(--font-body)',
                   lineHeight: 1.1,
                   marginBottom: 2,
                 }}
@@ -174,7 +174,7 @@ export function RecapSection() {
                 style={{
                   fontFamily: "'Newsreader', Georgia, serif",
                   fontWeight: 800,
-                  fontSize: 24,
+                  fontSize: 'var(--font-display-sm)',
                   color: 'var(--accent)',
                   lineHeight: 1,
                 }}
@@ -183,7 +183,7 @@ export function RecapSection() {
               </div>
             </>
           ) : (
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '8px', color: 'var(--ink-3)' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
               No victor
             </div>
           )}
@@ -195,7 +195,7 @@ export function RecapSection() {
             className="dropcap"
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: 9,
+              fontSize: 'var(--font-micro)',
               lineHeight: 1.45,
               color: 'var(--ink-2)',
               margin: 0,
@@ -210,7 +210,7 @@ export function RecapSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '9px',
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -223,7 +223,7 @@ export function RecapSection() {
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
               fontWeight: 800,
-              fontSize: 24,
+              fontSize: 'var(--font-display-sm)',
               lineHeight: 1,
               marginBottom: 4,
             }}
@@ -234,7 +234,7 @@ export function RecapSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '9px',
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -247,7 +247,7 @@ export function RecapSection() {
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
               fontWeight: 800,
-              fontSize: 18,
+              fontSize: 'var(--font-subhead)',
               lineHeight: 1,
             }}
           >
@@ -280,7 +280,7 @@ export function RecapSection() {
             <div
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: '9px',
+                fontSize: 'var(--font-micro)',
                 color: 'var(--ink-3)',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -293,7 +293,7 @@ export function RecapSection() {
               style={{
                 fontFamily: "'Newsreader', Georgia, serif",
                 fontWeight: 800,
-                fontSize: 13,
+                fontSize: 'var(--font-sm)',
                 color: s.isWinner ? 'var(--accent)' : 'var(--ink)',
               }}
             >
@@ -306,7 +306,7 @@ export function RecapSection() {
       {roundScores.length > 0 && (
         <>
           <Rule />
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', overflowX: 'auto' }}>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
