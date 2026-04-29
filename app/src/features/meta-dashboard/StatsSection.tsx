@@ -11,7 +11,7 @@ function fmtPct(p: number | null): string {
 }
 
 export function StatsSection() {
-  const { gameStats } = useMeta();
+  const { gameStats, speakerStats } = useMeta();
   if (gameStats === null) {
     return <section id="stats" data-section="stats" style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }} />;
   }
@@ -222,6 +222,45 @@ export function StatsSection() {
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 7, color: 'var(--ink-3)', marginTop: 4 }}>
         Elect-type agendas excluded from pass rate.
       </div>
+
+      <Rule />
+
+      {speakerStats !== null && speakerStats.gamesAnalyzed > 0 && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 6 }}>
+            Speaker Order
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+            <div>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 28, lineHeight: 1 }}>
+                {Math.round(speakerStats.initialSpeakerWinRate * 100)}%
+              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-3)', marginTop: 2 }}>
+                initial speaker<br />win rate
+              </div>
+            </div>
+            <div>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 28, lineHeight: 1 }}>
+                {speakerStats.avgRoundsAsSpeakerWinner.toFixed(1)}
+              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-3)', marginTop: 2 }}>
+                avg rounds as<br />speaker (winners)
+              </div>
+            </div>
+            <div>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 28, lineHeight: 1 }}>
+                {speakerStats.avgRoundsAsSpeakerNonWinner.toFixed(1)}
+              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-3)', marginTop: 2 }}>
+                avg rounds as<br />speaker (others)
+              </div>
+            </div>
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-4)', marginTop: 6 }}>
+            {speakerStats.initialSpeakerWinCount} of {speakerStats.gamesAnalyzed} games won by initial speaker
+          </div>
+        </div>
+      )}
     </section>
   );
 }

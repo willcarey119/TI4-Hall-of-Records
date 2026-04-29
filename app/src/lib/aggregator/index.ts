@@ -20,3 +20,5 @@ export type {
   VpDiversityStat, Stage2Stat, GameStatsSummary,
 } from './buildGameStats';
 export { isHeroLeader, HERO_LEADERS } from './heroLeaders';
+export { buildSpeakerStats } from './buildSpeakerStats';
+export type { SpeakerStats } from './buildSpeakerStats';
