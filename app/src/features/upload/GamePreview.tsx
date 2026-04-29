@@ -1,25 +1,12 @@
 // src/features/upload/GamePreview.tsx
 import type { ParsedGame } from '../../lib/parser/types';
+import { formatDate, formatDuration } from '../../shared';
 import { WarningList } from './WarningList';
 
 interface GamePreviewProps {
   game: ParsedGame;
   onSave: () => void;
   saving: boolean;
-}
-
-function formatDuration(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return `${h}h ${m.toString().padStart(2, '0')}m`;
-}
-
-function formatDate(ms: number): string {
-  return new Date(ms).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
 }
 
 export function GamePreview({ game, onSave, saving }: GamePreviewProps) {
