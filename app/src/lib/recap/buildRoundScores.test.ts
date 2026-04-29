@@ -54,4 +54,15 @@ describe('buildRoundScores', () => {
     const result = buildRoundScores([], [makeFaction('Sol')], boundaries);
     expect(result[0]?.scores['Sol']).toBe(0);
   });
+
+  it('final round includes events after the last boundary startTimestamp', () => {
+    const boundaries: RoundBoundary[] = [
+      { round: 1, startTimestamp: 0 },
+      { round: 2, startTimestamp: 1000 },
+    ];
+    // Event at timestamp 9999 is after round-2 boundary starts — but round 2 is final, so it should be included
+    const events: VpEvent[] = [makeVp('Sol', 3, 500), makeVp('Sol', 4, 9999)];
+    const result = buildRoundScores(events, [makeFaction('Sol')], boundaries);
+    expect(result[1]?.scores['Sol']).toBe(7);  // both events (no cutoff for final round)
+  });
 });

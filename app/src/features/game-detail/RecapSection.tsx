@@ -3,7 +3,7 @@ import { useGame } from './GameContext';
 import { buildRecapSummary } from '../../lib/recap/buildRecapSummary';
 import { Rule, formatDate, formatDuration, FactionDot } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
-import { buildRoundScores, type RoundScoreRow } from '../../lib/recap/buildRoundScores';
+import { buildRoundScores } from '../../lib/recap/buildRoundScores';
 import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
 
 export function RecapSection() {
@@ -14,7 +14,7 @@ export function RecapSection() {
     [game],
   );
 
-  const roundScores: RoundScoreRow[] = useMemo(
+  const roundScores = useMemo(
     () =>
       game !== null
         ? buildRoundScores(
@@ -307,7 +307,7 @@ export function RecapSection() {
         <>
           <Rule />
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
                   <th style={{ textAlign: 'left', color: 'var(--ink-3)', fontWeight: 'normal', paddingRight: 8, whiteSpace: 'nowrap' }}>Rd</th>
