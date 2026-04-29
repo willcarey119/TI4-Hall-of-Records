@@ -2,7 +2,6 @@ import { useMeta } from './MetaContext';
 import { Kicker } from '../../shared';
 import type { ScoringPaceRoundSummary } from '../../lib/aggregator';
 
-// Chart geometry
 const W = 520;
 const H = 160;
 const PAD = { top: 16, right: 16, bottom: 24, left: 28 };
@@ -23,10 +22,8 @@ function WinnerPaceChart({ data }: { data: ScoringPaceRoundSummary }) {
   const innerH = H - PAD.top - PAD.bottom;
   const innerW = W - PAD.left - PAD.right;
 
-  // Y-axis labels: 0, half, victoryPoints
   const yTicks = [0, Math.round(victoryPoints / 2), victoryPoints];
 
-  // X-axis round labels: START + R1…Rn
   const xTicks = Array.from({ length: maxRounds + 1 }, (_, r) => ({
     x: xScale(r, maxRounds),
     label: r === 0 ? 'START' : `R${r}`,
