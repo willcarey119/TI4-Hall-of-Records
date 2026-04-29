@@ -2,10 +2,10 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { loadAllGames } from '../../adapters/firestore';
 import {
   buildFactionStats, buildStrategyCardStats, buildTechStats, buildGameStats, buildSpeakerStats,
-  buildScoringPace,
+  buildScoringPace, buildRelicStats,
   deriveRoundBoundaries,
   type FactionStatsSummary, type StrategyCardSummary, type TechSummary, type GameStatsSummary,
-  type RoundBoundary, type SpeakerStats, type ScoringPaceSummary,
+  type RoundBoundary, type SpeakerStats, type ScoringPaceSummary, type RelicStatsSummary,
 } from '../../lib/aggregator';
 import type { ParsedGame } from '../../lib/parser/types';
 
@@ -19,6 +19,7 @@ export interface MetaState {
   gameStats: GameStatsSummary | null;
   speakerStats: SpeakerStats | null;
   scoringPace: ScoringPaceSummary | null;
+  relicStats: RelicStatsSummary | null;
 }
 
 const initialState: MetaState = {
@@ -31,6 +32,7 @@ const initialState: MetaState = {
   gameStats: null,
   speakerStats: null,
   scoringPace: null,
+  relicStats: null,
 };
 
 const MetaContext = createContext<MetaState>(initialState);
@@ -56,6 +58,7 @@ export function MetaProvider({ children }: { children: ReactNode }) {
           gameStats:         buildGameStats(games, boundariesByGame),
           speakerStats:      buildSpeakerStats(games),
           scoringPace:       buildScoringPace(games),
+          relicStats:        buildRelicStats(games),
         };
         if (!cancelled) setState(next);
       })

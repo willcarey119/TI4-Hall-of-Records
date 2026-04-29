@@ -11,7 +11,7 @@ function fmtPct(p: number | null): string {
 }
 
 export function StatsSection() {
-  const { gameStats, speakerStats } = useMeta();
+  const { gameStats, speakerStats, relicStats } = useMeta();
   if (gameStats === null) {
     return <section id="stats" data-section="stats" style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }} />;
   }
@@ -259,6 +259,25 @@ export function StatsSection() {
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-4)', marginTop: 6 }}>
             {speakerStats.initialSpeakerWinCount} of {speakerStats.gamesAnalyzed} games won by initial speaker
           </div>
+        </div>
+      )}
+
+      {relicStats !== null && relicStats.relics.length > 0 && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 6 }}>
+            Relic Performance
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-4)', marginBottom: 6 }}>
+            {relicStats.gamesWithRelicVp} of {relicStats.totalGames} games had relic VP
+          </div>
+          {relicStats.relics.map(r => (
+            <div key={r.relic} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+              <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 13, fontStyle: 'italic' }}>{r.relic}</span>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-3)' }}>
+                {r.gainCount}× gained · {r.playCount}× played
+              </span>
+            </div>
+          ))}
         </div>
       )}
     </section>
