@@ -477,7 +477,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         'Classified Document Leaks',
       ]);
       const watchedAgenda = VP_AGENDA_WATCHLIST.has(agenda);
-      const watchWarning = watchedAgenda
+      const baseWatchWarning = watchedAgenda
         ? [`RESOLVE_AGENDA "${agenda}" may affect VP but no handler is implemented yet`]
         : [];
 
@@ -515,6 +515,9 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       // Elect-player VP laws: the elected faction gains +1 VP.
       // Covers Prophecy of Ixth (law, base) and Political Censure (law, PoK).
       const ELECT_PLAYER_VP_AGENDAS = new Set(['Prophecy of Ixth', 'Political Censure']);
+      const electPlayerWarning = ELECT_PLAYER_VP_AGENDAS.has(agenda) && !(outcome in newScores)
+        ? [`RESOLVE_AGENDA "${agenda}" target "${outcome}" is not a known faction at ${entry.timestamp}`]
+        : [];
       if (ELECT_PLAYER_VP_AGENDAS.has(agenda)) {
         if (outcome in newScores) {
           newVpEvents.push({
@@ -526,8 +529,6 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
             ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
           });
           newScores = { ...newScores, [outcome]: (newScores[outcome] ?? 0) + 1 };
-        } else {
-          watchWarning.push(`RESOLVE_AGENDA "${agenda}" target "${outcome}" is not a known faction at ${entry.timestamp}`);
         }
       }
 
@@ -537,6 +538,9 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       // When target is "For"/"Against" the hidden agenda was a directive with no elect VP.
       // Any other target string is a faction name we don't recognize — warn rather than
       // silently drop the VP (mirrors the ELECT_PLAYER_VP_AGENDAS branch above).
+      const covertWarning = agenda === 'Covert Legislation' && outcome !== 'For' && outcome !== 'Against' && !(outcome in newScores)
+        ? [`RESOLVE_AGENDA "Covert Legislation" target "${outcome}" is not a known faction at ${entry.timestamp}`]
+        : [];
       if (agenda === 'Covert Legislation') {
         if (outcome in newScores) {
           newVpEvents.push({
@@ -548,10 +552,10 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
             ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
           });
           newScores = { ...newScores, [outcome]: (newScores[outcome] ?? 0) + 1 };
-        } else if (outcome !== 'For' && outcome !== 'Against') {
-          watchWarning.push(`RESOLVE_AGENDA "Covert Legislation" target "${outcome}" is not a known faction at ${entry.timestamp}`);
         }
       }
+
+      const watchWarning = [...baseWatchWarning, ...electPlayerWarning, ...covertWarning];
 
       // Mutiny: For-voters gain +1 VP when For wins; lose -1 VP when Against wins.
       if (agenda === 'Mutiny') {
