@@ -1,11 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 import { GameCard } from './GameCard';
 import type { ParsedGameSummary } from '../../adapters/firestore';
 
 const mockNavigate = vi.fn();
+
+beforeEach(() => {
+  mockNavigate.mockClear();
+});
 
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
@@ -40,4 +44,24 @@ it('navigates to /games/:gameId on click', async () => {
   render(<MemoryRouter><GameCard game={mockSummary} /></MemoryRouter>);
   await user.click(screen.getByRole('button'));
   expect(mockNavigate).toHaveBeenCalledWith('/games/game-1');
+});
+
+// Selection mode
+it('renders unselected checkbox indicator when onToggle is provided and selected is false', () => {
+  render(<MemoryRouter><GameCard game={mockSummary} selected={false} onToggle={() => {}} /></MemoryRouter>);
+  expect(screen.getByText('[ ]')).toBeInTheDocument();
+});
+
+it('renders selected checkbox indicator when selected is true', () => {
+  render(<MemoryRouter><GameCard game={mockSummary} selected={true} onToggle={() => {}} /></MemoryRouter>);
+  expect(screen.getByText('[×]')).toBeInTheDocument();
+});
+
+it('calls onToggle on click in selection mode, does not navigate', async () => {
+  const user = userEvent.setup();
+  const onToggle = vi.fn();
+  render(<MemoryRouter><GameCard game={mockSummary} selected={false} onToggle={onToggle} /></MemoryRouter>);
+  await user.click(screen.getByRole('button'));
+  expect(onToggle).toHaveBeenCalledOnce();
+  expect(mockNavigate).not.toHaveBeenCalled();
 });

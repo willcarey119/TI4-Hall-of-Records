@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { HomePage } from './HomePage';
@@ -8,14 +9,16 @@ vi.mock('../../adapters/firestore', () => ({
   listGames: vi.fn(),
   signInAnon: vi.fn().mockResolvedValue('uid'),
   saveGame: vi.fn().mockResolvedValue('id'),
+  deleteGames: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('../../lib/parser/parseGame', () => ({
   parseGame: vi.fn(),
 }));
 
-import { listGames } from '../../adapters/firestore';
+import { listGames, deleteGames } from '../../adapters/firestore';
 const mockListGames = listGames as ReturnType<typeof vi.fn>;
+const mockDeleteGames = deleteGames as ReturnType<typeof vi.fn>;
 
 const mockSummaries: ParsedGameSummary[] = [
   {
@@ -65,4 +68,64 @@ it('shows error state when listGames rejects', async () => {
 it('shows archive count in label', async () => {
   render(<MemoryRouter><HomePage /></MemoryRouter>);
   expect(await screen.findByText(/Archive — 1 game/i)).toBeInTheDocument();
+});
+
+// Selection / delete flow
+it('shows Manage button when games are loaded', async () => {
+  render(<MemoryRouter><HomePage /></MemoryRouter>);
+  expect(await screen.findByRole('button', { name: /manage/i })).toBeInTheDocument();
+});
+
+it('enters selection mode and shows Cancel when Manage is clicked', async () => {
+  const user = userEvent.setup();
+  render(<MemoryRouter><HomePage /></MemoryRouter>);
+  await user.click(await screen.findByRole('button', { name: /manage/i }));
+  expect(screen.getByText(/select games to remove/i)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+});
+
+it('exits selection mode when Cancel is clicked', async () => {
+  const user = userEvent.setup();
+  render(<MemoryRouter><HomePage /></MemoryRouter>);
+  await user.click(await screen.findByRole('button', { name: /manage/i }));
+  await user.click(screen.getByRole('button', { name: /cancel/i }));
+  expect(screen.getByText(/Archive — 1 game/i)).toBeInTheDocument();
+});
+
+it('shows unselected checkbox on game cards in selection mode', async () => {
+  const user = userEvent.setup();
+  render(<MemoryRouter><HomePage /></MemoryRouter>);
+  await user.click(await screen.findByRole('button', { name: /manage/i }));
+  expect(screen.getByText('[ ]')).toBeInTheDocument();
+});
+
+it('shows Delete button after selecting a game', async () => {
+  const user = userEvent.setup();
+  render(<MemoryRouter><HomePage /></MemoryRouter>);
+  await user.click(await screen.findByRole('button', { name: /manage/i }));
+  // Click the game card checkbox (the one with the [ ] indicator)
+  await user.click(screen.getByText('[ ]').closest('button')!);
+  expect(screen.getByRole('button', { name: /delete 1 game/i })).toBeInTheDocument();
+});
+
+it('shows confirmation prompt when Delete is clicked', async () => {
+  const user = userEvent.setup();
+  render(<MemoryRouter><HomePage /></MemoryRouter>);
+  await user.click(await screen.findByRole('button', { name: /manage/i }));
+  await user.click(screen.getByText('[ ]').closest('button')!);
+  await user.click(screen.getByRole('button', { name: /delete 1 game/i }));
+  expect(screen.getByText(/remove 1 game permanently/i)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
+});
+
+it('calls deleteGames and exits select mode on Confirm', async () => {
+  const user = userEvent.setup();
+  render(<MemoryRouter><HomePage /></MemoryRouter>);
+  await user.click(await screen.findByRole('button', { name: /manage/i }));
+  await user.click(screen.getByText('[ ]').closest('button')!);
+  await user.click(screen.getByRole('button', { name: /delete 1 game/i }));
+  await user.click(screen.getByRole('button', { name: /confirm/i }));
+  expect(mockDeleteGames).toHaveBeenCalledWith(['game-1']);
+  // After deletion the archive label should return (no longer in select mode)
+  expect(await screen.findByText(/Archive —/i)).toBeInTheDocument();
 });

@@ -8,6 +8,7 @@ import {
   setDoc,
   getDoc,
   getDocs,
+  deleteDoc,
   query,
   orderBy,
 } from 'firebase/firestore';
@@ -30,6 +31,11 @@ export async function signInAnon(): Promise<string> {
     console.log('Signed in anonymously, uid:', user.uid);
   }
   return user.uid;
+}
+
+/** Deletes one or more games from Firestore by gameId. Runs in parallel — safe for small sets. */
+export async function deleteGames(gameIds: string[]): Promise<void> {
+  await Promise.all(gameIds.map((id) => deleteDoc(doc(db, 'games', id))));
 }
 
 export async function saveGame(game: ParsedGame): Promise<string> {
