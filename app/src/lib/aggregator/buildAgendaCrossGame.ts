@@ -13,7 +13,7 @@ export interface AgendaAppearance {
   round: number;
   indexInRound: 1 | 2;
   outcome: string;
-  passed: boolean;
+  passed: boolean | null;
   totalFor: number;
   totalAgainst: number;
   electedFaction?: string;
@@ -113,7 +113,7 @@ export function buildAgendaCrossGame(games: ParsedGame[]): AgendaCrossGameSummar
 
       // Determine passed
       const isBinary = res.outcome === 'For' || res.outcome === 'Against';
-      const passed = res.outcome === 'For';
+      const passed = isBinary ? res.outcome === 'For' : null;
 
       // Build vpDeltaByFaction for this appearance
       const vpDelta: Record<string, number> = {};
