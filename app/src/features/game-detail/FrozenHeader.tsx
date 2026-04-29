@@ -23,7 +23,7 @@ interface FrozenHeaderProps {
 export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
   const navigate = useNavigate();
   const { game } = useGame();
-  const { scale, atMin, atMax, up, down } = useFontScale();
+  const { atMin, atMax, up, down } = useFontScale();
 
   if (game === null) return null;
 

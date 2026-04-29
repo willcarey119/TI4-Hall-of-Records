@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 
 const STEPS = [0.85, 1.0, 1.2] as const;
 const LS_KEY = 'ti4-font-scale';
@@ -21,7 +21,7 @@ function readStoredIndex(): number {
 export function useFontScale(): { scale: number; atMin: boolean; atMax: boolean; up: () => void; down: () => void } {
   const [stepIdx, setStepIdx] = useState<number>(() => readStoredIndex());
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     localStorage.setItem(LS_KEY, stepIdx.toString());
     applyScale(STEPS[stepIdx] ?? 1.0);
   }, [stepIdx]);
