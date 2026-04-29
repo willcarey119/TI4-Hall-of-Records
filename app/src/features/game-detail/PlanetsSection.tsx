@@ -1,23 +1,7 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildPlanetSummary, type PlanetSummary, type FactionPlanetInventory } from '../../lib/planets/buildPlanetSummary';
-import { Label, Rule } from '../../shared';
-
-function FactionDot({ color }: { color: string }) {
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        width: 7,
-        height: 7,
-        borderRadius: '50%',
-        background: color,
-        flexShrink: 0,
-        verticalAlign: 'middle',
-      }}
-    />
-  );
-}
+import { Label, Rule, FactionDot } from '../../shared';
 
 function PlanetsContent({
   summary,

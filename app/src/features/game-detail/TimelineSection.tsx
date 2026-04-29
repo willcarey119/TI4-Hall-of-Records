@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildTimelineFeed, type TimelineFeedItem } from '../../lib/timeline/buildTimelineFeed';
-import { Rule } from '../../shared';
+import { Rule, FactionDot } from '../../shared';
 
 /** Format a raw timestamp (ms) as relative game time h:mm */
 function formatGameTime(timestamp: number, firstTimestamp: number): string {
@@ -9,21 +9,6 @@ function formatGameTime(timestamp: number, firstTimestamp: number): string {
   const h = Math.floor(secs / 3600);
   const m = Math.floor((secs % 3600) / 60);
   return `${h}:${m.toString().padStart(2, '0')}`;
-}
-
-function FactionDot({ color }: { color: string }) {
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        width: 7,
-        height: 7,
-        borderRadius: '50%',
-        background: color,
-        flexShrink: 0,
-      }}
-    />
-  );
 }
 
 const TYPE_ICON: Record<string, string> = {

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildVpTimeline, type FactionVpSeries, type VpTimelineSummary } from '../../lib/vp/buildVpTimeline';
-import { Rule } from '../../shared';
+import { Rule, FactionDot } from '../../shared';
 import { formatDuration } from '../../shared/formatters';
 
 const W = 400;
@@ -247,15 +247,7 @@ function VpRaceContent({
             </span>
             <span style={{ color: 'var(--ink-3)', fontSize: 9 }}>{s.finalVp}</span>
             {/* color dot */}
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: factionColorMap[s.factionId] ?? 'var(--ink-4)',
-                display: 'inline-block',
-              }}
-            />
+            <FactionDot color={factionColorMap[s.factionId] ?? 'var(--ink-4)'} size={6} />
           </div>
         ))}
       </div>

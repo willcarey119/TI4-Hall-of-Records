@@ -2,46 +2,7 @@ import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildDashboardSummary } from '../../lib/dashboard/buildDashboardSummary';
 import type { FactionDashboard } from '../../lib/dashboard/buildDashboardSummary';
-import type { TechColor } from '../../lib/parser/techs';
-import { Label, Rule } from '../../shared';
-
-const COLOR_VAR: Record<TechColor, string> = {
-  green:  'var(--moss)',
-  blue:   'var(--cool)',
-  yellow: 'var(--gold)',
-  red:    'var(--accent)',
-  unit:   'var(--ink-2)',
-};
-
-function TechPip({ color }: { color: TechColor }) {
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        width: 6,
-        height: 6,
-        borderRadius: '50%',
-        background: COLOR_VAR[color],
-        flexShrink: 0,
-      }}
-    />
-  );
-}
-
-function FactionDot({ color }: { color: string }) {
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        width: 7,
-        height: 7,
-        borderRadius: '50%',
-        background: color,
-        flexShrink: 0,
-      }}
-    />
-  );
-}
+import { Label, Rule, FactionDot, TechPip } from '../../shared';
 
 function FactionCard({ fd }: { fd: FactionDashboard }) {
   return (
@@ -139,7 +100,7 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2px 8px', marginTop: 2 }}>
             {fd.startingTechs.map((t, i) => (
               <span key={`s${i}`} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9 }}>
-                <TechPip color={t.color} />
+                <TechPip color={t.color} size={6} />
                 <span style={{ fontFamily: "'Newsreader', Georgia, serif", color: 'var(--ink-3)', fontStyle: 'italic' }}>
                   {t.tech}
                 </span>
@@ -147,7 +108,7 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
             ))}
             {fd.techsResearched.map((t, i) => (
               <span key={`r${i}`} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9 }}>
-                <TechPip color={t.color} />
+                <TechPip color={t.color} size={6} />
                 <span style={{ fontFamily: "'Newsreader', Georgia, serif" }}>{t.tech}</span>
               </span>
             ))}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMeta } from './MetaContext';
-import { Rule } from '../../shared';
+import { Rule, FactionDot } from '../../shared';
 
 type ViewMode = 'table' | 'cards';
 type SortKey = 'winRate' | 'gamesPlayed' | 'avgFinalVp';
@@ -11,12 +11,6 @@ function readStoredView(): ViewMode {
   if (typeof window === 'undefined') return 'cards';
   const stored = window.localStorage.getItem(STORAGE_KEY);
   return stored === 'table' || stored === 'cards' ? stored : 'cards';
-}
-
-function FactionDot({ color }: { color: string }) {
-  return (
-    <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0, verticalAlign: 'middle' }} />
-  );
 }
 
 function Sparkline({ values }: { values: number[] }) {
@@ -109,7 +103,7 @@ export function FactionSection() {
           {sorted.map(f => (
             <div key={f.factionId} style={{ border: f.winRate === topWinRate && f.winRate > 0 ? '2px solid var(--rule)' : '1px solid var(--ink-4)', padding: 8, background: 'var(--paper-2)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-                <FactionDot color="#888" />
+                <FactionDot color="#888" size={8} />
                 <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 11 }}>{f.factionId}</span>
               </div>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 7, color: 'var(--ink-3)', textTransform: 'uppercase', marginBottom: 2 }}>{f.expansion}</div>

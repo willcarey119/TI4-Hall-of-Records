@@ -1,11 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useMeta } from './MetaContext';
-import { Rule } from '../../shared';
+import { Rule, TechPip, TECH_COLOR_VAR } from '../../shared';
 import type { TechColor } from '../../lib/parser/techs';
-
-const COLOR_VAR: Record<TechColor, string> = {
-  green: 'var(--moss)', blue: 'var(--cool)', yellow: 'var(--gold)', red: 'var(--accent)', unit: 'var(--ink-2)',
-};
 
 const COLOR_LABEL: Record<TechColor | 'all', string> = {
   all: 'All', green: 'Biotic', blue: 'Propulsion', yellow: 'Cybernetic', red: 'Warfare', unit: 'Unit',
@@ -49,11 +45,11 @@ export function TechSection() {
 
       {visibleTechs.map(t => (
         <div key={t.tech} style={{ display: 'grid', gridTemplateColumns: '8px 1fr 50px 80px 60px', gap: 6, alignItems: 'center', padding: '3px 0', borderBottom: '1px dotted var(--ink-4)', fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: COLOR_VAR[t.color] }} />
+          <TechPip color={t.color} />
           <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 10 }}>{t.tech}</span>
           <span style={{ color: 'var(--ink-3)' }}>{t.avgRoundFirstResearched === null ? '—' : `Rnd ${t.avgRoundFirstResearched.toFixed(1)}`}</span>
           <div style={{ background: 'var(--ink-4)', height: 4 }}>
-            <div style={{ background: COLOR_VAR[t.color], height: 4, width: `${(t.researchCount / maxCount) * 100}%` }} />
+            <div style={{ background: TECH_COLOR_VAR[t.color], height: 4, width: `${(t.researchCount / maxCount) * 100}%` }} />
           </div>
           <span style={{ color: (t.winnerHeldRate ?? 0) >= 0.5 ? 'var(--accent)' : 'var(--ink-3)' }}>
             Won: {t.winnerHeldRate === null ? '—' : `${Math.round(t.winnerHeldRate * 100)}%`}
@@ -68,7 +64,7 @@ export function TechSection() {
       </div>
       {[...techStats.topTechs].sort((a, b) => (b.winnerHeldRate ?? 0) - (a.winnerHeldRate ?? 0)).slice(0, 10).map(t => (
         <div key={t.tech} style={{ display: 'flex', gap: 6, padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: COLOR_VAR[t.color] }} />
+          <TechPip color={t.color} />
           <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 10, flex: 1 }}>{t.tech}</span>
           <span style={{ color: 'var(--ink-3)' }}>{t.winnerHeldCount} of {techStats.totalWinnerGames} winning games</span>
           {(t.winnerHeldRate ?? 0) >= 0.67 && (

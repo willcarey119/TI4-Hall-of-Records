@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildRecapSummary } from '../../lib/recap/buildRecapSummary';
-import { Rule, formatDate, formatDuration } from '../../shared';
+import { Rule, formatDate, formatDuration, FactionDot } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 
 export function RecapSection() {
@@ -262,15 +262,7 @@ export function RecapSection() {
               border: s.isWinner ? '1px solid var(--accent)' : '1px solid var(--ink-4)',
             }}
           >
-            <div
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: s.color,
-                margin: '0 auto 2px',
-              }}
-            />
+            <FactionDot color={s.color} size={6} style={{ display: 'block', margin: '0 auto 2px' }} />
             <div
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",

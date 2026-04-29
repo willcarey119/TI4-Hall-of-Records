@@ -2,48 +2,7 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildTechSummary, deriveRoundBoundaries } from '../../lib/tech/buildTechSummary';
-import type { TechColor } from '../../lib/parser/techs';
-import { Label, Rule } from '../../shared';
-
-const COLOR_VAR: Record<TechColor, string> = {
-  green:  'var(--moss)',
-  blue:   'var(--cool)',
-  yellow: 'var(--gold)',
-  red:    'var(--accent)',
-  unit:   'var(--ink-2)',
-};
-
-function TechPip({ color }: { color: TechColor }) {
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        width: 8,
-        height: 8,
-        borderRadius: '50%',
-        background: COLOR_VAR[color],
-        flexShrink: 0,
-        verticalAlign: 'middle',
-      }}
-    />
-  );
-}
-
-function FactionDot({ color }: { color: string }) {
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        width: 7,
-        height: 7,
-        borderRadius: '50%',
-        background: color,
-        flexShrink: 0,
-        verticalAlign: 'middle',
-      }}
-    />
-  );
-}
+import { Label, Rule, FactionDot, TechPip } from '../../shared';
 
 export function TechSection() {
   const { game } = useGame();
