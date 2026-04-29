@@ -26,6 +26,7 @@ const mockSummary: ParsedGameSummary = {
   ],
   finalScores: { Sol: 10, Hacan: 8 },
   winner: 'Sol',
+  lastPhase: 'status',
 };
 
 it('renders the game title', () => {
@@ -64,4 +65,32 @@ it('calls onToggle on click in selection mode, does not navigate', async () => {
   await user.click(screen.getByRole('button'));
   expect(onToggle).toHaveBeenCalledOnce();
   expect(mockNavigate).not.toHaveBeenCalled();
+});
+
+// U7 — ending phase callout
+it('shows "Ended: Status" when lastPhase is "status"', () => {
+  render(<MemoryRouter><GameCard game={mockSummary} /></MemoryRouter>);
+  expect(screen.getByText('Ended: Status')).toBeInTheDocument();
+});
+
+it('omits ending phase label when lastPhase is absent', () => {
+  const noPhase: ParsedGameSummary = { ...mockSummary, lastPhase: undefined };
+  render(<MemoryRouter><GameCard game={noPhase} /></MemoryRouter>);
+  expect(screen.queryByText(/Ended:/)).not.toBeInTheDocument();
+});
+
+it('maps all phase ids to readable labels', () => {
+  const phases: Array<[string, string]> = [
+    ['strategy', 'Strategy'],
+    ['action', 'Action'],
+    ['status', 'Status'],
+    ['agenda', 'Agenda'],
+  ];
+  for (const [id, label] of phases) {
+    const { unmount } = render(
+      <MemoryRouter><GameCard game={{ ...mockSummary, lastPhase: id }} /></MemoryRouter>
+    );
+    expect(screen.getByText(`Ended: ${label}`)).toBeInTheDocument();
+    unmount();
+  }
 });

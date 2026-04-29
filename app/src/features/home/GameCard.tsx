@@ -2,6 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import type { ParsedGameSummary } from '../../adapters/firestore';
 import { Kicker, FactionChip, formatGameTitle, formatKicker } from '../../shared';
 
+const PHASE_LABELS: Record<string, string> = {
+  strategy: 'Strategy',
+  action:   'Action',
+  status:   'Status',
+  agenda:   'Agenda',
+};
+
 interface GameCardProps {
   game: ParsedGameSummary;
   /** When provided, the card renders in selection mode — clicking toggles instead of navigating. */
@@ -69,25 +76,35 @@ export function GameCard({ game, selected, onToggle }: GameCardProps) {
   }
 
   // Default mode: clicking navigates to game detail.
+  const phaseLabel = game.lastPhase !== undefined ? PHASE_LABELS[game.lastPhase] : undefined;
+
   return (
     <button
       type="button"
       onClick={() => { navigate(`/games/${game.gameId}`); }}
+      className="hover:bg-paper-2"
       style={{
         ...baseCardStyle,
         border: '1px solid var(--ink-4)',
         background: 'var(--paper)',
       }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.background = 'var(--paper-2)';
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.background = 'var(--paper)';
-      }}
     >
       <Kicker text={formatKicker(game.playedAt, game.durationSeconds)}>
         {formatGameTitle(game.winner, game.finalScores)}
       </Kicker>
+      {phaseLabel !== undefined && (
+        <span
+          style={{
+            display: 'block',
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 'var(--font-micro)',
+            color: 'var(--ink-3)',
+            marginTop: '2px',
+          }}
+        >
+          Ended: {phaseLabel}
+        </span>
+      )}
       <div style={{ marginTop: '8px' }}>
         {game.factions.map((f) => (
           <FactionChip

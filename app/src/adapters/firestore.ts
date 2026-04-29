@@ -51,6 +51,9 @@ export interface ParsedGameSummary {
   factions: Pick<FactionSetup, 'factionId' | 'color' | 'playerName'>[];
   finalScores: Record<string, number>;
   winner: string | null;
+  /** Phase the game ended in, derived from the last PhaseSnapshot. Absent for documents
+   *  uploaded before this field was added. */
+  lastPhase?: string;
 }
 
 /** Deletes one or more games from Firestore by gameId. Runs in parallel — safe for small sets. */
@@ -83,6 +86,7 @@ export async function listGames(): Promise<ParsedGameSummary[]> {
       })),
       finalScores: game.finalScores,
       winner: game.winner,
+      lastPhase: game.phaseSnapshots.at(-1)?.phase,
     };
   });
 }
