@@ -75,6 +75,10 @@ export interface TI4ExportData {
         factions: FactionSetup[];
         speaker: number;
         options: GameOptions;
+        /** V1.1 triage escape hatch: when present, overrides the score-inferred winner.
+         *  Used for games where VP sources (e.g. Imperial card primary, unhandled agendas)
+         *  cause the parser to undercount by 1–2 VP. Exact factionId string required. */
+        winner?: string;
     };
     timers: Record<string, number>; // Maps player/game names to elapsed seconds
     actionLog: ActionLogEntry[];

@@ -161,9 +161,16 @@ export function parseGame(raw: unknown): ParsedGame {
     : 10;
   const scoreEntries = Object.entries(finalState.currentScores);
   const topScore = scoreEntries.reduce((max, [, s]) => Math.max(max, s), 0);
-  const winner = topScore >= vpThreshold
+  const inferredWinner = topScore >= vpThreshold
     ? (scoreEntries.find(([, s]) => s === topScore)?.[0] ?? null)
     : null;
+  // data.winner overrides score inference for games where the parser undercounts VP
+  // (e.g. unhandled agenda VP sources, Imperial Strategy Card primary).
+  // The override must be a non-empty string matching an actual factionId.
+  const winnerOverride = typeof dataObj['winner'] === 'string' && dataObj['winner'].length > 0
+    ? dataObj['winner']
+    : null;
+  const winner = winnerOverride ?? inferredWinner;
 
   return {
     gameId,

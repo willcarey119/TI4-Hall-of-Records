@@ -250,4 +250,52 @@ describe('parseGame', () => {
     expect(result.factions[0]?.startingTechs).toEqual([]);
     expect(result.initialSpeaker).toBe('Vaden Banking Clans'); // speaker still extracted
   });
+
+  it('data.winner override is used instead of score inference when present', () => {
+    // Game has no scoring events so score inference would return null,
+    // but data.winner override should return the specified faction.
+    const input = {
+      ...minimalInput(),
+      data: {
+        ...minimalInput().data,
+        winner: 'Vaden Banking Clans',
+      },
+    };
+    const result = parseGame(input);
+    expect(result.winner).toBe('Vaden Banking Clans');
+  });
+
+  it('data.winner override takes precedence over score inference even when inference would succeed', () => {
+    // Vaden would win by score, but override points to L'tokk.
+    const input = {
+      ...minimalInput(),
+      data: {
+        ...minimalInput().data,
+        options: { 'victory-points': 1 },
+        winner: "L'tokk Khrask",
+      },
+      actionLog: [
+        { timestampMillis: 1000, data: { action: 'SCORE_OBJECTIVE', event: { faction: 'Vaden Banking Clans', objective: 'Lead from the Front' }, timestamp: 1000 } },
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.winner).toBe("L'tokk Khrask");
+  });
+
+  it('data.winner override is ignored when it is an empty string', () => {
+    // Empty string is not a valid factionId — fall back to score inference.
+    const input = {
+      ...minimalInput(),
+      data: {
+        ...minimalInput().data,
+        options: { 'victory-points': 1 },
+        winner: '',
+      },
+      actionLog: [
+        { timestampMillis: 1000, data: { action: 'SCORE_OBJECTIVE', event: { faction: 'Vaden Banking Clans', objective: 'Lead from the Front' }, timestamp: 1000 } },
+      ],
+    };
+    const result = parseGame(input);
+    expect(result.winner).toBe('Vaden Banking Clans');
+  });
 });

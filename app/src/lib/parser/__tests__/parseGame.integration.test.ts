@@ -8,6 +8,18 @@ import { parseGame } from '../parseGame';
 const GAME_DATA = join(process.cwd(), 'game-data');
 const files = readdirSync(GAME_DATA).filter((f) => f.endsWith('.json'));
 
+// V1.1 data triage: confirmed winners for all 7 games.
+// Files with an explicit data.winner override are noted; others are score-inferred.
+const EXPECTED_WINNERS: Record<string, string> = {
+  '1.11.25 Twilight Imperium Game.json': 'Universities of Jol-Nar',
+  '1.19.25 TI Assistant JSON Game Data.json': "L'tokk Khrask",
+  'LjnqDB_data (2).json': 'Council Keleres',       // override: Imperial card VP gap (parser doesn't count Imperial primary)
+  'TIAssistant_Game Data.json': 'Kollecc Society',
+  'nHg8Hw_data.json': 'Emirates of Hacan',
+  'nMhFhJ_data (1).json': 'Crimson Rebellion',     // override: unhandled agenda VP (Prophecy of Ixth)
+  'PgyXRx_data.json': 'Titans of Ul',              // override: unhandled agenda VP (Covert Legislation)
+};
+
 describe('parseGame integration — all real game exports', () => {
   it('finds at least 7 game files', () => {
     expect(files.length).toBeGreaterThanOrEqual(7);
@@ -37,6 +49,18 @@ describe('parseGame integration — all real game exports', () => {
       expect(Array.isArray(res.votes)).toBe(true);
       expect(Array.isArray(res.riders)).toBe(true);
     }
+  });
+
+  it.each(files)('%s — winner matches confirmed ground truth', (file) => {
+    const raw = JSON.parse(readFileSync(join(GAME_DATA, file), 'utf-8'));
+    const result = parseGame(raw);
+    const expected = EXPECTED_WINNERS[file];
+    if (expected === undefined) {
+      throw new Error(
+        `No expected winner entry for "${file}" — add it to EXPECTED_WINNERS in the integration test.`,
+      );
+    }
+    expect(result.winner).toBe(expected);
   });
 
   it.each(files)('%s — no "Unknown objective" warnings (dictionary is complete for real data)', (file) => {
