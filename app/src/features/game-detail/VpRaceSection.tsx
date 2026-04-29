@@ -270,7 +270,7 @@ function VpRaceContent({
               {s.factionId}
             </span>
             <span style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)' }}>{s.finalVp}</span>
-            {/* color dot */}
+            {/* player table color — distinguishes factions whose brand colors are visually close */}
             <FactionDot color={factionColorMap[s.factionId] ?? 'var(--ink-4)'} size={6} />
           </div>
           );

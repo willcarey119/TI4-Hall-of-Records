@@ -96,6 +96,15 @@ describe('VpRaceSection', () => {
     expect(screen.getByText(/VICTORY/)).toBeInTheDocument();
   });
 
+  it('applies faction brand color as the path stroke', () => {
+    const { container } = withGame(twoFactionGame);
+    const paths = container.querySelectorAll<SVGPathElement>('svg path');
+    const strokes = Array.from(paths).map(p => p.getAttribute('stroke'));
+    // Federation of Sol → #1a5eb0, Mentak Coalition → #8a4c10
+    expect(strokes).toContain('#1a5eb0');
+    expect(strokes).toContain('#8a4c10');
+  });
+
   it('renders nothing when game is null', () => {
     const { container } = withGame(null);
     const section = container.querySelector('[data-section="vp-race"]');
