@@ -1,4 +1,4 @@
-import type { VpEvent, FactionSetup } from '../parser/types';
+import type { ParsedGame } from '../parser/types';
 import type { RoundBoundary } from '../aggregator/deriveRoundBoundaries';
 import { getVictoryPointThreshold } from '../parser/options';
 import { buildRoundScores } from '../recap/buildRoundScores';
@@ -22,14 +22,22 @@ export interface FactionVpSeries {
   isWinner: boolean;
 }
 
+/**
+ * Chart-data only. Editorial copy (headline, deck, prose) lives in
+ * `buildVpRaceEditorial.ts` — call both and compose at the section level.
+ */
 export interface VpRaceSummary {
   series: FactionVpSeries[];
   victoryPoints: number;
   totalRounds: number;
-  headline: string;
-  deckText: string;
-  editorialProse: string;
 }
+
+export type BuildVpRaceSeriesInput = Pick<
+  ParsedGame,
+  'vpEvents' | 'factions' | 'finalScores' | 'options'
+> & {
+  roundBoundaries: RoundBoundary[];
+};
 
 /**
  * Builds round-aligned VP-Race series for the chart.
@@ -43,17 +51,9 @@ export interface VpRaceSummary {
  *     row of `buildRoundScores`. The terminal round's value equals
  *     finalScores[factionId] for any faction whose VP events all fall before the
  *     end of play.
- *
- * Editorial text (headline / deckText / editorialProse) is computed from
- * finalScores + factions only — it does not depend on the time series.
  */
-export function buildVpRaceSeries(
-  vpEvents: VpEvent[],
-  factions: FactionSetup[],
-  finalScores: Record<string, number>,
-  options: Record<string, unknown>,
-  roundBoundaries: RoundBoundary[],
-): VpRaceSummary {
+export function buildVpRaceSeries(input: BuildVpRaceSeriesInput): VpRaceSummary {
+  const { vpEvents, factions, finalScores, options, roundBoundaries } = input;
   const victoryPoints = getVictoryPointThreshold(options);
   const roundScores = buildRoundScores(vpEvents, factions, roundBoundaries);
   const totalRounds = roundScores.length;
@@ -77,27 +77,5 @@ export function buildVpRaceSeries(
     };
   });
 
-  // Editorial text — same wording as the previous time-aligned implementation.
-  const winner = series.find(s => s.isWinner);
-  const sortedByVp = [...series].sort((a, b) => b.finalVp - a.finalVp);
-  const leader = sortedByVp[0];
-  const secondVp = sortedByVp[1]?.finalVp ?? 0;
-
-  const headline = winner !== undefined
-    ? `${winner.factionId} takes the throne.`
-    : 'The race is unfinished.';
-
-  const deckText = winner !== undefined
-    ? `Final scores after ${totalRounds} round${totalRounds === 1 ? '' : 's'}: ${series.map(s => `${s.factionId} ${s.finalVp}`).join(', ')}.`
-    : leader !== undefined
-      ? `${leader.factionId} led with ${leader.finalVp} VP after ${totalRounds} round${totalRounds === 1 ? '' : 's'}.`
-      : `${series.length} factions competed.`;
-
-  const editorialProse = winner !== undefined
-    ? `${winner.factionId} reached ${winner.finalVp} victory points across ${totalRounds} round${totalRounds === 1 ? '' : 's'}, claiming the galaxy by a margin of ${winner.finalVp - secondVp}. ${series.length} factions contested the stars; the campaign ran its full course before a victor emerged.`
-    : leader !== undefined
-      ? `After ${totalRounds} round${totalRounds === 1 ? '' : 's'}, ${leader.factionId} held the lead with ${leader.finalVp} VP. No empire reached the ${victoryPoints}-point threshold before the game concluded.`
-      : `${series.length} factions competed without a decisive conclusion.`;
-
-  return { series, victoryPoints, totalRounds, headline, deckText, editorialProse };
+  return { series, victoryPoints, totalRounds };
 }

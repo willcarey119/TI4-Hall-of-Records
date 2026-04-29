@@ -5,6 +5,10 @@ import {
   type FactionVpSeries,
   type VpRaceSummary,
 } from '../../lib/vp/buildVpRaceSeries';
+import {
+  buildVpRaceEditorial,
+  type VpRaceEditorial,
+} from '../../lib/vp/buildVpRaceEditorial';
 import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
 import { Rule, FactionDot } from '../../shared';
 import { formatDuration } from '../../shared/formatters';
@@ -147,19 +151,24 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpRaceSummar
 export function VpRaceSection() {
   const { game } = useGame();
 
-  const summary = useMemo(
-    () =>
-      game !== null
-        ? buildVpRaceSeries(
-            game.vpEvents,
-            game.factions,
-            game.finalScores,
-            game.options,
-            deriveRoundBoundaries(game.strategyCardEvents, game.factions.length),
-          )
-        : null,
-    [game],
-  );
+  const composed = useMemo(() => {
+    if (game === null) return null;
+    const roundBoundaries = deriveRoundBoundaries(game.strategyCardEvents, game.factions.length);
+    const summary = buildVpRaceSeries({
+      vpEvents: game.vpEvents,
+      factions: game.factions,
+      finalScores: game.finalScores,
+      options: game.options,
+      roundBoundaries,
+    });
+    const editorial = buildVpRaceEditorial({
+      factions: game.factions,
+      finalScores: game.finalScores,
+      options: game.options,
+      totalRounds: summary.totalRounds,
+    });
+    return { summary, editorial };
+  }, [game]);
 
   return (
     <section
@@ -167,9 +176,10 @@ export function VpRaceSection() {
       data-section="vp-race"
       style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }}
     >
-      {summary !== null && game !== null && (
+      {composed !== null && game !== null && (
         <VpRaceContent
-          summary={summary}
+          summary={composed.summary}
+          editorial={composed.editorial}
           factions={game.factions}
           gameDurationSeconds={game.durationSeconds}
         />
@@ -180,10 +190,12 @@ export function VpRaceSection() {
 
 function VpRaceContent({
   summary,
+  editorial,
   factions,
   gameDurationSeconds,
 }: {
   summary: VpRaceSummary;
+  editorial: VpRaceEditorial;
   factions: { factionId: string; color: string }[];
   gameDurationSeconds: number;
 }) {
@@ -221,12 +233,12 @@ function VpRaceContent({
           margin: '4px 0 2px',
         }}
       >
-        {summary.headline}
+        {editorial.headline}
       </div>
 
       {/* Deck */}
       <div style={{ fontSize: 10, color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
-        {summary.deckText}
+        {editorial.deckText}
       </div>
 
       <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
@@ -276,7 +288,7 @@ function VpRaceContent({
           marginBottom: 0,
         }}
       >
-        {summary.editorialProse}
+        {editorial.editorialProse}
       </p>
     </>
   );
