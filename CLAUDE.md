@@ -14,7 +14,7 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 
 ## Current Status
 
-**Phases 0–4 and Phase 5a are complete.** App is live at https://ti4-hall-of-records-da562.web.app. Next: Phase 5b (UX & legibility improvements).
+**V1.0 shipped 2026-04-28.** All phases 0–5d complete and live. 493 tests passing.
 
 | Phase | Status |
 |---|---|
@@ -29,8 +29,12 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 | Phase 5b — UX & legibility | ✅ Complete — A–/A+ font scale toggle, font floor 7px→9px, tech section reorder, strategy card fix, round labels; 458 tests |
 | Phase 5c — Consolidation | ✅ Complete — FactionDot/TechPip shared, useScrollSpy extracted, formatters deduped, dead code removed; 463 tests |
 | Phase 5d — New analytics views | ✅ Complete — round scores table, speaker stats, scoring pace SVG, relic stats, /agenda route, tech paths; 493 tests |
+| **V1.0** | ✅ **Shipped 2026-04-28** — full game detail + meta dashboard + agenda route live |
+| V1.1 — Data integrity + Agenda | 🔲 Planned — game file triage, human validation walkthrough, bug fixes, Agenda full scope |
 
-**Next up:** Deploy Phase 5d. See ROADMAP.md for full spec.
+**Next up:** V1.1. See ROADMAP.md §V1.1 for the sequenced plan.
+
+**V1.1 scope guardrail:** V1.1 contains only data fixes, confirmed bug fixes, UI/UX polish from the validation walkthrough, and the Agenda tab full scope. Any request for new analytics views or features beyond these goes to the V1.2+ backlog in ROADMAP.md — not into V1.1 scope.
 
 All app code lives under `D:\_TI4 App\app\`.
 
@@ -136,3 +140,4 @@ These are the test fixtures for Phase 1 acceptance. The gating test: every parse
 - **Design docs** save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` before implementation begins.
 - **Definition of Done** is in SKILLS.md §9. Check every item before calling a task complete.
 - **Player names are anonymized by default** everywhere in the UI. Faction colors and IDs are the display primitive.
+- **V1.1 scope guardrail:** If the user requests something beyond a bug fix, UI/UX improvement, or the Agenda tab, recognize it as V1.2+ scope. Log it in ROADMAP.md §V1.2+ Backlog and confirm with the user rather than implementing it in V1.1.

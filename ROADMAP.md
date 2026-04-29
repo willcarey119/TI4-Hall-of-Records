@@ -2,10 +2,10 @@
 
 Phased delivery plan. Each phase has a goal, a set of deliverables, the test surface that proves it works, and an explicit acceptance bar. We do not start phase N+1 until phase N's acceptance bar is met.
 
-> **Current position (2026-04-28):** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5a ✅ · Phase 5b–5d 🔲 in progress
+> **Current position (2026-04-28):** **V1.0 shipped.** All phases 0–5d complete.
 > App is live at https://ti4-hall-of-records-da562.web.app (Firebase project: `ti4-hall-of-records-da562`).
-> 456 tests passing. Next: Phase 5b (UX/legibility improvements).
-> See `CLAUDE.md` for the full status table.
+> 493 tests passing. Next: V1.1 (data integrity → human validation → bug fixes → Agenda tab).
+> See `CLAUDE.md` for the full status table and working conventions.
 
 The Master Guidance Document defines four phases (Ingestion → Single-Game Replay → Meta-Dashboard → Polish). This roadmap **prepends a Phase 0** for project scaffolding, which is currently missing, and breaks each phase into concrete TDD-sized tickets.
 
@@ -234,36 +234,130 @@ All four bugs confirmed from live-app review:
 - ✅ Dashboard objective chips — removed broken `SOURCE_LABEL` map; chips now display actual objective names ("Diversify Research", "Custodians Token").
 - ✅ Planet inventory seeding — `buildPlanetSummary` and `buildDashboardSummary` now seed `finalOwner` with `startingPlanets` before walking events; home-system planets appear in faction totals.
 
-### Phase 5b — UX & Legibility Improvements 🔲
+### Phase 5b — UX & Legibility Improvements ✅ COMPLETE (458 tests, 2026-04-28)
 
-- **Font size controls** — `A–`/`A+` toggle in `FrozenHeader` nav, adjusts `--font-scale` CSS variable (default `1`), persisted in `localStorage`. All text that currently uses `px` font sizes should use `calc(Npx * var(--font-scale))`.
-- **Default font size improvements** — audit and improve default sizes for legibility before shipping the font scale feature.
-- **Tech section reorder** — move "Final Inventories" above "Research Order" (currently Research Order renders first).
-- **Strategy card secondary tracking fix** — `MARK_SECONDARY` events require `state.activeStrategyCard` set by `SELECT_ACTION`; if that state is missing, secondary events get empty card names. Investigate parser state machine and fix.
-- **Tech round labels** — tech events currently show `round: 0` (displayed as "—") because `deriveRoundBoundaries` returns `[]`. Implement round boundary derivation from `phaseSnapshots` and pass to `TechSection`.
+- ✅ `A–`/`A+` font scale toggle in `FrozenHeader`, persisted in `localStorage`, sets `--font-scale` CSS variable
+- ✅ Font floor raised from 7px → 9px across all sections
+- ✅ Tech section reorder — Final Inventories now above Research Order
+- ✅ Strategy card secondary tracking fixed — `MARK_SECONDARY` correctly resolved to active card
+- ✅ Tech round labels — `deriveRoundBoundaries` wired through to TechSection
 
-### Phase 5c — Consolidation & Cleanup 🔲
+### Phase 5c — Consolidation & Cleanup ✅ COMPLETE (463 tests, 2026-04-28)
 
-Driven by a comprehensive code review of the full app:
+- ✅ `FactionDot` extracted to `src/shared/`
+- ✅ `TechPip` + `TECH_COLOR_VAR` extracted to `src/shared/`
+- ✅ `useScrollSpy` hook extracted from `ScrollBody` to `src/shared/hooks/`
+- ✅ `formatDate`/`formatDuration` deduplicated — `GamePreview` now uses shared formatters
+- ✅ Dead code removed (`src/features/game-replay/`, backward-compat re-exports)
+- ✅ All consumer files updated to use shared barrel imports
 
-- Extract `FactionDot` (the colored circle used in standings strip and legend) to `src/shared/` — currently duplicated across components.
-- Extract tech color constants (`COLOR_VAR` map) from `TechSection` to `src/shared/` — used or could be used in multiple places.
-- Fix `formatters` usage in `GamePreview` — uses raw date formatting instead of `formatDate` from `src/shared/formatters`.
-- Extract `useScrollSpy` hook from `ScrollBody` to `src/shared/hooks/` — reusable scroll intersection observer.
-- Delete `src/features/game-replay/` if it exists and is unused (leftover from early scaffolding).
-- Decide on `gameTime` field usage — audit whether `VpPoint.timestamp` vs `VpPoint.gameTimeSeconds` is consistently used.
-- Update `CLAUDE.md` status table — fix stale "6-button / 6 sections" reference (now 7 sections with Recap tab).
+### Phase 5d — New Analytics Views ✅ COMPLETE (493 tests, 2026-04-28)
 
-### Phase 5d — New Analytics Views 🔲
+- ✅ Round-by-round score table in RecapSection (below standings strip)
+- ✅ Speaker order win correlation in MetaDashboard Stats
+- ✅ Scoring pace SVG chart in MetaDashboard (winner VP trajectory, normalized to game duration)
+- ✅ Relic performance stats in MetaDashboard Stats (per-relic gain/play counts, faction breakdown)
+- ✅ `/agenda` route — "The Senate Almanac" standalone page with cross-game agenda pass rate analytics
+- ✅ Tech research opening paths in MetaDashboard Techs (top techs per research position, per faction)
 
-New views planned based on post-deploy feedback:
+---
 
-- **Scoring pace curve** — in MetaDashboard, overlay normalized scoring pace across multiple games; shows "typical" VP trajectory vs outlier games.
-- **Dedicated `/agenda` route** — expand the Agenda breakdown beyond the current game-detail section into a full cross-game page: which agendas pass/fail most often, VP impact by agenda, vote distribution heatmap.
-- **Speaker order correlation** — does going first / last as speaker correlate with win rate? Show in MetaDashboard Stats tab.
-- **Relic performance** — track Shard of the Throne, Crown of Emphidia, and other relic VP sources across games.
-- **Tech path analysis** — "most common tech unlock order by faction" and "fastest tech researched" views.
-- **Round-by-round score snapshots** — extend RecapSection standings strip to show VP at each round boundary, not just final scores.
+## V1.0 — Release Milestone ✅ SHIPPED (2026-04-28)
+
+**What shipped:**
+
+| Capability | Detail |
+|---|---|
+| Game ingestion | Upload any TI Assistant JSON export; parser handles all 7 VP sources, all faction types |
+| Single-game detail | 7 sections: Recap, VP Race, Timeline, Dashboard, Planets, Tech, Agenda |
+| Meta-Dashboard | Cross-game analytics: Factions, Strategy, Techs, Stats, Scoring Pace tabs |
+| Agenda route | `/agenda` — cross-game Senate Almanac with pass rate analytics |
+| Data | 7 real playgroup games ingested and live |
+| Tests | 493 passing, `src/lib/**` ≥ 90% coverage |
+| Infrastructure | Firebase Hosting + Firestore, lazy-loaded bundles, font scale toggle |
+
+**Known limitations entering V1.1:**
+- Some game data files may have incomplete final state (truncated action logs, unrecorded winners) — analytics built on these games may be incorrect
+- The `/agenda` route is a first pass; full cross-game agenda analytics (vote tallies, VP impact, faction voting patterns) are scoped for V1.1
+- No structured human validation has been performed against known ground truth
+
+---
+
+## V1.1 — Data Integrity, Human Validation & Agenda
+
+**Goal:** Ensure the data underneath the app is trustworthy, confirm what's working and what isn't through structured human review, fix confirmed bugs, and ship a complete Agenda analytics experience.
+
+**Scope guardrail:** V1.1 contains only (a) data fixes, (b) bug fixes confirmed by human validation, (c) UI/UX improvements identified in the walkthrough, and (d) the Agenda tab full scope. Any request that adds new analytics views or features beyond the Agenda tab belongs in V1.2+.
+
+### Step 1 — Data triage (human + code)
+
+Audit all 7 game files in `app/game-data/`. For each file, determine:
+- Does the parser produce a non-null `winner`?
+- Do `finalScores` match the actual game outcome (cross-reference offline knowledge)?
+- Is the action log complete, or does it appear truncated before game-end?
+- Are there any parser warnings surfaced in the upload UI?
+
+Produce a triage table: one row per game file, columns for the above questions. This is the ground truth document for all subsequent work.
+
+### Step 2 — Surgical data fixes
+
+For each game file identified as incomplete in Step 1:
+- Make the minimum edit to bring the file to a valid, complete state
+- This may mean: manually appending a final `SCORE_OBJECTIVE` event, setting a winner explicitly, or reconstructing the last round from memory
+- **The original TI Assistant export URLs have expired and cannot be refreshed** — all fixes must be made directly to the JSON files in `app/game-data/`
+- Re-upload fixed files through the normal upload flow; confirm the integration test suite passes against the corrected files
+
+### Step 3 — Human validation walkthrough
+
+Structured screen-by-screen review of the live app against now-trustworthy ground truth. For each view:
+- Does it render without error?
+- Do the numbers match what actually happened in the game?
+- Are there any layout, legibility, or interaction issues?
+
+Output: a written bug list and UX improvement list, prioritized by severity.
+
+### Step 4 — Bug fixes
+
+Fix all issues confirmed in Step 3, in priority order. No new features in this step.
+
+Acceptance: every confirmed bug from Step 3 is resolved and verified against the live app.
+
+### Step 5 — Agenda tab full scope
+
+The `/agenda` route currently shows agenda names with pass rate bars. The full V1.1 Agenda scope adds:
+
+- **Vote tallies** — for each agenda resolution, show per-faction vote counts (For vs Against) and rider plays
+- **VP impact** — which agendas resulted in VP changes; net VP swing per outcome
+- **Faction voting patterns** — how each faction votes across all appearances of each agenda (when data is available)
+- **Agenda timing** — which round each agenda tends to appear; does early vs late agenda timing correlate with game length?
+- **Riders** — track which riders were played on which agendas; outcomes
+
+This is the one new-feature deliverable in V1.1.
+
+### Step 6 — UI/UX polish
+
+Improvements identified in Step 3, plus any cross-cutting legibility work. Examples of the kinds of things that would land here (not a fixed list — the walkthrough drives this):
+- Mobile/narrow viewport improvements
+- Loading state polish
+- Empty state handling (e.g. sections with no data for a given game)
+- Typography and spacing tweaks
+
+**V1.1 acceptance:** All 7 game files parse correctly with accurate winners and final scores. Every confirmed bug from the validation walkthrough is fixed. The `/agenda` route delivers full vote/VP/faction analytics. No regressions in the test suite.
+
+---
+
+## V1.2+ — Future Backlog
+
+Items confirmed out of scope for V1.1. When the user raises one of these during V1.1 work, log it here rather than implementing it.
+
+- **Player attribution** — opt-in first-name tagging of factions across games; best-effort win rates and favorite factions by player name
+- **CSV / data export** — download parsed game data for external analysis
+- **New meta views** — any analytics view beyond what shipped in V1.0 or is scoped in V1.1 Agenda
+- **Game comparison** — side-by-side comparison of two specific games
+- **Notifications / sharing** — shareable game recap links, social card generation
+- **Additional game files** — if new TI Assistant exports become available; parser may need extension for new action types
+- **Lighthouse / performance audit** — formal Core Web Vitals pass
+- **Discordant Stars / Thunder's Edge content audit** — confirm all DS/TE faction IDs, objectives, and techs are in our dictionaries
 
 ---
 
