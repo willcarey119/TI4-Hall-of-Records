@@ -1,7 +1,13 @@
 // All Firestore SDK calls live here. No other file imports firebase/firestore.
-// Implemented in Phase 1.8.
+// Implemented in Phase 1.8. Auth upgraded to Google Sign-In in v1.06.
 
-import { signInAnonymously } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import type { User } from 'firebase/auth';
 import {
   collection,
   doc,
@@ -15,6 +21,29 @@ import {
 import { db, auth } from './firebaseInit';
 import type { FactionSetup, ParsedGame } from '../lib/parser/types';
 
+// Emails permitted to perform writes and deletes. Reads remain unrestricted.
+// Server-side enforcement lives in firestore.rules — this list is a client-side
+// UX gate that hides write controls from unauthorized visitors.
+export const AUTHORIZED_EMAILS: readonly string[] = [
+  'willcarey119@gmail.com',
+  // Add further playgroup archivists here as needed.
+];
+
+/** Opens a Google Sign-In popup. Resolves when the user has authenticated. */
+export async function signInWithGoogle(): Promise<void> {
+  await signInWithPopup(auth, new GoogleAuthProvider());
+}
+
+/** Signs out the current user. */
+export async function signOut(): Promise<void> {
+  await firebaseSignOut(auth);
+}
+
+/** Subscribes to auth state changes. Returns the unsubscribe function. */
+export function onAuthChanged(callback: (user: User | null) => void): () => void {
+  return onAuthStateChanged(auth, callback);
+}
+
 export interface ParsedGameSummary {
   gameId: string;
   playedAt: number;
@@ -22,15 +51,6 @@ export interface ParsedGameSummary {
   factions: Pick<FactionSetup, 'factionId' | 'color' | 'playerName'>[];
   finalScores: Record<string, number>;
   winner: string | null;
-}
-
-export async function signInAnon(): Promise<string> {
-  const result = await signInAnonymously(auth);
-  const { user } = result;
-  if (import.meta.env.DEV) {
-    console.log('Signed in anonymously, uid:', user.uid);
-  }
-  return user.uid;
 }
 
 /** Deletes one or more games from Firestore by gameId. Runs in parallel — safe for small sets. */

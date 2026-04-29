@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ParsedGame } from '../../../lib/parser/types';
 import { parseGame } from '../../../lib/parser/parseGame';
-import { saveGame, signInAnon } from '../../../adapters/firestore';
+import { saveGame } from '../../../adapters/firestore';
 import { UploadPage } from '../UploadPage';
 
 // ── Mocks (hoisted by Vitest) ─────────────────────────────────────────────────
@@ -14,7 +14,6 @@ vi.mock('../../../lib/parser/parseGame', () => ({
 }));
 
 vi.mock('../../../adapters/firestore', () => ({
-  signInAnon: vi.fn(() => Promise.resolve('uid-test')),
   saveGame: vi.fn(() => Promise.resolve('abc123')),
 }));
 
@@ -103,15 +102,25 @@ describe('UploadPage', () => {
     expect(await screen.findByText(/unexpected token at position 3/i)).toBeInTheDocument();
   });
 
-  it('calls signInAnon then saveGame when the save button is clicked', async () => {
+  it('calls saveGame when the save button is clicked', async () => {
     render(<UploadPage />);
     await userEvent.upload(
       screen.getByTestId('file-input'),
       new File(['{}'], 'game.json', { type: 'application/json' }),
     );
     await userEvent.click(await screen.findByRole('button', { name: /save to records/i }));
-    expect(signInAnon).toHaveBeenCalledTimes(1);
     expect(saveGame).toHaveBeenCalledWith(mockGame);
+  });
+
+  it('shows an error and stays on the drop zone when file exceeds 10 MB', async () => {
+    render(<UploadPage />);
+    // Simulate a file larger than 10 MB — File constructor doesn't check size limits,
+    // so we override the size property via Object.defineProperty.
+    const bigFile = new File(['{}'], 'huge.json', { type: 'application/json' });
+    Object.defineProperty(bigFile, 'size', { value: 11 * 1024 * 1024 });
+    await userEvent.upload(screen.getByTestId('file-input'), bigFile);
+    expect(await screen.findByText(/file too large/i)).toBeInTheDocument();
+    expect(saveGame).not.toHaveBeenCalled();
   });
 
   it('shows a success confirmation after saving', async () => {

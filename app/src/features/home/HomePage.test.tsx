@@ -7,9 +7,21 @@ import type { ParsedGameSummary } from '../../adapters/firestore';
 
 vi.mock('../../adapters/firestore', () => ({
   listGames: vi.fn(),
-  signInAnon: vi.fn().mockResolvedValue('uid'),
   saveGame: vi.fn().mockResolvedValue('id'),
   deleteGames: vi.fn().mockResolvedValue(undefined),
+}));
+
+// Render as an authorized archivist so write controls are visible in all tests.
+// Tests that need to verify the unauthorized state can override this mock.
+vi.mock('../../adapters/AuthContext', () => ({
+  useAuth: vi.fn(() => ({
+    user: { email: 'willcarey119@gmail.com' },
+    isAuthorized: true,
+    authLoading: false,
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+  })),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 vi.mock('../../lib/parser/parseGame', () => ({

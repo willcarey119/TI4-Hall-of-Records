@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ErrorBoundary } from './shared';
+import { AuthProvider } from './adapters/AuthContext';
 
 const HomePage = lazy(() =>
   import('./features/home').then(m => ({ default: m.HomePage }))
@@ -43,17 +44,19 @@ function RouteLoadingFallback() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <ErrorBoundary>
-        <Suspense fallback={<RouteLoadingFallback />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/games/:gameId" element={<GameDetailPage />} />
-            <Route path="/meta" element={<MetaDashboardPage />} />
-            <Route path="/agenda" element={<AgendaPage />} />
-          </Routes>
-        </Suspense>
-      </ErrorBoundary>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <ErrorBoundary>
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/games/:gameId" element={<GameDetailPage />} />
+              <Route path="/meta" element={<MetaDashboardPage />} />
+              <Route path="/agenda" element={<AgendaPage />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

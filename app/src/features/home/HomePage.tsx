@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ParsedGameSummary } from '../../adapters/firestore';
+import { useAuth } from '../../adapters/AuthContext';
 import { Mast, Rule, Label } from '../../shared';
 import { UploadPage } from '../upload/UploadPage';
 import { GameCard } from './GameCard';
@@ -16,6 +17,7 @@ const monoSm: React.CSSProperties = {
 };
 
 export function HomePage() {
+  const { isAuthorized, signIn, signOut, authLoading } = useAuth();
   const [games, setGames] = useState<ParsedGameSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,8 +73,7 @@ export function HomePage() {
     setDeleting(true);
     setError(null);
     try {
-      const { signInAnon, deleteGames } = await import('../../adapters/firestore');
-      await signInAnon();
+      const { deleteGames } = await import('../../adapters/firestore');
       await deleteGames([...selected]);
       exitSelectMode();
       fetchGames();
@@ -95,7 +96,7 @@ export function HomePage() {
     <main style={{ maxWidth: '640px', margin: '0 auto', padding: '48px 16px' }}>
       <Mast title="Hall of Records" subtitle="Twilight Imperium IV · Game Archive" />
 
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '16px' }}>
         <a
           href="/meta"
           style={{
@@ -109,15 +110,37 @@ export function HomePage() {
         >
           League Stats →
         </a>
+        {/* Archivist sign-in control — unobtrusive but always reachable */}
+        {!authLoading && (
+          isAuthorized ? (
+            <button
+              type="button"
+              onClick={() => { void signOut(); }}
+              style={{ ...monoSm, color: 'var(--ink-4)' }}
+            >
+              Sign out
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => { void signIn(); }}
+              style={{ ...monoSm, color: 'var(--ink-4)' }}
+            >
+              Archivist →
+            </button>
+          )
+        )}
       </div>
 
-      {/* Upload section */}
-      <section style={{ marginBottom: '24px' }}>
-        <div style={{ marginBottom: '8px' }}>
-          <Label>File Dispatch</Label>
-        </div>
-        <UploadPage onSaved={() => { fetchGames(); }} />
-      </section>
+      {/* Upload section — visible to authorized archivist only */}
+      {isAuthorized && (
+        <section style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '8px' }}>
+            <Label>File Dispatch</Label>
+          </div>
+          <UploadPage onSaved={() => { fetchGames(); }} />
+        </section>
+      )}
 
       <Rule weight="thick" />
 
@@ -126,7 +149,7 @@ export function HomePage() {
         {/* Archive header row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
           <Label>{archiveLabel}</Label>
-          {!loading && games.length > 0 && (
+          {!loading && games.length > 0 && isAuthorized && (
             selectMode ? (
               <button
                 type="button"

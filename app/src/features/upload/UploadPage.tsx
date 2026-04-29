@@ -19,6 +19,12 @@ export function UploadPage({ onSaved }: UploadPageProps) {
   async function handleFile(file: File): Promise<void> {
     setStatus('parsing');
     setError(null);
+    const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB — generous for any TI Assistant export
+    if (file.size > MAX_FILE_BYTES) {
+      setError(`File too large (${(file.size / 1_048_576).toFixed(1)} MB). Maximum is 10 MB.`);
+      setStatus('error');
+      return;
+    }
     try {
       const text = await file.text();
       const raw = JSON.parse(text) as unknown;
@@ -36,8 +42,7 @@ export function UploadPage({ onSaved }: UploadPageProps) {
     setStatus('saving');
     setError(null);
     try {
-      const { signInAnon, saveGame } = await import('../../adapters/firestore');
-      await signInAnon();
+      const { saveGame } = await import('../../adapters/firestore');
       await saveGame(game);
       setStatus('saved');
       onSaved?.();

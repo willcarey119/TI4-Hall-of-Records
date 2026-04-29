@@ -5,8 +5,12 @@ import App from './App';
 vi.mock('./adapters/firestore', () => ({
   listGames: vi.fn().mockResolvedValue([]),
   loadGame: vi.fn(),
-  signInAnon: vi.fn(),
   saveGame: vi.fn(),
+}));
+
+vi.mock('./adapters/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: unknown }) => children,
+  useAuth: () => ({ isAuthorized: false, authLoading: false, signIn: vi.fn(), signOut: vi.fn(), user: null }),
 }));
 
 vi.mock('./lib/parser/parseGame', () => ({

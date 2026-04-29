@@ -1,12 +1,15 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Anyone with the URL can read games.
-    // Writes require anonymous Firebase auth — effectively "only users with
-    // the project's API keys", which are gitignored and private to this repo.
+    // Anyone with the URL can read — friends view the archive without signing in.
+    // Writes restricted to authorized playgroup archivists via Google Sign-In.
+    // Add emails to the list to grant additional members write access.
     match /games/{gameId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null
+        && request.auth.token.email in [
+          'willcarey119@gmail.com'
+        ];
     }
   }
 }

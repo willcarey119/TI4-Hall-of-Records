@@ -1,9 +1,18 @@
 // src/adapters/__tests__/firestore.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { DocumentSnapshot, DocumentData, QuerySnapshot } from 'firebase/firestore';
-import { signInAnon, saveGame, listGames, loadGame, loadAllGames } from '../firestore';
+import {
+  signInWithGoogle,
+  signOut,
+  onAuthChanged,
+  AUTHORIZED_EMAILS,
+  saveGame,
+  listGames,
+  loadGame,
+  loadAllGames,
+} from '../firestore';
 import { setDoc, getDoc, getDocs } from 'firebase/firestore';
-import { signInAnonymously } from 'firebase/auth';
+import { signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged } from 'firebase/auth';
 
 // ── Mocks (hoisted by Vitest before imports) ─────────────────────────────────
 
@@ -23,9 +32,10 @@ vi.mock('firebase/firestore', () => ({
 }));
 
 vi.mock('firebase/auth', () => ({
-  signInAnonymously: vi.fn(() =>
-    Promise.resolve({ user: { uid: 'uid-test-123' } }),
-  ),
+  GoogleAuthProvider: class {}, // class so `new GoogleAuthProvider()` is valid
+  signInWithPopup: vi.fn(() => Promise.resolve({ user: { uid: 'uid-test-123', email: 'willcarey119@gmail.com' } })),
+  signOut: vi.fn(() => Promise.resolve()),
+  onAuthStateChanged: vi.fn(() => vi.fn()), // returns unsubscribe fn
 }));
 
 // ── Minimal ParsedGame fixture ───────────────────────────────────────────────
@@ -81,11 +91,38 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('signInAnon', () => {
-  it('calls Firebase signInAnonymously and returns the UID', async () => {
-    const uid = await signInAnon();
-    expect(signInAnonymously).toHaveBeenCalledTimes(1);
-    expect(uid).toBe('uid-test-123');
+describe('signInWithGoogle', () => {
+  it('calls Firebase signInWithPopup with a GoogleAuthProvider', async () => {
+    await signInWithGoogle();
+    expect(signInWithPopup).toHaveBeenCalledTimes(1);
+    // First arg is auth stub; second should be a GoogleAuthProvider instance
+    expect(signInWithPopup).toHaveBeenCalledWith({ _stub: 'auth' }, expect.any(Object));
+  });
+});
+
+describe('signOut', () => {
+  it('calls Firebase signOut with the auth instance', async () => {
+    await signOut();
+    expect(firebaseSignOut).toHaveBeenCalledWith({ _stub: 'auth' });
+  });
+});
+
+describe('onAuthChanged', () => {
+  it('calls onAuthStateChanged and returns the unsubscribe function', () => {
+    const callback = vi.fn();
+    const unsub = onAuthChanged(callback);
+    expect(onAuthStateChanged).toHaveBeenCalledWith({ _stub: 'auth' }, callback);
+    expect(typeof unsub).toBe('function');
+  });
+});
+
+describe('AUTHORIZED_EMAILS', () => {
+  it('includes willcarey119@gmail.com', () => {
+    expect(AUTHORIZED_EMAILS).toContain('willcarey119@gmail.com');
+  });
+
+  it('is a non-empty readonly array', () => {
+    expect(AUTHORIZED_EMAILS.length).toBeGreaterThan(0);
   });
 });
 
