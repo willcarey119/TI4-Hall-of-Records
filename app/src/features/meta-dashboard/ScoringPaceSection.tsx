@@ -31,7 +31,7 @@ export function ScoringPaceSection() {
 
   return (
     <section id="scoring-pace" data-section="scoring-pace" style={sectionStyle}>
-      <Kicker>Scoring Pace</Kicker>
+      <Kicker text="Scoring Pace" />
       <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontStyle: 'italic', fontSize: 11, color: 'var(--ink-3)', marginBottom: 8 }}>
         Winner VP trajectory per game — normalized to game duration
       </div>

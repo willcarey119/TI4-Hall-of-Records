@@ -32,7 +32,7 @@ export function AgendaPage() {
       <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 28, fontStyle: 'italic', borderBottom: '3px double var(--rule)', paddingBottom: 8, marginBottom: 12 }}>
         The Senate Almanac
       </div>
-      <Kicker>Agenda Analytics · {stats.gamesAnalyzed} games · {stats.totalResolutions} resolutions</Kicker>
+      <Kicker text={`Agenda Analytics · ${stats.gamesAnalyzed} games · ${stats.totalResolutions} resolutions`} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, margin: '12px 0' }}>
         <div>
