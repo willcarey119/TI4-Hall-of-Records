@@ -26,3 +26,5 @@ export { buildScoringPace } from './buildScoringPace';
 export type { ScoringPaceSummary, ScoringPaceCurve, ScoringPacePoint } from './buildScoringPace';
 export { buildRelicStats } from './buildRelicStats';
 export type { RelicStatEntry, RelicStatsSummary } from './buildRelicStats';
+export { buildAgendaStats } from './buildAgendaStats';
+export type { AgendaFreqStat, AgendaStatsSummary } from './buildAgendaStats';

@@ -11,6 +11,9 @@ const GameDetailPage = lazy(() =>
 const MetaDashboardPage = lazy(() =>
   import('./features/meta-dashboard').then(m => ({ default: m.MetaDashboardPage }))
 );
+const AgendaPage = lazy(() =>
+  import('./features/agenda/AgendaPage').then(m => ({ default: m.AgendaPage }))
+);
 
 function RouteLoadingFallback() {
   return (
@@ -47,6 +50,7 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/games/:gameId" element={<GameDetailPage />} />
             <Route path="/meta" element={<MetaDashboardPage />} />
+            <Route path="/agenda" element={<AgendaPage />} />
           </Routes>
         </Suspense>
       </ErrorBoundary>
