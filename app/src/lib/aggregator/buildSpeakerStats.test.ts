@@ -62,4 +62,20 @@ describe('buildSpeakerStats', () => {
     const r = buildSpeakerStats([game]);
     expect(r.avgRoundsAsSpeakerWinner).toBe(2);
   });
+
+  it('computes non-winner rounds as speaker correctly', () => {
+    // Sol wins. Hacan was speaker in round 2, nowhere else.
+    // nonWinnerFactionRoundPairs = 1 game × 1 non-winner faction = 1
+    // totalNonWinnerRounds = 1 (Hacan was speaker in round 2)
+    // avgRoundsAsSpeakerNonWinner = 1 / 1 = 1
+    const game = makeGame({
+      winner: 'Sol',
+      phaseSnapshots: [
+        { round: 1, phase: 'Strategy', speaker: 'Sol', strategyCards: {} },
+        { round: 2, phase: 'Strategy', speaker: 'Hacan', strategyCards: {} },
+      ],
+    });
+    const r = buildSpeakerStats([game]);
+    expect(r.avgRoundsAsSpeakerNonWinner).toBe(1);
+  });
 });
