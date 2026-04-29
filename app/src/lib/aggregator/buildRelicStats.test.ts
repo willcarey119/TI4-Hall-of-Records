@@ -49,4 +49,20 @@ describe('buildRelicStats', () => {
     const solEntry = shard?.topFactions.find(f => f.factionId === 'Sol');
     expect(solEntry?.gainCount).toBe(2);
   });
+
+  it('totalGames reflects the number of games passed', () => {
+    const r = buildRelicStats([makeGame([]), makeGame([])] as ParsedGame[]);
+    expect(r.totalGames).toBe(2);
+  });
+
+  it('lose events do not increment gainCount or playCount', () => {
+    const events: RelicEvent[] = [
+      { faction: 'Sol', relic: 'Shard', timestamp: 1, type: 'gain' },
+      { faction: 'Sol', relic: 'Shard', timestamp: 2, type: 'lose' },
+    ];
+    const r = buildRelicStats([makeGame(events)] as ParsedGame[]);
+    const shard = r.relics.find(r => r.relic === 'Shard');
+    expect(shard?.gainCount).toBe(1);
+    expect(shard?.playCount).toBe(0);
+  });
 });
