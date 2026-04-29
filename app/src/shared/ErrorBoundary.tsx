@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </p>
           <p
             className="font-mono text-ink-3"
-            style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+            style={{ fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em' }}
           >
             Try refreshing the page.
           </p>

@@ -39,7 +39,7 @@ export function TechSection() {
           display: 'flex',
           justifyContent: 'space-between',
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 8,
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           color: 'var(--ink-3)',
@@ -56,7 +56,7 @@ export function TechSection() {
       <div
         style={{
           fontFamily: "'Newsreader', Georgia, serif",
-          fontSize: 17,
+          fontSize: 'var(--font-subhead)',
           fontWeight: 800,
           lineHeight: 1.1,
           marginBottom: 2,
@@ -64,7 +64,7 @@ export function TechSection() {
       >
         The arms race.
       </div>
-      <div style={{ fontSize: 10, color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
+      <div style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
         {summary.deckText}
       </div>
 
@@ -94,7 +94,7 @@ export function TechSection() {
                   style={{
                     fontFamily: "'Newsreader', Georgia, serif",
                     fontWeight: 700,
-                    fontSize: 11,
+                    fontSize: 'var(--font-micro)',
                   }}
                 >
                   {faction.factionId}
@@ -102,7 +102,7 @@ export function TechSection() {
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 8,
+                    fontSize: 'var(--font-micro)',
                     color: 'var(--ink-3)',
                     marginLeft: 'auto',
                   }}
@@ -110,7 +110,7 @@ export function TechSection() {
                   {inv.techs.length} tech{inv.techs.length !== 1 ? 's' : ''}
                 </span>
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6, fontSize: 10 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6, fontSize: 'var(--font-micro)' }}>
                 {inv.techs.map((t, j) => (
                   <span key={j} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                     <TechPip color={t.color} />
@@ -119,7 +119,7 @@ export function TechSection() {
                       <span
                         style={{
                           fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 9,
+                          fontSize: 'var(--font-micro)',
                           border: '1px solid var(--cool)',
                           color: 'var(--cool)',
                           padding: '0 3px',
@@ -153,7 +153,7 @@ export function TechSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 'var(--font-micro)',
               color: 'var(--ink-3)',
               padding: '4px 0',
             }}
@@ -172,13 +172,13 @@ export function TechSection() {
                 padding: '2px 0',
                 borderBottom: '1px dotted var(--ink-4)',
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 9,
+                fontSize: 'var(--font-micro)',
               }}
             >
               <span style={{ color: 'var(--ink-3)' }}>
                 {entry.round === 0 ? '—' : `R${entry.round}`}
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Newsreader', Georgia, serif", fontSize: 10 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>
                 <FactionDot color={factionColorMap[entry.factionId] ?? '#aaa'} />
                 {entry.tech}
               </span>

@@ -32,13 +32,13 @@ export function ScoringPaceSection() {
   return (
     <section id="scoring-pace" data-section="scoring-pace" style={sectionStyle}>
       <Kicker text="Scoring Pace" />
-      <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontStyle: 'italic', fontSize: 11, color: 'var(--ink-3)', marginBottom: 8 }}>
+      <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontStyle: 'italic', fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginBottom: 8 }}>
         Winner VP trajectory per game — normalized to game duration
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', maxWidth: W }}>
         {[0, Math.round(maxVp / 2), maxVp].map(v => (
           <text key={v} x={PAD.left - 4} y={toSvgY(v) + 3} textAnchor="end"
-            style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 8, fill: 'var(--ink-4)' }}>
+            style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 'var(--font-micro)', fill: 'var(--ink-4)' }}>
             {v}
           </text>
         ))}
@@ -58,12 +58,12 @@ export function ScoringPaceSection() {
           stroke="var(--rule)" strokeWidth={1} />
         {['0%', '50%', '100%'].map((label, i) => (
           <text key={label} x={toSvgX(i * 0.5)} y={PAD.top + innerH + 12} textAnchor="middle"
-            style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 8, fill: 'var(--ink-4)' }}>
+            style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 'var(--font-micro)', fill: 'var(--ink-4)' }}>
             {label}
           </text>
         ))}
       </svg>
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-4)', marginTop: 4 }}>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginTop: 4 }}>
         {scoringPace.curves.length} game{scoringPace.curves.length !== 1 ? 's' : ''} · {maxVp} VP threshold
       </div>
     </section>

@@ -45,7 +45,7 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
             border: 'none',
             cursor: 'pointer',
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: '9px',
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             color: 'var(--ink-3)',
@@ -89,7 +89,7 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
             onClick={() => { scrollToSection(id); }}
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 'calc(9px * var(--font-scale))',
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               padding: '7px 12px',

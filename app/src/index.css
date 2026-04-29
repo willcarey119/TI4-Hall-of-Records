@@ -14,6 +14,13 @@
   --ink-4:   oklch(0.72 0.01 60);    /* dividers, disabled */
   --accent:  oklch(0.45 0.12 25);    /* faded vermillion — "stop press" */
   --font-scale: 1;
+  --font-micro:      calc(11px * var(--font-scale));
+  --font-sm:         calc(13px * var(--font-scale));
+  --font-body:       calc(15px * var(--font-scale));
+  --font-subhead:    calc(17px * var(--font-scale));
+  --font-display-sm: calc(22px * var(--font-scale));
+  --font-display-md: calc(28px * var(--font-scale));
+  --font-display-lg: calc(32px * var(--font-scale));
   --cool:    oklch(0.45 0.08 240);   /* faded ink-blue — secondary accent */
   --gold:    oklch(0.62 0.10 75);    /* tech color: yellow */
   --moss:    oklch(0.45 0.06 145);   /* tech color: green */

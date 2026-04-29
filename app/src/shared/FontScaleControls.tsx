@@ -11,7 +11,7 @@ export function FontScaleControls() {
         disabled={atMin}
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '9px',
+          fontSize: 'var(--font-micro)',
           border: '1px solid var(--ink-4)',
           background: 'none',
           cursor: atMin ? 'default' : 'pointer',
@@ -28,7 +28,7 @@ export function FontScaleControls() {
         disabled={atMax}
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '11px',
+          fontSize: 'var(--font-micro)',
           border: '1px solid var(--ink-4)',
           background: 'none',
           cursor: atMax ? 'default' : 'pointer',

@@ -26,7 +26,7 @@ function NameRow({
       <span
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 10,
+          fontSize: 'var(--font-micro)',
           color: 'var(--ink-2)',
           flex: 1,
           overflow: 'hidden',
@@ -43,7 +43,7 @@ function NameRow({
         onBlur={e => { onSave(e.currentTarget.value); }}
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 10,
+          fontSize: 'var(--font-micro)',
           border: '1px solid var(--rule)',
           background: 'var(--paper-2)',
           color: 'var(--ink)',
@@ -71,7 +71,7 @@ function PlayerCard({ player }: { player: PlayerStat }) {
       <div
         style={{
           fontFamily: "'Newsreader', Georgia, serif",
-          fontSize: 14,
+          fontSize: 'var(--font-body)',
           fontWeight: 700,
           color: 'var(--ink)',
           flex: 1,
@@ -82,7 +82,7 @@ function PlayerCard({ player }: { player: PlayerStat }) {
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 10,
+          fontSize: 'var(--font-micro)',
           color: 'var(--ink-2)',
         }}
       >
@@ -92,7 +92,7 @@ function PlayerCard({ player }: { player: PlayerStat }) {
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 9,
+            fontSize: 'var(--font-micro)',
             color: 'var(--ink-3)',
             maxWidth: 120,
             overflow: 'hidden',
@@ -127,7 +127,7 @@ export function PlayerSection() {
       <div
         style={{
           fontFamily: "'Newsreader', Georgia, serif",
-          fontSize: 18,
+          fontSize: 'var(--font-subhead)',
           fontWeight: 700,
           color: 'var(--ink)',
           padding: '8px 0 2px',
@@ -138,7 +138,7 @@ export function PlayerSection() {
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 9,
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           color: 'var(--ink-3)',
@@ -153,7 +153,7 @@ export function PlayerSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 11,
+              fontSize: 'var(--font-micro)',
               color: 'var(--ink-3)',
             }}
           >
@@ -177,7 +177,7 @@ export function PlayerSection() {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',

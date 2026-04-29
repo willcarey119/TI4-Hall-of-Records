@@ -20,7 +20,7 @@ export function FactionChip({
         display: 'inline-flex',
         alignItems: 'center',
         gap: '4px',
-        fontSize: '10px',
+        fontSize: 'var(--font-sm)',
         border: `1px solid ${winner ? 'var(--accent)' : '#ccc'}`,
         padding: '2px 6px',
         margin: '2px',

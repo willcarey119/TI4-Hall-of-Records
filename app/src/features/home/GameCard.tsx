@@ -39,7 +39,7 @@ export function GameCard({ game, selected, onToggle }: GameCardProps) {
           aria-hidden="true"
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 11,
+            fontSize: 'var(--font-micro)',
             flexShrink: 0,
             color: selected === true ? 'var(--accent)' : 'var(--ink-3)',
             lineHeight: 1.4,

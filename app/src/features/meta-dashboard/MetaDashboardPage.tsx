@@ -48,7 +48,7 @@ function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
             border: 'none',
             cursor: 'pointer',
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: '9px',
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             color: 'var(--ink-3)',
@@ -66,7 +66,7 @@ function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
           <div
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: '20px',
+              fontSize: 'var(--font-display-sm)',
               fontWeight: 700,
               color: 'var(--ink)',
               lineHeight: 1.1,
@@ -77,7 +77,7 @@ function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '9px',
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -101,7 +101,7 @@ function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
             onClick={() => { scrollToSection(id); }}
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '9px',
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               padding: '7px 12px',
@@ -173,7 +173,7 @@ function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => 
         <p
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: '9px',
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             color: 'var(--ink-3)',
@@ -191,7 +191,7 @@ function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => 
         <p
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: '9px',
+            fontSize: 'var(--font-micro)',
             color: 'var(--accent)',
             marginBottom: 8,
           }}
@@ -203,7 +203,7 @@ function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => 
           onClick={() => { window.location.reload(); }}
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: '9px',
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             textDecoration: 'underline',

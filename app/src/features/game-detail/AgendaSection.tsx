@@ -14,12 +14,12 @@ function EffectBlock({ entry }: { entry: AgendaDisplayEntry['entry'] }) {
     borderLeft: '2px solid var(--ink-4)',
     padding: '6px 8px',
     margin: '6px 0',
-    fontSize: 10,
+    fontSize: 'var(--font-sm)',
     lineHeight: 1.5,
   };
   const labelStyle = (color: string): React.CSSProperties => ({
     fontFamily: "'IBM Plex Mono', monospace",
-    fontSize: 8,
+    fontSize: 'var(--font-micro)',
     fontWeight: 700,
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
@@ -99,7 +99,7 @@ function VoteColumns({ agendaEntry }: { agendaEntry: AgendaDisplayEntry }) {
               <div
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 8,
+                  fontSize: 'var(--font-micro)',
                   fontWeight: 700,
                   color: isWinner ? 'var(--accent)' : 'var(--ink-3)',
                   marginBottom: 3,
@@ -111,7 +111,7 @@ function VoteColumns({ agendaEntry }: { agendaEntry: AgendaDisplayEntry }) {
               {voters.map((v) => (
                 <div
                   key={v.faction}
-                  style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, padding: '1px 0' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 'var(--font-sm)', padding: '1px 0' }}
                 >
                   <span style={{ flex: 1 }}>{v.faction}</span>
                   <strong>{v.votes}</strong>
@@ -132,7 +132,7 @@ function VoteColumns({ agendaEntry }: { agendaEntry: AgendaDisplayEntry }) {
     <div
       style={{
         fontFamily: "'IBM Plex Mono', monospace",
-        fontSize: 8,
+        fontSize: 'var(--font-micro)',
         fontWeight: 700,
         color,
         marginBottom: 3,
@@ -148,7 +148,7 @@ function VoteColumns({ agendaEntry }: { agendaEntry: AgendaDisplayEntry }) {
         {colLabel('For', totalFor, 'var(--accent)')}
         <Rule />
         {forVoters.map((v) => (
-          <div key={v.faction} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, padding: '1px 0' }}>
+          <div key={v.faction} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 'var(--font-sm)', padding: '1px 0' }}>
             <span style={{ flex: 1 }}>{v.faction}</span>
             <strong>{v.votes}</strong>
           </div>
@@ -158,7 +158,7 @@ function VoteColumns({ agendaEntry }: { agendaEntry: AgendaDisplayEntry }) {
         {colLabel('Against', totalAgainst, 'var(--cool)')}
         <Rule />
         {againstVoters.map((v) => (
-          <div key={v.faction} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, padding: '1px 0' }}>
+          <div key={v.faction} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 'var(--font-sm)', padding: '1px 0' }}>
             <span style={{ flex: 1 }}>{v.faction}</span>
             <strong>{v.votes}</strong>
           </div>
@@ -195,7 +195,7 @@ export function AgendaSection() {
           display: 'flex',
           justifyContent: 'space-between',
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 8,
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           color: 'var(--ink-3)',
@@ -212,7 +212,7 @@ export function AgendaSection() {
       <div
         style={{
           fontFamily: "'Newsreader', Georgia, serif",
-          fontSize: 17,
+          fontSize: 'var(--font-subhead)',
           fontWeight: 800,
           lineHeight: 1.1,
           marginBottom: 2,
@@ -220,7 +220,7 @@ export function AgendaSection() {
       >
         Laws of the Realm.
       </div>
-      <div style={{ fontSize: 10, color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
+      <div style={{ fontSize: 'var(--font-sm)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
         {summary.deckText}
       </div>
 
@@ -230,7 +230,7 @@ export function AgendaSection() {
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 9,
+            fontSize: 'var(--font-micro)',
             color: 'var(--ink-3)',
             padding: '8px 0',
           }}
@@ -247,7 +247,7 @@ export function AgendaSection() {
             <div
               style={{
                 fontFamily: "'Newsreader', Georgia, serif",
-                fontSize: 15,
+                fontSize: 'var(--font-body)',
                 fontWeight: 800,
                 fontStyle: 'italic',
                 margin: '4px 0 2px',
@@ -261,7 +261,7 @@ export function AgendaSection() {
               <span
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 9,
+                  fontSize: 'var(--font-micro)',
                   padding: '0 3px',
                   lineHeight: '11px',
                   display: 'inline-block',
@@ -274,7 +274,7 @@ export function AgendaSection() {
                 {entry.entry?.type === 'law' ? 'LAW' : 'DIR'}
               </span>
               {entry.electedFaction !== undefined ? (
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--ink-3)' }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
                   Elect: {entry.entry?.elect?.replace(/-/g, ' ')} · <strong style={{ color: 'var(--ink)' }}>{entry.electedFaction} elected</strong>
                 </span>
               ) : (
@@ -282,14 +282,14 @@ export function AgendaSection() {
                   <span
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 8,
+                      fontSize: 'var(--font-micro)',
                       fontWeight: 700,
                       color: entry.passed ? 'var(--ink)' : 'var(--ink-3)',
                     }}
                   >
                     {entry.passed ? 'PASSED' : 'failed'}
                   </span>
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--ink-3)' }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
                     {entry.totalFor} for · {entry.totalAgainst} against
                   </span>
                 </>
@@ -321,7 +321,7 @@ export function AgendaSection() {
                   padding: '1px 5px',
                   border: '1px solid var(--ink-4)',
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 9,
+                  fontSize: 'var(--font-micro)',
                   opacity: vpDelta < 0 ? 0.6 : 1,
                 }}
               >
