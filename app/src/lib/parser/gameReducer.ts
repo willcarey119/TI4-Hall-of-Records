@@ -683,8 +683,36 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
 
     case 'END_TURN': {
       const prevRaw = entry.event['prevFaction'];
+      const selectedActionRaw = entry.event['selectedAction'];
       if (typeof prevRaw !== 'string') return state;
-      return { ...state, currentTurnFaction: prevRaw };
+      const baseState = { ...state, currentTurnFaction: prevRaw };
+      // Imperial Strategy Card: grants +1 VP if the active faction controlled Mecatol Rex.
+      // TI Assistant records the used strategy card in selectedAction on END_TURN.
+      // The handler lives here (not in SELECT_ACTION) because SELECT_ACTION has no faction
+      // field; currentTurnFaction at that point is the *previous* player, not the Imperial user.
+      if (
+        typeof selectedActionRaw === 'string' &&
+        selectedActionRaw === 'Imperial' &&
+        state.currentOwners['Mecatol Rex'] === prevRaw
+      ) {
+        const vpEvent: VpEvent = {
+          faction: prevRaw,
+          objective: 'Imperial Point',
+          points: 1,
+          timestamp: entry.timestamp,
+          source: 'imperial_point',
+          ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+        };
+        return {
+          ...baseState,
+          vpEvents: [...state.vpEvents, vpEvent],
+          currentScores: {
+            ...state.currentScores,
+            [prevRaw]: (state.currentScores[prevRaw] ?? 0) + 1,
+          },
+        };
+      }
+      return baseState;
     }
 
     case 'SELECT_ACTION': {

@@ -997,3 +997,91 @@ describe('gameReducer — Task 12.5 edge case fixes', () => {
     });
   });
 });
+
+// ── Imperial Strategy Card VP ─────────────────────────────────────────────────
+// Imperial grants +1 VP to the active player when they control Mecatol Rex.
+// TI Assistant records this via END_TURN { prevFaction, selectedAction: 'Imperial' }.
+// The handler lives in END_TURN so prevFaction is unambiguous (SELECT_ACTION has no
+// faction field; currentTurnFaction at that point is the *previous* player).
+
+describe('gameReducer — Imperial Strategy Card VP (END_TURN)', () => {
+  it('grants +1 VP when prevFaction controls Mecatol Rex', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'Sol', selectedAction: 'Imperial' }, 300),
+    ], [makeFaction('Sol', ['Mecatol Rex'])]);
+    const imperialVp = result.vpEvents.find((e) => e.source === 'imperial_point');
+    expect(imperialVp).toBeDefined();
+    expect(imperialVp?.faction).toBe('Sol');
+    expect(imperialVp?.points).toBe(1);
+    expect(imperialVp?.source).toBe('imperial_point');
+    expect(imperialVp?.objective).toBe('Imperial Point');
+    expect(imperialVp?.timestamp).toBe(300);
+  });
+
+  it('increments currentScores by 1 when VP is granted', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'Sol', selectedAction: 'Imperial' }, 300),
+    ], [makeFaction('Sol', ['Mecatol Rex'])]);
+    expect(result.currentScores['Sol']).toBe(1);
+  });
+
+  it('still sets currentTurnFaction to prevFaction', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'Sol', selectedAction: 'Imperial' }, 300),
+    ], [makeFaction('Sol', ['Mecatol Rex'])]);
+    expect(result.currentTurnFaction).toBe('Sol');
+  });
+
+  it('does not grant VP when prevFaction does not own Mecatol Rex', () => {
+    // Hacan owns Mecatol Rex, Sol uses Imperial
+    const result = reduce([
+      makeEntry('CLAIM_PLANET', { faction: 'Hacan', planet: 'Mecatol Rex' }, 100),
+      makeEntry('END_TURN', { prevFaction: 'Sol', selectedAction: 'Imperial' }, 300),
+    ], [makeFaction('Sol'), makeFaction('Hacan')]);
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(0);
+    expect(result.currentScores['Sol']).toBe(0);
+  });
+
+  it('does not grant VP when Mecatol Rex has no owner', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'Sol', selectedAction: 'Imperial' }, 300),
+    ], [makeFaction('Sol')]);
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(0);
+  });
+
+  it('does not grant Imperial VP for non-Imperial selectedAction', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'Sol', selectedAction: 'Tactical' }, 300),
+    ], [makeFaction('Sol', ['Mecatol Rex'])]);
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(0);
+  });
+
+  it('does not grant Imperial VP when selectedAction field is absent', () => {
+    // Older log format may lack selectedAction
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'Sol' }, 300),
+    ], [makeFaction('Sol', ['Mecatol Rex'])]);
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(0);
+  });
+
+  it('grants VP independently on each Imperial use when Mecatol Rex is held', () => {
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'Sol', selectedAction: 'Imperial' }, 300),
+      makeEntry('END_TURN', { prevFaction: 'Sol', selectedAction: 'Imperial' }, 600),
+    ], [makeFaction('Sol', ['Mecatol Rex'])]);
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(2);
+    expect(result.currentScores['Sol']).toBe(2);
+  });
+
+  it('grants VP only on turns where Mecatol Rex ownership matches', () => {
+    // Sol owns Mecatol Rex initially; then Hacan claims it; then Sol uses Imperial again
+    const result = reduce([
+      makeEntry('END_TURN', { prevFaction: 'Sol', selectedAction: 'Imperial' }, 300),
+      makeEntry('CLAIM_PLANET', { faction: 'Hacan', planet: 'Mecatol Rex' }, 400),
+      makeEntry('END_TURN', { prevFaction: 'Sol', selectedAction: 'Imperial' }, 600),
+    ], [makeFaction('Sol', ['Mecatol Rex']), makeFaction('Hacan')]);
+    // Only the first Imperial use should grant VP
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(1);
+    expect(result.currentScores['Sol']).toBe(1);
+  });
+});

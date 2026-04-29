@@ -9,15 +9,17 @@ const GAME_DATA = join(process.cwd(), 'game-data');
 const files = readdirSync(GAME_DATA).filter((f) => f.endsWith('.json'));
 
 // V1.1 data triage: confirmed winners for all 7 games.
-// Files with an explicit data.winner override are noted; others are score-inferred.
+// All winners are now score-inferred. JSON files for LjnqDB/nMhFhJ/PgyXRx still contain
+// a data.winner override field as a safety net, but score inference reaches the correct
+// result on its own after V1.1 parser fixes (Imperial VP + agenda VP handlers).
 const EXPECTED_WINNERS: Record<string, string> = {
   '1.11.25 Twilight Imperium Game.json': 'Universities of Jol-Nar',
   '1.19.25 TI Assistant JSON Game Data.json': "L'tokk Khrask",
-  'LjnqDB_data (2).json': 'Council Keleres',       // override: Imperial card VP gap (parser doesn't count Imperial primary)
+  'LjnqDB_data (2).json': 'Council Keleres',       // Keleres 8 VP + 2 Imperial = 10 = threshold; override redundant
   'TIAssistant_Game Data.json': 'Kollecc Society',
   'nHg8Hw_data.json': 'Emirates of Hacan',
-  'nMhFhJ_data (1).json': 'Crimson Rebellion',     // override: unhandled agenda VP (Prophecy of Ixth)
-  'PgyXRx_data.json': 'Titans of Ul',              // override: unhandled agenda VP (Covert Legislation)
+  'nMhFhJ_data (1).json': 'Crimson Rebellion',     // 12 VP = threshold; Prophecy of Ixth + Imperial now handled
+  'PgyXRx_data.json': 'Titans of Ul',              // Covert Legislation + Imperial now handled; override redundant
 };
 
 describe('parseGame integration — all real game exports', () => {
