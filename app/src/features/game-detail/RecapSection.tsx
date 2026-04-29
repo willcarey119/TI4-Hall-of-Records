@@ -3,12 +3,26 @@ import { useGame } from './GameContext';
 import { buildRecapSummary } from '../../lib/recap/buildRecapSummary';
 import { Rule, formatDate, formatDuration, FactionDot } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
+import { buildRoundScores, type RoundScoreRow } from '../../lib/recap/buildRoundScores';
+import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
 
 export function RecapSection() {
   const { game } = useGame();
 
   const recap = useMemo(
     () => (game !== null ? buildRecapSummary(game) : null),
+    [game],
+  );
+
+  const roundScores: RoundScoreRow[] = useMemo(
+    () =>
+      game !== null
+        ? buildRoundScores(
+            game.vpEvents,
+            game.factions,
+            deriveRoundBoundaries(game.strategyCardEvents, game.factions.length),
+          )
+        : [],
     [game],
   );
 
@@ -288,6 +302,45 @@ export function RecapSection() {
           </div>
         ))}
       </div>
+
+      {roundScores.length > 0 && (
+        <>
+          <Rule />
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9px' }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', color: 'var(--ink-3)', fontWeight: 'normal', paddingRight: 8, whiteSpace: 'nowrap' }}>Rd</th>
+                  {standings.map(s => (
+                    <th key={s.factionId} style={{ textAlign: 'center', color: 'var(--ink-3)', fontWeight: 'normal', paddingBottom: 2 }}>
+                      <FactionDot color={s.color} size={5} />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {roundScores.map(row => (
+                  <tr key={row.round}>
+                    <td style={{ color: 'var(--ink-3)', paddingRight: 8 }}>R{row.round}</td>
+                    {standings.map(s => (
+                      <td
+                        key={s.factionId}
+                        style={{
+                          textAlign: 'center',
+                          fontWeight: 800,
+                          color: s.isWinner ? 'var(--accent)' : 'var(--ink)',
+                        }}
+                      >
+                        {row.scores[s.factionId] ?? 0}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </section>
   );
 }
