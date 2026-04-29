@@ -98,15 +98,22 @@ export function StatsSection() {
 
       {/* VP source breakdown */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>VP Source Breakdown</div>
-      {gameStats.vpSources.map(src => (
-        <div key={src.source} style={{ display: 'grid', gridTemplateColumns: '60px 1fr 40px', gap: 6, alignItems: 'center', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 9 }}>
-          <span>{SOURCE_LABEL[src.source] ?? src.source}</span>
-          <div style={{ background: 'var(--ink-4)', height: 4 }}>
-            <div style={{ background: 'var(--accent)', height: 4, width: `${src.sharePct * 100}%` }} />
+      {gameStats.vpSources.map(src => {
+        const pct = Math.round(src.sharePct * 100);
+        const sparse = src.totalPoints <= 1 || src.sharePct < 0.01;
+        return (
+          <div key={src.source} style={{ display: 'grid', gridTemplateColumns: '60px 1fr 80px', gap: 6, alignItems: 'center', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, opacity: sparse ? 0.6 : 1 }}>
+            <span>{SOURCE_LABEL[src.source] ?? src.source}</span>
+            <div style={{ background: 'var(--ink-4)', height: 4 }}>
+              <div style={{ background: 'var(--accent)', height: 4, width: `${src.sharePct * 100}%` }} />
+            </div>
+            <span style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+              <span style={{ color: 'var(--ink-3)' }}>{src.totalPoints} VP · </span>
+              <span>{pct}%</span>
+            </span>
           </div>
-          <span style={{ textAlign: 'right' }}>{Math.round(src.sharePct * 100)}%</span>
-        </div>
-      ))}
+        );
+      })}
 
       <Rule />
 

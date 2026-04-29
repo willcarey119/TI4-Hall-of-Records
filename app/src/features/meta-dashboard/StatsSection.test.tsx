@@ -74,6 +74,38 @@ function makeGameStatsStub(): MetaState['gameStats'] {
   } as unknown as MetaState['gameStats'];
 }
 
+describe('StatsSection · VP Source Breakdown', () => {
+  it('shows raw VP count alongside percent for each source (B4: rider/SFT 0% transparency)', () => {
+    const gameStats = makeGameStatsStub();
+    (gameStats as unknown as { vpSources: Array<{ source: string; totalPoints: number; sharePct: number }> }).vpSources = [
+      { source: 'score_objective', totalPoints: 330, sharePct: 0.844 },
+      { source: 'support_for_throne', totalPoints: 33, sharePct: 0.084 },
+      { source: 'rider', totalPoints: 1, sharePct: 0.003 },
+    ];
+    mockState = {
+      loading: false,
+      error: null,
+      games: [],
+      factionStats: null,
+      strategyCardStats: null,
+      techStats: null,
+      gameStats,
+      speakerStats: null,
+      scoringPace: null,
+      relicStats: null,
+      techPaths: null,
+    };
+
+    render(<MemoryRouter><StatsSection /></MemoryRouter>);
+
+    // The new presentation must show "<count> VP · <percent>%" so a 0%-rounded
+    // sparse row (e.g. RIDER · 1 VP · 0%) reads as "rare in our data" not "broken".
+    expect(screen.getByText(/330 VP/)).toBeInTheDocument();
+    expect(screen.getByText(/33 VP/)).toBeInTheDocument();
+    expect(screen.getByText(/1 VP/)).toBeInTheDocument();
+  });
+});
+
 describe('StatsSection · Relic Performance panel', () => {
   it('renders a "VP" badge for relics that grant VP and omits it for non-VP relics', () => {
     mockState = {
