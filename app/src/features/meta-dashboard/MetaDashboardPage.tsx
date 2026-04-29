@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Rule } from '../../shared';
+import { Rule, FontScaleControls } from '../../shared';
 import { MetaProvider, useMeta } from './MetaContext';
 import { FactionSection } from './FactionSection';
 import { StrategyCardSection } from './StrategyCardSection';
@@ -121,6 +121,7 @@ function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
             {label}
           </button>
         ))}
+        <FontScaleControls />
       </nav>
     </div>
   );
