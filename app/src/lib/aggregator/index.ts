@@ -22,3 +22,5 @@ export type {
 export { isHeroLeader, HERO_LEADERS } from './heroLeaders';
 export { buildSpeakerStats } from './buildSpeakerStats';
 export type { SpeakerStats } from './buildSpeakerStats';
+export { buildScoringPace } from './buildScoringPace';
+export type { ScoringPaceSummary, ScoringPaceCurve, ScoringPacePoint } from './buildScoringPace';

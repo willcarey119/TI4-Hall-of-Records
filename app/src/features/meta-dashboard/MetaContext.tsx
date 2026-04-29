@@ -2,9 +2,10 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { loadAllGames } from '../../adapters/firestore';
 import {
   buildFactionStats, buildStrategyCardStats, buildTechStats, buildGameStats, buildSpeakerStats,
+  buildScoringPace,
   deriveRoundBoundaries,
   type FactionStatsSummary, type StrategyCardSummary, type TechSummary, type GameStatsSummary,
-  type RoundBoundary, type SpeakerStats,
+  type RoundBoundary, type SpeakerStats, type ScoringPaceSummary,
 } from '../../lib/aggregator';
 import type { ParsedGame } from '../../lib/parser/types';
 
@@ -17,6 +18,7 @@ export interface MetaState {
   techStats: TechSummary | null;
   gameStats: GameStatsSummary | null;
   speakerStats: SpeakerStats | null;
+  scoringPace: ScoringPaceSummary | null;
 }
 
 const initialState: MetaState = {
@@ -28,6 +30,7 @@ const initialState: MetaState = {
   techStats: null,
   gameStats: null,
   speakerStats: null,
+  scoringPace: null,
 };
 
 const MetaContext = createContext<MetaState>(initialState);
@@ -52,6 +55,7 @@ export function MetaProvider({ children }: { children: ReactNode }) {
           techStats:         buildTechStats(games, boundariesByGame),
           gameStats:         buildGameStats(games, boundariesByGame),
           speakerStats:      buildSpeakerStats(games),
+          scoringPace:       buildScoringPace(games),
         };
         if (!cancelled) setState(next);
       })
@@ -70,5 +74,9 @@ export function MetaProvider({ children }: { children: ReactNode }) {
 }
 
 export function useMeta(): MetaState {
+  return useContext(MetaContext);
+}
+
+export function useMetaContext(): MetaState {
   return useContext(MetaContext);
 }
