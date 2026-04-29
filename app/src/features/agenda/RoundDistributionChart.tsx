@@ -12,7 +12,7 @@ export function RoundDistributionChart({ distribution }: RoundDistributionChartP
     return null;
   }
 
-  const counts = roundNumbers.map(r => distribution[r]);
+  const counts = roundNumbers.map(r => distribution[r] ?? 0);
   const maxCount = Math.max(...counts);
   const chartHeight = 80;
   const barHeightMax = chartHeight * 0.8;
@@ -31,7 +31,7 @@ export function RoundDistributionChart({ distribution }: RoundDistributionChartP
       style={{ display: 'block' }}
     >
       {roundNumbers.map((round, idx) => {
-        const count = distribution[round];
+        const count = distribution[round] ?? 0;
         const barHeight = (count / maxCount) * barHeightMax;
         const x = 8 + idx * (barWidth + barGap);
         const barY = topPadding + (barHeightMax - barHeight);
