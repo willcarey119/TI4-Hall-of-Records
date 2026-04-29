@@ -65,4 +65,43 @@ describe('buildRelicStats', () => {
     expect(shard?.gainCount).toBe(1);
     expect(shard?.playCount).toBe(0);
   });
+
+  describe('grantsVp flag', () => {
+    it('marks Shard of the Throne as grantsVp=true', () => {
+      const events: RelicEvent[] = [
+        { faction: 'Sol', relic: 'Shard of the Throne', timestamp: 1, type: 'gain' },
+      ];
+      const r = buildRelicStats([makeGame(events)] as ParsedGame[]);
+      const shard = r.relics.find(r => r.relic === 'Shard of the Throne');
+      expect(shard?.grantsVp).toBe(true);
+    });
+
+    it('marks The Crown of Emphidia as grantsVp=true', () => {
+      const events: RelicEvent[] = [
+        { faction: 'Hacan', relic: 'The Crown of Emphidia', timestamp: 1, type: 'gain' },
+      ];
+      const r = buildRelicStats([makeGame(events)] as ParsedGame[]);
+      const crown = r.relics.find(r => r.relic === 'The Crown of Emphidia');
+      expect(crown?.grantsVp).toBe(true);
+    });
+
+    it('marks non-VP relics (e.g. Stellar Converter, The Codex) as grantsVp=false', () => {
+      const events: RelicEvent[] = [
+        { faction: 'Sol', relic: 'Stellar Converter', timestamp: 1, type: 'gain' },
+        { faction: 'Hacan', relic: 'The Codex', timestamp: 2, type: 'gain' },
+      ];
+      const r = buildRelicStats([makeGame(events)] as ParsedGame[]);
+      expect(r.relics.find(r => r.relic === 'Stellar Converter')?.grantsVp).toBe(false);
+      expect(r.relics.find(r => r.relic === 'The Codex')?.grantsVp).toBe(false);
+    });
+
+    it('marks unknown relic names as grantsVp=false (negative edge)', () => {
+      const events: RelicEvent[] = [
+        { faction: 'Sol', relic: 'Totally Made Up Relic Name', timestamp: 1, type: 'gain' },
+      ];
+      const r = buildRelicStats([makeGame(events)] as ParsedGame[]);
+      const unknown = r.relics.find(r => r.relic === 'Totally Made Up Relic Name');
+      expect(unknown?.grantsVp).toBe(false);
+    });
+  });
 });

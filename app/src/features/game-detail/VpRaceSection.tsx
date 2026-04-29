@@ -1,6 +1,15 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
-import { buildVpTimeline, type FactionVpSeries, type VpTimelineSummary } from '../../lib/vp/buildVpTimeline';
+import {
+  buildVpRaceSeries,
+  type FactionVpSeries,
+  type VpRaceSummary,
+} from '../../lib/vp/buildVpRaceSeries';
+import {
+  buildVpRaceEditorial,
+  type VpRaceEditorial,
+} from '../../lib/vp/buildVpRaceEditorial';
+import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
 import { Rule, FactionDot } from '../../shared';
 import { formatDuration } from '../../shared/formatters';
 
@@ -9,26 +18,27 @@ const H = 200;
 const PX = 28; // left padding for VP labels
 const PY = 14; // top/bottom padding
 
-function xScale(gameTimeSeconds: number, gameDurationSeconds: number): number {
-  return PX + (gameTimeSeconds / Math.max(gameDurationSeconds, 1)) * (W - PX - 6);
+function xScale(round: number, totalRounds: number): number {
+  // Anchor (round 0) sits at PX; the terminal round sits at W - 6.
+  return PX + (round / Math.max(totalRounds, 1)) * (W - PX - 6);
 }
 
 function yScale(vp: number, victoryPoints: number): number {
   return H - PY - (vp / (victoryPoints + 1)) * (H - PY * 2);
 }
 
-function SlopeChart({ summary }: { summary: VpTimelineSummary }) {
-  const { series, victoryPoints, gameDurationSeconds } = summary;
+function SlopeChart({ summary }: { summary: VpRaceSummary }) {
+  const { series, victoryPoints, totalRounds } = summary;
 
   const gridVps = Array.from(
     { length: Math.floor(victoryPoints / 2) },
     (_, i) => (i + 1) * 2,
   ).filter(v => v <= victoryPoints);
 
-  // Format x-axis time labels at 0%, 25%, 50%, 75%, 100%
-  const timeLabels = [0, 0.25, 0.5, 0.75, 1].map(frac => ({
-    x: xScale(frac * gameDurationSeconds, gameDurationSeconds),
-    label: formatDuration(Math.round(frac * gameDurationSeconds)),
+  // X-axis tick per round, plus the round-0 anchor.
+  const roundLabels = Array.from({ length: totalRounds + 1 }, (_, r) => ({
+    x: xScale(r, totalRounds),
+    label: r === 0 ? 'START' : `R${r}`,
   }));
 
   return (
@@ -67,8 +77,8 @@ function SlopeChart({ summary }: { summary: VpTimelineSummary }) {
         VICTORY · {victoryPoints}
       </text>
 
-      {/* X-axis time labels */}
-      {timeLabels.map((tick, i) => (
+      {/* X-axis round labels */}
+      {roundLabels.map((tick, i) => (
         <text
           key={i} x={tick.x} y={H - 2}
           textAnchor="middle"
@@ -85,13 +95,13 @@ function SlopeChart({ summary }: { summary: VpTimelineSummary }) {
   );
 }
 
-function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpTimelineSummary }) {
-  const { victoryPoints, gameDurationSeconds } = summary;
+function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpRaceSummary }) {
+  const { victoryPoints, totalRounds } = summary;
   if (s.points.length < 2) return null;
 
   const pathD = s.points
     .map((p, i) => {
-      const x = xScale(p.gameTimeSeconds, gameDurationSeconds);
+      const x = xScale(p.round, totalRounds);
       const y = yScale(p.cumulativeVp, victoryPoints);
       return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
     })
@@ -112,7 +122,7 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpTimelineSu
         strokeLinejoin="round" strokeLinecap="round"
       />
       {s.points.map((p, i) => {
-        const cx = xScale(p.gameTimeSeconds, gameDurationSeconds);
+        const cx = xScale(p.round, totalRounds);
         const cy = yScale(p.cumulativeVp, victoryPoints);
         const isLast = i === s.points.length - 1;
         return (
@@ -126,7 +136,7 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpTimelineSu
       })}
       {lastPt !== undefined && (
         <text
-          x={xScale(lastPt.gameTimeSeconds, gameDurationSeconds) + 4}
+          x={xScale(lastPt.round, totalRounds) + 4}
           y={yScale(lastPt.cumulativeVp, victoryPoints) + 3}
           fontFamily="'Newsreader', Georgia, serif" fontSize={9} fontWeight={700}
           fill={stroke}
@@ -141,19 +151,24 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpTimelineSu
 export function VpRaceSection() {
   const { game } = useGame();
 
-  const summary = useMemo(
-    () =>
-      game !== null
-        ? buildVpTimeline(
-            game.vpEvents,
-            game.factions,
-            game.finalScores,
-            game.options,
-            game.durationSeconds,
-          )
-        : null,
-    [game],
-  );
+  const composed = useMemo(() => {
+    if (game === null) return null;
+    const roundBoundaries = deriveRoundBoundaries(game.strategyCardEvents, game.factions.length);
+    const summary = buildVpRaceSeries({
+      vpEvents: game.vpEvents,
+      factions: game.factions,
+      finalScores: game.finalScores,
+      options: game.options,
+      roundBoundaries,
+    });
+    const editorial = buildVpRaceEditorial({
+      factions: game.factions,
+      finalScores: game.finalScores,
+      options: game.options,
+      totalRounds: summary.totalRounds,
+    });
+    return { summary, editorial };
+  }, [game]);
 
   return (
     <section
@@ -161,8 +176,13 @@ export function VpRaceSection() {
       data-section="vp-race"
       style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }}
     >
-      {summary !== null && game !== null && (
-        <VpRaceContent summary={summary} factions={game.factions} />
+      {composed !== null && game !== null && (
+        <VpRaceContent
+          summary={composed.summary}
+          editorial={composed.editorial}
+          factions={game.factions}
+          gameDurationSeconds={game.durationSeconds}
+        />
       )}
     </section>
   );
@@ -170,10 +190,14 @@ export function VpRaceSection() {
 
 function VpRaceContent({
   summary,
+  editorial,
   factions,
+  gameDurationSeconds,
 }: {
-  summary: VpTimelineSummary;
+  summary: VpRaceSummary;
+  editorial: VpRaceEditorial;
   factions: { factionId: string; color: string }[];
+  gameDurationSeconds: number;
 }) {
   const factionColorMap = Object.fromEntries(factions.map(f => [f.factionId, f.color]));
 
@@ -195,7 +219,7 @@ function VpRaceContent({
         }}
       >
         <span>VP Race · This Game</span>
-        <span>To {summary.victoryPoints} · {formatDuration(summary.gameDurationSeconds)}</span>
+        <span>To {summary.victoryPoints} · {formatDuration(gameDurationSeconds)}</span>
       </div>
 
       {/* Headline */}
@@ -209,12 +233,12 @@ function VpRaceContent({
           margin: '4px 0 2px',
         }}
       >
-        {summary.headline}
+        {editorial.headline}
       </div>
 
       {/* Deck */}
       <div style={{ fontSize: 10, color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
-        {summary.deckText}
+        {editorial.deckText}
       </div>
 
       <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
@@ -264,7 +288,7 @@ function VpRaceContent({
           marginBottom: 0,
         }}
       >
-        {summary.editorialProse}
+        {editorial.editorialProse}
       </p>
     </>
   );

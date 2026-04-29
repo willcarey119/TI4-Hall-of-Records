@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { loadAllGames } from '../../adapters/firestore';
 import { buildAgendaStats } from '../../lib/aggregator';
 import type { ParsedGame } from '../../lib/parser/types';
-import { Kicker, Rule } from '../../shared';
+import { Kicker, Rule, FontScaleControls } from '../../shared';
 
 export function AgendaPage() {
   const [games, setGames] = useState<ParsedGame[]>([]);
@@ -36,8 +36,11 @@ export function AgendaPage() {
 
   return (
     <div style={{ maxWidth: 720, margin: '0 auto', padding: '16px 16px 48px' }}>
-      <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 28, fontStyle: 'italic', borderBottom: '3px double var(--rule)', paddingBottom: 8, marginBottom: 12 }}>
-        The Senate Almanac
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '3px double var(--rule)', paddingBottom: 8, marginBottom: 12 }}>
+        <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 28, fontStyle: 'italic' }}>
+          The Senate Almanac
+        </div>
+        <FontScaleControls />
       </div>
       <Kicker text={`Agenda Analytics · ${stats.gamesAnalyzed} games · ${stats.totalResolutions} resolutions`} />
 

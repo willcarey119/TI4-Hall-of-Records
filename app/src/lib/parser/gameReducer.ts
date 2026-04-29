@@ -26,9 +26,31 @@ import type {
   ActionTypeEvent,
   PlayerActionType,
   PhaseSnapshot,
+  VpSource,
+  ObjectiveStage,
 } from './types';
 import { VP_ON_GAIN_RELICS, VP_ON_PLAY_RELICS, VP_ON_LOSE_RELICS } from './relicVpRules';
 import { getObjectivePoints } from './objectives';
+
+/** Maps an objective name + stage to the VpSource bucket used by aggregate stats.
+ *  Stages I/II/secret/imperial are scored objectives. The "special" stages map to
+ *  their own VP source so the Stats tab's VP Source Breakdown can break out
+ *  Support for the Throne, relics, agenda VP, etc. The 'agenda' stage covers both
+ *  rider VP (Imperial Rider) and directive VP (Seed of an Empire), so we discriminate
+ *  by name. */
+function vpSourceForObjective(objective: string, stage: ObjectiveStage): VpSource {
+  switch (stage) {
+    case 'support': return 'support_for_throne';
+    case 'relic': return 'relic';
+    case 'agenda': return objective === 'Imperial Rider' ? 'rider' : 'agenda';
+    case 'legendary': return 'legendary_planet';
+    case 'other': return 'custodians';
+    case 'I':
+    case 'II':
+    case 'secret':
+    case 'imperial': return 'score_objective';
+  }
+}
 
 export interface ReducerState {
   // Output event arrays
@@ -136,7 +158,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         objective,
         points: def.points,
         timestamp: entry.timestamp,
-        source: 'score_objective',
+        source: vpSourceForObjective(objective, def.stage),
         ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
       };
       return {
@@ -164,7 +186,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         objective,
         points: -def.points,
         timestamp: entry.timestamp,
-        source: 'score_objective',
+        source: vpSourceForObjective(objective, def.stage),
         ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
       };
       return {

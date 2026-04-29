@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { buildTechSummary } from './buildTechSummary';
-import { deriveRoundBoundaries } from '../aggregator/deriveRoundBoundaries';
 import type { RoundBoundary } from '../aggregator/deriveRoundBoundaries';
 import type { TechEvent, FactionSetup } from '../parser/types';
 

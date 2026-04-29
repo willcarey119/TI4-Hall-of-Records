@@ -1,9 +1,11 @@
 import type { ParsedGame } from '../parser/types';
+import { relicGrantsVp } from '../parser/relicVpRules';
 
 export interface RelicStatEntry {
   relic: string;
   gainCount: number;
   playCount: number;
+  grantsVp: boolean;
   topFactions: Array<{ factionId: string; gainCount: number }>;
 }
 
@@ -39,6 +41,7 @@ export function buildRelicStats(games: ParsedGame[]): RelicStatsSummary {
     relic,
     gainCount: data.gains,
     playCount: data.plays,
+    grantsVp: relicGrantsVp(relic),
     topFactions: Array.from(data.factions.entries())
       .map(([factionId, gainCount]) => ({ factionId, gainCount }))
       .sort((a, b) => b.gainCount - a.gainCount)

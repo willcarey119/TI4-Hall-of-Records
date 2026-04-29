@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildFactionStats } from './buildFactionStats';
-import type { ParsedGame, FactionSetup, VpEvent, PromissoryNoteEvent, AgendaResolution } from '../parser/types';
+import type { ParsedGame, FactionSetup, VpEvent, PromissoryNoteEvent, AgendaResolution, StrategyCardEvent } from '../parser/types';
 
 function makeFaction(id: string, mapPosition = 0): FactionSetup {
   return { factionId: id, playerName: 'p', color: '#aaa', mapPosition, startingTechs: [], startingPlanets: [] };
@@ -14,6 +14,7 @@ function makeGame(opts: {
   vpEvents?: VpEvent[];
   promissoryNoteEvents?: PromissoryNoteEvent[];
   agendaResolutions?: AgendaResolution[];
+  strategyCardEvents?: StrategyCardEvent[];
 }): ParsedGame {
   return {
     gameId: opts.gameId, playedAt: 0, durationSeconds: 3600,
@@ -21,7 +22,7 @@ function makeGame(opts: {
     options: { victoryPoints: 10 },
     initialSpeaker: opts.factions[0] ?? '',
     phaseSnapshots: [], vpEvents: opts.vpEvents ?? [], planetEvents: [], techEvents: [],
-    agendaResolutions: opts.agendaResolutions ?? [], strategyCardEvents: [], actionCardEvents: [], componentEvents: [],
+    agendaResolutions: opts.agendaResolutions ?? [], strategyCardEvents: opts.strategyCardEvents ?? [], actionCardEvents: [], componentEvents: [],
     relicEvents: [], leaderEvents: [], objectiveReveals: [], speakerEvents: [],
     attachmentEvents: [], allianceEvents: [], promissoryNoteEvents: opts.promissoryNoteEvents ?? [],
     expeditionEvents: [], secondaryEvents: [], actionEvents: [],
@@ -29,6 +30,20 @@ function makeGame(opts: {
     timers: { game: 3600, factions: {}, secondaries: {}, agendas: { first: 0, second: 0 } },
     warnings: [],
   };
+}
+
+/**
+ * Helper: build N strategy-card pick events per round, evenly spaced, so that
+ * deriveRoundBoundaries() yields a boundary at the start of each round.
+ */
+function makeRoundPicks(factions: string[], rounds: number): StrategyCardEvent[] {
+  const events: StrategyCardEvent[] = [];
+  for (let r = 1; r <= rounds; r++) {
+    factions.forEach((id, i) => {
+      events.push({ faction: id, card: `R${r}-pick-${i}`, timestamp: r * 1000 + i, type: 'pick' });
+    });
+  }
+  return events;
 }
 
 describe('buildFactionStats', () => {
@@ -168,5 +183,119 @@ describe('buildFactionStats', () => {
     expect(stats.find(f => f.factionId === 'Sol')?.winningVoteRate).toBe(1);
     // Hacan never cast a vote — null
     expect(stats.find(f => f.factionId === 'Hacan')?.winningVoteRate).toBeNull();
+  });
+
+  describe('avgVpPerRound', () => {
+    it('is non-empty for a faction whose game has vpEvents and strategyCardEvents', () => {
+      const games = [makeGame({
+        gameId: 'g1', factions: ['Sol', 'Hacan'],
+        finalScores: { Sol: 4, Hacan: 2 }, winner: null,
+        strategyCardEvents: makeRoundPicks(['Sol', 'Hacan'], 3),
+        // Sol scores in rounds 1,2,3; Hacan scores in rounds 2,3.
+        vpEvents: [
+          { faction: 'Sol',   objective: 'O1', points: 1, timestamp: 1500, source: 'score_objective' },
+          { faction: 'Sol',   objective: 'O2', points: 2, timestamp: 2500, source: 'score_objective' },
+          { faction: 'Sol',   objective: 'O3', points: 1, timestamp: 3500, source: 'score_objective' },
+          { faction: 'Hacan', objective: 'O1', points: 1, timestamp: 2500, source: 'score_objective' },
+          { faction: 'Hacan', objective: 'O2', points: 1, timestamp: 3500, source: 'score_objective' },
+        ],
+      })];
+      const stats = buildFactionStats(games).factions;
+      const sol = stats.find(f => f.factionId === 'Sol');
+      expect(sol?.avgVpPerRound.length).toBeGreaterThan(0);
+    });
+
+    it('values are monotonically non-decreasing within a single game (cumulative VP)', () => {
+      const games = [makeGame({
+        gameId: 'g1', factions: ['Sol'],
+        finalScores: { Sol: 5 }, winner: null,
+        strategyCardEvents: makeRoundPicks(['Sol'], 4),
+        vpEvents: [
+          { faction: 'Sol', objective: 'O1', points: 2, timestamp: 1500, source: 'score_objective' }, // R1: 2
+          { faction: 'Sol', objective: 'O2', points: 1, timestamp: 2500, source: 'score_objective' }, // R2: 3
+          { faction: 'Sol', objective: 'O3', points: 1, timestamp: 3500, source: 'score_objective' }, // R3: 4
+          { faction: 'Sol', objective: 'O4', points: 1, timestamp: 4500, source: 'score_objective' }, // R4: 5
+        ],
+      })];
+      const sol = buildFactionStats(games).factions.find(f => f.factionId === 'Sol');
+      const arr = sol?.avgVpPerRound ?? [];
+      expect(arr).toEqual([2, 3, 4, 5]);
+      for (let i = 1; i < arr.length; i++) {
+        expect(arr[i]).toBeGreaterThanOrEqual(arr[i - 1] ?? 0);
+      }
+    });
+
+    it('semantic (A): mean only includes games that reached round N', () => {
+      // Two games. Sol plays both. g1 reaches 3 rounds; g2 reaches 2 rounds.
+      // g1 cumulative (Sol): R1=2, R2=4, R3=6
+      // g2 cumulative (Sol): R1=1, R2=3
+      // Expected mean (semantic A): R1=(2+1)/2=1.5, R2=(4+3)/2=3.5, R3=6/1=6
+      const games = [
+        makeGame({
+          gameId: 'g1', factions: ['Sol'],
+          finalScores: { Sol: 6 }, winner: 'Sol',
+          strategyCardEvents: makeRoundPicks(['Sol'], 3),
+          vpEvents: [
+            { faction: 'Sol', objective: 'O1', points: 2, timestamp: 1500, source: 'score_objective' },
+            { faction: 'Sol', objective: 'O2', points: 2, timestamp: 2500, source: 'score_objective' },
+            { faction: 'Sol', objective: 'O3', points: 2, timestamp: 3500, source: 'score_objective' },
+          ],
+        }),
+        makeGame({
+          gameId: 'g2', factions: ['Sol'],
+          finalScores: { Sol: 3 }, winner: null,
+          strategyCardEvents: makeRoundPicks(['Sol'], 2),
+          vpEvents: [
+            { faction: 'Sol', objective: 'O1', points: 1, timestamp: 1500, source: 'score_objective' },
+            { faction: 'Sol', objective: 'O2', points: 2, timestamp: 2500, source: 'score_objective' },
+          ],
+        }),
+      ];
+      const sol = buildFactionStats(games).factions.find(f => f.factionId === 'Sol');
+      expect(sol?.avgVpPerRound).toEqual([1.5, 3.5, 6]);
+    });
+
+    it('faction without strategy card picks (no derivable rounds) gets empty array', () => {
+      const games = [makeGame({
+        gameId: 'g1', factions: ['Sol'],
+        finalScores: { Sol: 0 }, winner: null,
+        // no strategyCardEvents → deriveRoundBoundaries returns []
+        vpEvents: [],
+      })];
+      const sol = buildFactionStats(games).factions.find(f => f.factionId === 'Sol');
+      expect(sol?.avgVpPerRound).toEqual([]);
+    });
+
+    it('handles a faction that did not play in some games', () => {
+      // Sol plays both games; Hacan only plays g2.
+      const games = [
+        makeGame({
+          gameId: 'g1', factions: ['Sol'],
+          finalScores: { Sol: 4 }, winner: null,
+          strategyCardEvents: makeRoundPicks(['Sol'], 2),
+          vpEvents: [
+            { faction: 'Sol', objective: 'O1', points: 2, timestamp: 1500, source: 'score_objective' },
+            { faction: 'Sol', objective: 'O2', points: 2, timestamp: 2500, source: 'score_objective' },
+          ],
+        }),
+        makeGame({
+          gameId: 'g2', factions: ['Sol', 'Hacan'],
+          finalScores: { Sol: 1, Hacan: 3 }, winner: null,
+          strategyCardEvents: makeRoundPicks(['Sol', 'Hacan'], 2),
+          vpEvents: [
+            { faction: 'Sol',   objective: 'O1', points: 1, timestamp: 1500, source: 'score_objective' },
+            { faction: 'Hacan', objective: 'O1', points: 1, timestamp: 1500, source: 'score_objective' },
+            { faction: 'Hacan', objective: 'O2', points: 2, timestamp: 2500, source: 'score_objective' },
+          ],
+        }),
+      ];
+      const factions = buildFactionStats(games).factions;
+      const hacan = factions.find(f => f.factionId === 'Hacan');
+      // Hacan only in g2: R1=1, R2=3
+      expect(hacan?.avgVpPerRound).toEqual([1, 3]);
+      const sol = factions.find(f => f.factionId === 'Sol');
+      // Sol in both: R1=(2+1)/2=1.5, R2=(4+1)/2=2.5
+      expect(sol?.avgVpPerRound).toEqual([1.5, 2.5]);
+    });
   });
 });

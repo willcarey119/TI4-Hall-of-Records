@@ -55,7 +55,7 @@ export function MetaProvider({ children }: { children: ReactNode }) {
           loading: false,
           error: null,
           games,
-          factionStats:      buildFactionStats(games),
+          factionStats:      buildFactionStats(games, boundariesByGame),
           strategyCardStats: buildStrategyCardStats(games, boundariesByGame),
           techStats:         buildTechStats(games, boundariesByGame),
           gameStats:         buildGameStats(games, boundariesByGame),

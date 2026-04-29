@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ParsedGameSummary } from '../../adapters/firestore';
 import { useAuth } from '../../adapters/AuthContext';
-import { Mast, Rule, Label } from '../../shared';
+import { Mast, Rule, Label, FontScaleControls } from '../../shared';
 import { UploadPage } from '../upload/UploadPage';
 import { GameCard } from './GameCard';
 
@@ -29,7 +29,6 @@ export function HomePage() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchGames = useCallback(() => {
-    setLoading(true);
     import('../../adapters/firestore')
       .then(({ listGames }) => listGames())
       .then((result) => {
@@ -95,7 +94,10 @@ export function HomePage() {
 
   return (
     <main style={{ maxWidth: '640px', margin: '0 auto', padding: '48px 16px' }}>
-      <Mast title="Hall of Records" subtitle="Twilight Imperium IV · Game Archive" />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <Mast title="Hall of Records" subtitle="Twilight Imperium IV · Game Archive" />
+        <FontScaleControls />
+      </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '16px' }}>
         <a

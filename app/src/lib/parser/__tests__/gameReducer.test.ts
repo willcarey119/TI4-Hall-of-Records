@@ -110,6 +110,41 @@ describe('gameReducer — SCORE_OBJECTIVE', () => {
     expect(result.vpEvents[0]?.points).toBe(1);
   });
 
+  it('classifies "Support for the Throne" as source: support_for_throne', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'arborec', objective: 'Support for the Throne', key: 'barony' }),
+    ], [makeFaction('arborec'), makeFaction('barony')]);
+    expect(result.vpEvents[0]?.source).toBe('support_for_throne');
+  });
+
+  it('classifies relic VP scoring (Crown of Emphidia) as source: relic', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Crown of Emphidia' }),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents[0]?.source).toBe('relic');
+  });
+
+  it('classifies Imperial Rider scored via SCORE_OBJECTIVE as source: rider', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Imperial Rider' }),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents[0]?.source).toBe('rider');
+  });
+
+  it('classifies Custodians Token scored via SCORE_OBJECTIVE as source: custodians', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Custodians Token' }),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents[0]?.source).toBe('custodians');
+  });
+
+  it('classifies legendary planet VP (Styx) as source: legendary_planet', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Styx' }),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents[0]?.source).toBe('legendary_planet');
+  });
+
   it('appends a warning for an unknown objective and does not emit VpEvent', () => {
     const result = reduce([
       makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'UNKNOWN_OBJ_XYZ' }),

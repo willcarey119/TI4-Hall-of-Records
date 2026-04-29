@@ -1,5 +1,7 @@
 import type { ParsedGame, VpSource } from '../parser/types';
 import { getFactionExpansion, type ExpansionTag } from './factionExpansions';
+import { deriveRoundBoundaries, type RoundBoundary } from './deriveRoundBoundaries';
+import { buildRoundScores } from '../recap/buildRoundScores';
 
 export interface FactionStat {
   factionId: string;
@@ -8,7 +10,19 @@ export interface FactionStat {
   wins: number;
   winRate: number;
   avgFinalVp: number;
-  /** Reserved for future use: per-round average VP. Empty until wired up. */
+  /**
+   * Per-round mean cumulative VP across games this faction played. Index 0 = round 1.
+   *
+   * Aggregation semantic (A): each round N's value averages only over games where
+   * this faction reached round N. Games that ended earlier do not contribute to
+   * later rounds, so each round's sample size may differ. This keeps the
+   * sparkline's shape honest — a round value reflects games actually played
+   * through that round, not padded continuations of ended games.
+   *
+   * Array length equals the maximum round any of this faction's games reached.
+   * Empty when no game has derivable round boundaries (e.g. missing strategy
+   * card pick events).
+   */
   avgVpPerRound: number[];
   distinctVpSources: VpSource[];
   /** Senate Power Index — fraction of agenda votes cast by this faction whose
@@ -39,7 +53,10 @@ const SFT_NOTE = 'Support for the Throne';
 /** Pipe is safe — real factionIds may contain spaces, apostrophes, hyphens, and digits, but never `|`. */
 const KEY_SEP = '|';
 
-export function buildFactionStats(games: ParsedGame[]): FactionStatsSummary {
+export function buildFactionStats(
+  games: ParsedGame[],
+  roundBoundariesByGame?: Map<string, RoundBoundary[]>,
+): FactionStatsSummary {
   if (games.length === 0) {
     return { totalGames: 0, factions: [], topPairings: [], sftTransfers: [] };
   }
@@ -51,6 +68,9 @@ export function buildFactionStats(games: ParsedGame[]): FactionStatsSummary {
   const sources = new Map<string, Set<VpSource>>();
   const votesCast = new Map<string, number>();
   const votesWith = new Map<string, number>();
+  // Per-faction per-round contributions: round-index → list of cumulative-VP samples.
+  // After the loop we'll average each list to produce avgVpPerRound (semantic A).
+  const vpSamples = new Map<string, number[][]>();
 
   for (const game of games) {
     for (const faction of game.factions) {
@@ -58,6 +78,7 @@ export function buildFactionStats(games: ParsedGame[]): FactionStatsSummary {
       playCount.set(id, (playCount.get(id) ?? 0) + 1);
       vpTotal.set(id, (vpTotal.get(id) ?? 0) + (game.finalScores[id] ?? 0));
       if (!sources.has(id)) sources.set(id, new Set());
+      if (!vpSamples.has(id)) vpSamples.set(id, []);
     }
     for (const ev of game.vpEvents) {
       const set = sources.get(ev.faction);
@@ -75,6 +96,42 @@ export function buildFactionStats(games: ParsedGame[]): FactionStatsSummary {
         }
       }
     }
+    // Per-game cumulative VP per round, contributed to each faction's sample bucket.
+    // Match the sibling-builder pattern (buildStrategyCardStats / buildTechStats / buildGameStats):
+    // when MetaContext provides a pre-computed map, look it up; otherwise fall back to
+    // inline derivation so unit-test call sites (`buildFactionStats(games)`) keep working.
+    const boundaries = roundBoundariesByGame !== undefined
+      ? roundBoundariesByGame.get(game.gameId) ?? []
+      : deriveRoundBoundaries(game.strategyCardEvents, game.factions.length);
+    if (boundaries.length > 0) {
+      const rows = buildRoundScores(game.vpEvents, game.factions, boundaries);
+      for (const faction of game.factions) {
+        const id = faction.factionId;
+        const buckets = vpSamples.get(id);
+        if (buckets === undefined) continue;
+        for (const row of rows) {
+          const idx = row.round - 1;
+          let bucket = buckets[idx];
+          if (bucket === undefined) {
+            bucket = [];
+            buckets[idx] = bucket;
+          }
+          bucket.push(row.scores[id] ?? 0);
+        }
+      }
+    }
+  }
+
+  // Average each per-round sample list. Sparse rounds (none of this faction's
+  // games reached round N) collapse to 0; under semantic A this only happens
+  // when no game contributed to that index at all, which is impossible because
+  // we contribute every faction-game pair from round 1 up to that game's max.
+  const avgVpByFaction = new Map<string, number[]>();
+  for (const [id, buckets] of vpSamples.entries()) {
+    const out: number[] = buckets.map(samples =>
+      samples.length === 0 ? 0 : samples.reduce((a, b) => a + b, 0) / samples.length,
+    );
+    avgVpByFaction.set(id, out);
   }
 
   const factions: FactionStat[] = [...playCount.entries()].map(([id, gp]) => {
@@ -87,7 +144,7 @@ export function buildFactionStats(games: ParsedGame[]): FactionStatsSummary {
       wins,
       winRate: gp > 0 ? wins / gp : 0,
       avgFinalVp: gp > 0 ? (vpTotal.get(id) ?? 0) / gp : 0,
-      avgVpPerRound: [],
+      avgVpPerRound: avgVpByFaction.get(id) ?? [],
       distinctVpSources: [...(sources.get(id) ?? [])],
       winningVoteRate: cast > 0 ? (votesWith.get(id) ?? 0) / cast : null,
     };

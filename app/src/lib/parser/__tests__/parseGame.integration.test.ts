@@ -65,6 +65,18 @@ describe('parseGame integration — all real game exports', () => {
     expect(result.winner).toBe(expected);
   });
 
+  it('produces at least one source: support_for_throne VpEvent across the dataset (V1.1 B4 regression guard)', () => {
+    let total = 0;
+    for (const file of files) {
+      const raw = JSON.parse(readFileSync(join(GAME_DATA, file), 'utf-8'));
+      const result = parseGame(raw);
+      total += result.vpEvents.filter((e) => e.source === 'support_for_throne').length;
+    }
+    // 6 of the 7 games contain Support for the Throne plays in the raw log; combined the
+    // dataset must surface a healthy non-zero count rather than the pre-fix 0.
+    expect(total).toBeGreaterThan(10);
+  });
+
   it.each(files)('%s — no "Unknown objective" warnings (dictionary is complete for real data)', (file) => {
     const raw = JSON.parse(readFileSync(join(GAME_DATA, file), 'utf-8'));
     const result = parseGame(raw);
