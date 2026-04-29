@@ -2,7 +2,7 @@ import { useMeta } from './MetaContext';
 import { Rule, formatDuration } from '../../shared';
 
 const SOURCE_LABEL: Record<string, string> = {
-  score_objective: 'OBJ', custodians: 'CUST', imperial_point: 'IMP', support_for_throne: 'SFT',
+  score_objective: 'OBJ', custodians: 'CUST', imperial_point: 'IMP', support_for_throne: 'SFT (Support for the Throne)',
   relic: 'RELIC', agenda: 'AGD', rider: 'RIDER', legendary_planet: 'LGND', manual: 'MAN',
 };
 

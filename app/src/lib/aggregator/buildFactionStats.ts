@@ -30,12 +30,6 @@ export interface FactionStat {
   winningVoteRate: number | null;
 }
 
-export interface FactionPairing {
-  factionA: string;
-  factionB: string;
-  coAppearances: number;
-}
-
 export interface SftTransfer {
   fromFaction: string;
   toFaction: string;
@@ -45,7 +39,6 @@ export interface SftTransfer {
 export interface FactionStatsSummary {
   totalGames: number;
   factions: FactionStat[];
-  topPairings: FactionPairing[];
   sftTransfers: SftTransfer[];
 }
 
@@ -58,7 +51,7 @@ export function buildFactionStats(
   roundBoundariesByGame?: Map<string, RoundBoundary[]>,
 ): FactionStatsSummary {
   if (games.length === 0) {
-    return { totalGames: 0, factions: [], topPairings: [], sftTransfers: [] };
+    return { totalGames: 0, factions: [], sftTransfers: [] };
   }
 
   // Per-faction running totals
@@ -151,28 +144,6 @@ export function buildFactionStats(
   });
   factions.sort((a, b) => b.winRate - a.winRate || b.gamesPlayed - a.gamesPlayed);
 
-  // Pairings — key on lex-sorted pair separated by `|` so multi-word factionIds round-trip.
-  const pairCounts = new Map<string, number>();
-  for (const game of games) {
-    const ids = game.factions.map(f => f.factionId).sort();
-    for (let i = 0; i < ids.length; i++) {
-      for (let j = i + 1; j < ids.length; j++) {
-        const a = ids[i];
-        const b = ids[j];
-        if (a === undefined || b === undefined) continue;
-        const key = `${a}${KEY_SEP}${b}`;
-        pairCounts.set(key, (pairCounts.get(key) ?? 0) + 1);
-      }
-    }
-  }
-  const topPairings: FactionPairing[] = [...pairCounts.entries()]
-    .map(([key, coAppearances]) => {
-      const [factionA, factionB] = key.split(KEY_SEP);
-      return { factionA: factionA ?? '', factionB: factionB ?? '', coAppearances };
-    })
-    .sort((a, b) => b.coAppearances - a.coAppearances)
-    .slice(0, 10);
-
   // Support for the Throne — count distinct game-direction occurrences.
   // Uses `|` separator so multi-word factionIds (e.g. "Federation of Sol") round-trip cleanly.
   const sftCounts = new Map<string, number>();
@@ -191,5 +162,5 @@ export function buildFactionStats(
     return { fromFaction: fromFaction ?? '', toFaction: toFaction ?? '', count };
   });
 
-  return { totalGames: games.length, factions, topPairings, sftTransfers };
+  return { totalGames: games.length, factions, sftTransfers };
 }

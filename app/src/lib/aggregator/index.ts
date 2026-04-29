@@ -5,7 +5,6 @@ export type { RoundBoundary } from './deriveRoundBoundaries';
 export { buildFactionStats } from './buildFactionStats';
 export type {
   FactionStat,
-  FactionPairing,
   SftTransfer,
   FactionStatsSummary,
 } from './buildFactionStats';
