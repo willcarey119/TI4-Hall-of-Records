@@ -271,8 +271,11 @@ export function StatsSection() {
             {relicStats.gamesWithRelicVp} of {relicStats.totalGames} games had relic VP
           </div>
           {relicStats.relics.map(r => (
-            <div key={r.relic} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
-              <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 13, fontStyle: 'italic' }}>{r.relic}</span>
+            <div key={r.relic} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4, gap: 6 }}>
+              <span style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 13, fontStyle: 'italic' }}>{r.relic}</span>
+                {r.grantsVp && <span style={{ color: 'var(--accent)', textTransform: 'uppercase', fontSize: 7, letterSpacing: '0.1em' }}>VP</span>}
+              </span>
               <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-3)' }}>
                 {r.gainCount}× gained · {r.playCount}× played
               </span>
