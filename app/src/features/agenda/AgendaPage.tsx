@@ -65,10 +65,11 @@ export function AgendaPage() {
       <Rule weight="double" />
 
       {stats.agendas.map(agenda => {
-        // Elect-only agendas have no pass/fail concept — show a different label and no bar.
-        const hasBinary = agenda.passRate !== null;
-        const ratioText = hasBinary
-          ? `${Math.round(agenda.passRate * 100)}% pass`
+        // Bind passRate to a local so TS narrows `number` inside the conditional branches.
+        // Elect-only agendas have no pass/fail concept — show electCount and skip the bar.
+        const passRate = agenda.passRate;
+        const ratioText = passRate !== null
+          ? `${Math.round(passRate * 100)}% pass`
           : `${agenda.electCount} elect`;
         return (
           <div key={agenda.name} style={{ marginBottom: 10 }}>
@@ -80,9 +81,9 @@ export function AgendaPage() {
                 {agenda.appearances}× · {ratioText}
               </span>
             </div>
-            {hasBinary && (
+            {passRate !== null && (
               <div style={{ height: 4, background: 'var(--paper-2)', marginTop: 3, borderRadius: 2, overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${agenda.passRate * 100}%`, background: 'var(--accent)', borderRadius: 2 }} />
+                <div style={{ height: '100%', width: `${passRate * 100}%`, background: 'var(--accent)', borderRadius: 2 }} />
               </div>
             )}
           </div>

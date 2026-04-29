@@ -238,7 +238,7 @@ export function AgendaSection() {
           No agendas resolved this game.
         </div>
       ) : (
-        summary.entries.map((entry) => (
+        summary.entries.map((entry, i) => (
           <div key={`${entry.round}-${entry.indexInRound}-${entry.agenda}`}>
             {/* Round label */}
             <Label>Round {entry.round} · Agenda {INDEX_LABEL[(entry.indexInRound - 1) as 0 | 1]}</Label>
