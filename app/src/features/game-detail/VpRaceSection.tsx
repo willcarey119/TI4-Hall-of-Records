@@ -12,6 +12,7 @@ import {
 import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
 import { Rule, FactionDot } from '../../shared';
 import { formatDuration } from '../../shared/formatters';
+import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 
 const W = 400;
 const H = 200;
@@ -107,10 +108,7 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpRaceSummar
     })
     .join(' ');
 
-  // Intentional editorial design: winner highlighted in accent, others in neutral ink.
-  // Faction identity is communicated via the legend's color dots, not the line strokes.
-  // This creates clear visual hierarchy and matches the newspaper/almanac aesthetic.
-  const stroke = s.isWinner ? 'var(--accent)' : 'var(--ink-3)';
+  const stroke = getFactionBrandColor(s.factionId, s.color);
   const sw = s.isWinner ? 2 : 1;
   const lastPt = s.points[s.points.length - 1];
 
@@ -250,13 +248,15 @@ function VpRaceContent({
 
       {/* Legend */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 12px', marginTop: 4 }}>
-        {summary.series.map(s => (
+        {summary.series.map(s => {
+          const brandColor = getFactionBrandColor(s.factionId, s.color);
+          return (
           <div key={s.factionId} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 'var(--font-micro)' }}>
             <span
               style={{
                 width: 16,
                 height: s.isWinner ? 3 : 1.5,
-                background: s.isWinner ? 'var(--accent)' : 'var(--ink-3)',
+                background: brandColor,
                 display: 'inline-block',
               }}
             />
@@ -264,16 +264,17 @@ function VpRaceContent({
               style={{
                 fontFamily: "'Newsreader', Georgia, serif",
                 fontWeight: s.isWinner ? 700 : 400,
-                color: s.isWinner ? 'var(--accent)' : 'var(--ink-2)',
+                color: brandColor,
               }}
             >
               {s.factionId}
             </span>
             <span style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)' }}>{s.finalVp}</span>
-            {/* color dot */}
+            {/* player table color — distinguishes factions whose brand colors are visually close */}
             <FactionDot color={factionColorMap[s.factionId] ?? 'var(--ink-4)'} size={6} />
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Editorial prose with drop cap */}
