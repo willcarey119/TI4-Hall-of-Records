@@ -413,12 +413,118 @@ describe('gameReducer — agenda system', () => {
     expect(agendaVps).toHaveLength(0);
   });
 
-  it('RESOLVE_AGENDA on a watch-listed agenda emits a warning (Phase 1a TODO marker)', () => {
+  it('RESOLVE_AGENDA on a watch-listed agenda emits a warning (still unimplemented)', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Crown of Thalnos' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Crown of Thalnos', target: 'For' }, 1100),
+    ]);
+    expect(result.warnings.some((w) => w.includes('Crown of Thalnos') && w.includes('VP'))).toBe(true);
+  });
+
+  // ── Elect-player VP laws ──────────────────────────────────────────────────
+
+  it('Prophecy of Ixth awards +1 VP to the elected player', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Prophecy of Ixth' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Prophecy of Ixth', target: 'barony' }, 1300),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    const agendaVps = result.vpEvents.filter((e) => e.source === 'agenda');
+    expect(agendaVps).toHaveLength(1);
+    expect(agendaVps[0]?.faction).toBe('barony');
+    expect(agendaVps[0]?.points).toBe(1);
+    expect(agendaVps[0]?.objective).toBe('Prophecy of Ixth');
+    expect(result.currentScores['barony']).toBe(1);
+    expect(result.currentScores['arborec']).toBe(0);
+  });
+
+  it('Prophecy of Ixth with unknown faction target emits no VP and a warning', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Prophecy of Ixth' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Prophecy of Ixth', target: 'nobody' }, 1300),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents.filter((e) => e.source === 'agenda')).toHaveLength(0);
+    expect(result.warnings.some((w) => w.includes('Prophecy of Ixth'))).toBe(true);
+  });
+
+  it('Political Censure awards +1 VP to the elected player', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Political Censure' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Political Censure', target: 'arborec' }, 1300),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    const agendaVps = result.vpEvents.filter((e) => e.source === 'agenda');
+    expect(agendaVps).toHaveLength(1);
+    expect(agendaVps[0]?.faction).toBe('arborec');
+    expect(agendaVps[0]?.points).toBe(1);
+    expect(agendaVps[0]?.objective).toBe('Political Censure');
+    expect(result.currentScores['arborec']).toBe(1);
+    expect(result.currentScores['barony']).toBe(0);
+  });
+
+  // ── Covert Legislation ────────────────────────────────────────────────────
+
+  it('Covert Legislation with a known faction target awards that faction +1 VP', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Covert Legislation' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Covert Legislation', target: 'barony' }, 1300),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    const agendaVps = result.vpEvents.filter((e) => e.source === 'agenda');
+    expect(agendaVps).toHaveLength(1);
+    expect(agendaVps[0]?.faction).toBe('barony');
+    expect(agendaVps[0]?.points).toBe(1);
+    expect(agendaVps[0]?.objective).toBe('Covert Legislation');
+    expect(result.currentScores['barony']).toBe(1);
+  });
+
+  it('Covert Legislation with For/Against target emits no VP (hidden agenda was not an elect-player law)', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Covert Legislation' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Covert Legislation', target: 'Against' }, 1300),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    expect(result.vpEvents.filter((e) => e.source === 'agenda')).toHaveLength(0);
+    expect(result.currentScores['barony']).toBe(0);
+  });
+
+  // ── Mutiny ────────────────────────────────────────────────────────────────
+
+  it('Mutiny "For" outcome: each For-voter gains +1 VP', () => {
     const result = reduce([
       makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
-      makeEntry('RESOLVE_AGENDA', { agenda: 'Mutiny', target: 'For' }, 1100),
-    ]);
-    expect(result.warnings.some((w) => w.includes('Mutiny') && w.includes('VP'))).toBe(true);
+      makeEntry('CAST_VOTES', { faction: 'barony', votes: 5, target: 'For' }, 1100),
+      makeEntry('CAST_VOTES', { faction: 'arborec', votes: 3, target: 'For' }, 1150),
+      makeEntry('CAST_VOTES', { faction: 'hacan', votes: 4, target: 'Against' }, 1200),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Mutiny', target: 'For' }, 1300),
+    ], [makeFaction('barony'), makeFaction('arborec'), makeFaction('hacan')]);
+    const agendaVps = result.vpEvents.filter((e) => e.source === 'agenda' && e.objective === 'Mutiny');
+    expect(agendaVps.find((e) => e.faction === 'barony' && e.points === 1)).toBeDefined();
+    expect(agendaVps.find((e) => e.faction === 'arborec' && e.points === 1)).toBeDefined();
+    expect(agendaVps.find((e) => e.faction === 'hacan')).toBeUndefined();
+    expect(result.currentScores['barony']).toBe(1);
+    expect(result.currentScores['arborec']).toBe(1);
+    expect(result.currentScores['hacan']).toBe(0);
+  });
+
+  it('Mutiny "Against" outcome: each For-voter loses -1 VP', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Lead from the Front' }, 50),
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('CAST_VOTES', { faction: 'barony', votes: 5, target: 'For' }, 1100),
+      makeEntry('CAST_VOTES', { faction: 'arborec', votes: 4, target: 'Against' }, 1200),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Mutiny', target: 'Against' }, 1300),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    const agendaVps = result.vpEvents.filter((e) => e.source === 'agenda' && e.objective === 'Mutiny');
+    expect(agendaVps.find((e) => e.faction === 'barony' && e.points === -1)).toBeDefined();
+    expect(agendaVps.find((e) => e.faction === 'arborec')).toBeUndefined();
+    expect(result.currentScores['barony']).toBe(0); // was 1 (Lead from the Front), -1 from Mutiny
+    expect(result.currentScores['arborec']).toBe(0);
+  });
+
+  it('Mutiny with no For-voters emits no VP events', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Mutiny' }, 1000),
+      makeEntry('CAST_VOTES', { faction: 'barony', votes: 5, target: 'Against' }, 1100),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Mutiny', target: 'For' }, 1300),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents.filter((e) => e.source === 'agenda')).toHaveLength(0);
   });
 
   it('START_VOTING and SELECT_ELIGIBLE_OUTCOMES are no-ops', () => {

@@ -450,19 +450,15 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         }
       }
 
-      // Only Seed of an Empire is currently wired up for agenda-driven VP changes.
-      // Other agendas that affect VP and may appear in future exports are listed
-      // in VP_AGENDA_WATCHLIST below — the parser emits a warning if any appear
-      // so they don't silently corrupt finalScores. Implement when observed in data:
+      // VP_AGENDA_WATCHLIST: agendas that affect VP but have no handler yet.
+      // Emits a warning so they don't silently corrupt finalScores.
       const VP_AGENDA_WATCHLIST = new Set([
-        'Mutiny',
-        'Political Censure',
         'Crown of Thalnos',
         'Classified Document Leaks',
       ]);
       const watchedAgenda = VP_AGENDA_WATCHLIST.has(agenda);
       const watchWarning = watchedAgenda
-        ? [`RESOLVE_AGENDA "${agenda}" may affect VP but no handler is implemented yet (Phase 1a TODO)`]
+        ? [`RESOLVE_AGENDA "${agenda}" may affect VP but no handler is implemented yet`]
         : [];
 
       if (agenda === 'Seed of an Empire') {
@@ -496,6 +492,57 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
               }
             }
           }
+        }
+      }
+
+      // Elect-player VP laws: the elected faction gains +1 VP.
+      // Covers Prophecy of Ixth (law, base) and Political Censure (law, PoK).
+      const ELECT_PLAYER_VP_AGENDAS = new Set(['Prophecy of Ixth', 'Political Censure']);
+      if (ELECT_PLAYER_VP_AGENDAS.has(agenda)) {
+        if (outcome in newScores) {
+          newVpEvents.push({
+            faction: outcome,
+            objective: agenda,
+            points: 1,
+            timestamp: entry.timestamp,
+            source: 'agenda',
+            ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+          });
+          newScores = { ...newScores, [outcome]: (newScores[outcome] ?? 0) + 1 };
+        } else {
+          watchWarning.push(`RESOLVE_AGENDA "${agenda}" target "${outcome}" is not a known faction at ${entry.timestamp}`);
+        }
+      }
+
+      // Covert Legislation: TI Assistant records the hidden agenda's elected entity
+      // as the target. When the target is a known faction, it means the hidden agenda
+      // was an elect-player VP law (e.g. Political Censure) — grant that faction +1 VP.
+      // When target is "For"/"Against" the hidden agenda was a directive with no elect VP.
+      if (agenda === 'Covert Legislation' && outcome in newScores) {
+        newVpEvents.push({
+          faction: outcome,
+          objective: agenda,
+          points: 1,
+          timestamp: entry.timestamp,
+          source: 'agenda',
+          ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+        });
+        newScores = { ...newScores, [outcome]: (newScores[outcome] ?? 0) + 1 };
+      }
+
+      // Mutiny: For-voters gain +1 VP when For wins; lose -1 VP when Against wins.
+      if (agenda === 'Mutiny') {
+        const delta = outcome === 'For' ? 1 : -1;
+        for (const voter of state.pendingVotes.filter((v) => v.outcome === 'For')) {
+          newVpEvents.push({
+            faction: voter.faction,
+            objective: agenda,
+            points: delta,
+            timestamp: entry.timestamp,
+            source: 'agenda',
+            ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+          });
+          newScores = { ...newScores, [voter.faction]: (newScores[voter.faction] ?? 0) + delta };
         }
       }
 
