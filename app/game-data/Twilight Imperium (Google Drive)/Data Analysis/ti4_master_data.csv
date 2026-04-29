@@ -1,0 +1,30 @@
+Player,Faction,GameID,VP_Goal,Win,Score,Custodians
+Ben,Emirates of Hacan,nHg8Hw_data.json,10,1,10,0
+Zach,Deepwrought Scholarate,nHg8Hw_data.json,10,0,8,0
+Paul,Crimson Rebellion,nHg8Hw_data.json,10,0,7,0
+Merrill,Naaz-Rokha Alliance,nHg8Hw_data.json,10,0,6,1
+Will,Firmament,nHg8Hw_data.json,10,0,5,0
+Steve,Kollecc Society,TIAssistant_Game Data.json,14,1,13,0
+KP,Kortali Tribunal,TIAssistant_Game Data.json,14,0,12,0
+Will,Xxcha Kingdom,TIAssistant_Game Data.json,14,0,11,0
+Chris,Li-Zho Dynasty,TIAssistant_Game Data.json,14,0,10,0
+Tim,Veldyr Sovereignty,TIAssistant_Game Data.json,14,0,9,0
+Mikey,Nivyn Star Kings,TIAssistant_Game Data.json,14,0,6,1
+Steve,Argent Flight,LjnqDB_data (2).json,10,1,9,0
+Will,Ghosts of Creuss,LjnqDB_data (2).json,10,0,8,0
+Paul,L1Z1X Mindnet,LjnqDB_data (2).json,10,0,8,0
+Tanys,Council Keleres,LjnqDB_data (2).json,10,0,7,1
+Ben,Embers of Muaat,LjnqDB_data (2).json,10,0,6,0
+TK,Mentak Coalition,LjnqDB_data (2).json,10,0,6,0
+Paul,L'tokk Khrask,1.19.25 TI Assistant JSON Game Data.json,12,1,12,0
+Tanya,Free Systems Compact,1.19.25 TI Assistant JSON Game Data.json,12,0,11,0
+Tim,Augurs of Ilyxum,1.19.25 TI Assistant JSON Game Data.json,12,0,10,0
+Will,Kollecc Society,1.19.25 TI Assistant JSON Game Data.json,12,0,9,0
+Steve,Veldyr Sovereignty,1.19.25 TI Assistant JSON Game Data.json,12,0,8,1
+KP,Vaden Banking Clans,1.19.25 TI Assistant JSON Game Data.json,12,0,6,0
+Steve,Universities of Jol-Nar,1.11.25 Twilight Imperium Game.json,14,1,15,0
+Mikey,Mentak Coalition,1.11.25 Twilight Imperium Game.json,14,0,12,0
+Mark,Yssaril Tribes,1.11.25 Twilight Imperium Game.json,14,0,11,0
+Will,Vuil'raith Cabal,1.11.25 Twilight Imperium Game.json,14,0,9,1
+Tim,Emirates of Hacan,1.11.25 Twilight Imperium Game.json,14,0,9,0
+Chris,L1Z1X Mindnet,1.11.25 Twilight Imperium Game.json,14,0,7,0

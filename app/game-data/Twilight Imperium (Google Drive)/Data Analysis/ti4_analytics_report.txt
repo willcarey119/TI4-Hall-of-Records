@@ -1,0 +1,155 @@
+TWILIGHT IMPERIUM 4 - ANALYTICS REPORT
+Generated on: 2026-01-11 19:49:10.372479
+================================================================================
+
+--- PLAYER STATISTICS ---
+         Games  Wins Win Rate Custodians % Avg (10) Avg (12) Avg (14)
+Player                                                               
+Steve        4     3    75.0%        25.0%      9.0      8.0     14.0
+Ben          2     1    50.0%         0.0%      8.0        -        -
+Paul         3     1    33.3%         0.0%      7.5     12.0        -
+Mark         1     0     0.0%         0.0%        -        -     11.0
+KP           2     0     0.0%         0.0%        -      6.0     12.0
+Chris        2     0     0.0%         0.0%        -        -      8.5
+Mikey        2     0     0.0%        50.0%        -        -      9.0
+Merrill      1     0     0.0%       100.0%      6.0        -        -
+TK           1     0     0.0%         0.0%      6.0        -        -
+Tanya        1     0     0.0%         0.0%        -     11.0        -
+Tanys        1     0     0.0%       100.0%      7.0        -        -
+Tim          3     0     0.0%         0.0%        -     10.0      9.0
+Will         5     0     0.0%        20.0%      6.5      9.0     10.0
+Zach         1     0     0.0%         0.0%      8.0        -        -
+
+--- FACTION STATISTICS ---
+                         Picks  Wins Win Rate Custodians % Avg (10) Avg (12) Avg (14)
+Faction                                                                              
+Argent Flight                1     1   100.0%         0.0%      9.0        -        -
+Emirates of Hacan            2     1    50.0%         0.0%     10.0        -      9.0
+L'tokk Khrask                1     1   100.0%         0.0%        -     12.0        -
+Kollecc Society              2     1    50.0%         0.0%        -      9.0     13.0
+Universities of Jol-Nar      1     1   100.0%         0.0%        -        -     15.0
+Crimson Rebellion            1     0     0.0%         0.0%      7.0        -        -
+Council Keleres              1     0     0.0%       100.0%      7.0        -        -
+Augurs of Ilyxum             1     0     0.0%         0.0%        -     10.0        -
+Firmament                    1     0     0.0%         0.0%      5.0        -        -
+Embers of Muaat              1     0     0.0%         0.0%      6.0        -        -
+Deepwrought Scholarate       1     0     0.0%         0.0%      8.0        -        -
+Ghosts of Creuss             1     0     0.0%         0.0%      8.0        -        -
+Kortali Tribunal             1     0     0.0%         0.0%        -        -     12.0
+L1Z1X Mindnet                2     0     0.0%         0.0%      8.0        -      7.0
+Li-Zho Dynasty               1     0     0.0%         0.0%        -        -     10.0
+Free Systems Compact         1     0     0.0%         0.0%        -     11.0        -
+Mentak Coalition             2     0     0.0%         0.0%      6.0        -     12.0
+Naaz-Rokha Alliance          1     0     0.0%       100.0%      6.0        -        -
+Nivyn Star Kings             1     0     0.0%       100.0%        -        -      6.0
+Vaden Banking Clans          1     0     0.0%         0.0%        -      6.0        -
+Veldyr Sovereignty           2     0     0.0%        50.0%        -      8.0      9.0
+Vuil'raith Cabal             1     0     0.0%       100.0%        -        -      9.0
+Xxcha Kingdom                1     0     0.0%         0.0%        -        -     11.0
+Yssaril Tribes               1     0     0.0%         0.0%        -        -     11.0
+
+--- STRATEGY CARD POPULARITY ---
+(Based on 5 total strategy rounds played)
+        Card  Picks Pick Rate
+  Leadership     23    460.0%
+   Diplomacy      7    140.0%
+    Politics     19    380.0%
+Construction     15    300.0%
+       Trade     17    340.0%
+     Warfare     13    260.0%
+  Technology     19    380.0%
+    Imperial     20    400.0%
+
+--- TECHNOLOGY POPULARITY ---
+Top 5 Overall: Gravity Drive (22), Dreadnought II (16), LightWave Deflector (12), War Sun (10), Sling Relay (10)
+
+Top Blue:
+  - Gravity Drive             22
+  - Sling Relay               10
+  - Antimass Deflectors       9
+  - Dark Energy Tap           8
+  - Fleet Logistics           5
+
+Top Green:
+  - Neural Motivator          9
+  - Hyper Metabolism          6
+  - Bio-Stims                 5
+  - X-89 Bacterial Weapon     4
+  - Psychoarchaeology         3
+
+Top Red:
+  - Assault Cannon            6
+  - AI Development Algorithm  6
+  - Plasma Scoring            2
+  - Duranium Armor            1
+  - Magen Defense Grid        1
+
+Top Yellow:
+  - Sarween Tools             10
+  - Scanlink Drone Network    5
+  - Graviton Laser System     5
+  - Predictive Intelligence   3
+  - Integrated Economy        1
+
+Top Unit:
+  - Dreadnought II            16
+  - War Sun                   10
+  - Carrier II                7
+  - Cruiser II                6
+  - PDS II                    6
+  - Space Dock II             2
+  - Fighter II                2
+  - Lancer Dreadnought II     2
+  - Super-Dreadnought II      2
+  - Destroyer II              2
+
+--- GAME LOGS ---
+DATE: 2026-01-10 | FILE: nHg8Hw_data.json
+GOAL: 10 VP | ROUNDS: 1
+------------------------------------------------------------
+10 VP | Ben (Emirates of Hacan) [WINNER]
+ 8 VP | Zach (Deepwrought Scholarate)
+ 7 VP | Paul (Crimson Rebellion)
+ 6 VP | Merrill (Naaz-Rokha Alliance)
+ 5 VP | Will (Firmament)
+
+DATE: 2025-09-06 | FILE: TIAssistant_Game Data.json
+GOAL: 14 VP | ROUNDS: 1
+------------------------------------------------------------
+13 VP | Steve (Kollecc Society) [WINNER]
+12 VP | KP (Kortali Tribunal)
+11 VP | Will (Xxcha Kingdom)
+10 VP | Chris (Li-Zho Dynasty)
+ 9 VP | Tim (Veldyr Sovereignty)
+ 6 VP | Mikey (Nivyn Star Kings)
+
+DATE: 2025-02-08 | FILE: LjnqDB_data (2).json
+GOAL: 10 VP | ROUNDS: 1
+------------------------------------------------------------
+ 9 VP | Steve (Argent Flight) [WINNER]
+ 8 VP | Will (Ghosts of Creuss)
+ 8 VP | Paul (L1Z1X Mindnet)
+ 7 VP | Tanys (Council Keleres)
+ 6 VP | Ben (Embers of Muaat)
+ 6 VP | TK (Mentak Coalition)
+
+DATE: 2025-01-19 | FILE: 1.19.25 TI Assistant JSON Game Data.json
+GOAL: 12 VP | ROUNDS: 1
+------------------------------------------------------------
+12 VP | Paul (L'tokk Khrask) [WINNER]
+11 VP | Tanya (Free Systems Compact)
+10 VP | Tim (Augurs of Ilyxum)
+ 9 VP | Will (Kollecc Society)
+ 8 VP | Steve (Veldyr Sovereignty)
+ 6 VP | KP (Vaden Banking Clans)
+
+DATE: 2025-01-11 | FILE: 1.11.25 Twilight Imperium Game.json
+GOAL: 14 VP | ROUNDS: 1
+------------------------------------------------------------
+15 VP | Steve (Universities of Jol-Nar) [WINNER]
+12 VP | Mikey (Mentak Coalition)
+11 VP | Mark (Yssaril Tribes)
+ 9 VP | Will (Vuil'raith Cabal)
+ 9 VP | Tim (Emirates of Hacan)
+ 7 VP | Chris (L1Z1X Mindnet)
+
