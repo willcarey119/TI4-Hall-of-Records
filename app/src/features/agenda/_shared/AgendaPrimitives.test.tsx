@@ -15,6 +15,14 @@ describe('EffectBlock', () => {
     expect(screen.getByText(/Top scores \+1\./)).toBeInTheDocument();
     expect(screen.getByText(/Bottom loses 1\./)).toBeInTheDocument();
   });
+
+  it('renders effect text for elect-type entry', () => {
+    render(<EffectBlock entry={{
+      type: 'directive', elect: 'player', expansion: 'base',
+      effect: 'Elected player draws 1 secret objective.',
+    }} />);
+    expect(screen.getByText(/Elected player draws 1 secret objective\./)).toBeInTheDocument();
+  });
 });
 
 describe('VoteColumns', () => {
@@ -30,5 +38,21 @@ describe('VoteColumns', () => {
     }} />);
     expect(screen.getByText(/For · 5/)).toBeInTheDocument();
     expect(screen.getByText(/Against · 3/)).toBeInTheDocument();
+  });
+
+  it('renders candidate columns for elect-type agenda', () => {
+    render(<VoteColumns agendaEntry={{
+      round: 2, indexInRound: 1, agenda: 'Committee Formation',
+      entry: { type: 'law', elect: 'player', expansion: 'base', effect: 'The elected player gains this card.' },
+      outcome: 'Sol', passed: true, electedFaction: 'Sol',
+      totalFor: 4, totalAgainst: 2,
+      votes: [
+        { faction: 'Hacan', outcome: 'Sol', votes: 4 },
+        { faction: 'Yssaril', outcome: 'Nekro', votes: 2 },
+      ],
+      riders: [], timestamp: 0,
+    }} />);
+    expect(screen.getByText(/Sol · 4/)).toBeInTheDocument();
+    expect(screen.getByText(/Nekro · 2/)).toBeInTheDocument();
   });
 });

@@ -1,10 +1,11 @@
+import type { CSSProperties } from 'react';
 import { type AgendaDisplayEntry } from '../../../lib/agenda/buildAgendaSummary';
 import { Rule } from '../../../shared';
 
 export function EffectBlock({ entry }: { entry: AgendaDisplayEntry['entry'] }) {
   if (entry === null) return null;
 
-  const blockStyle: React.CSSProperties = {
+  const blockStyle: CSSProperties = {
     background: 'var(--paper-2)',
     borderLeft: '2px solid var(--ink-4)',
     padding: '6px 8px',
@@ -12,7 +13,7 @@ export function EffectBlock({ entry }: { entry: AgendaDisplayEntry['entry'] }) {
     fontSize: 'var(--font-sm)',
     lineHeight: 1.5,
   };
-  const labelStyle = (color: string): React.CSSProperties => ({
+  const labelStyle = (color: string): CSSProperties => ({
     fontFamily: "'IBM Plex Mono', monospace",
     fontSize: 'var(--font-micro)',
     fontWeight: 700,
@@ -21,7 +22,7 @@ export function EffectBlock({ entry }: { entry: AgendaDisplayEntry['entry'] }) {
     color,
     display: 'block',
   });
-  const textStyle: React.CSSProperties = {
+  const textStyle: CSSProperties = {
     color: 'var(--ink-2)',
     fontFamily: "'Newsreader', Georgia, serif",
     display: 'block',
@@ -60,9 +61,7 @@ export function EffectBlock({ entry }: { entry: AgendaDisplayEntry['entry'] }) {
         </span>
       )}
       <span style={labelStyle('var(--ink-3)')}>{electLabel}</span>
-      {entry.effect && (
-        <span style={{ ...textStyle, marginBottom: 0 }}>{entry.effect}</span>
-      )}
+      <span style={{ ...textStyle, marginBottom: 0 }}>{entry.effect}</span>
     </div>
   );
 }
@@ -72,7 +71,6 @@ export function VoteColumns({ agendaEntry }: { agendaEntry: AgendaDisplayEntry }
   const isElect = entry !== null && entry.elect !== null;
 
   if (isElect && electedFaction !== undefined) {
-    // Group votes by candidate
     const byCandidate: Record<string, Array<{ faction: string; votes: number }>> = {};
     for (const v of votes) {
       if (!byCandidate[v.outcome]) byCandidate[v.outcome] = [];
@@ -119,7 +117,6 @@ export function VoteColumns({ agendaEntry }: { agendaEntry: AgendaDisplayEntry }
     );
   }
 
-  // FOR / AGAINST layout
   const forVoters  = votes.filter((v) => v.outcome === 'For');
   const againstVoters = votes.filter((v) => v.outcome !== 'For');
 
