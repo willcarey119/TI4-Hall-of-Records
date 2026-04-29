@@ -4,7 +4,7 @@ import { buildRecapSummary } from '../../lib/recap/buildRecapSummary';
 import { Rule, formatDate, formatDuration, FactionDot } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 import { buildRoundScores } from '../../lib/recap/buildRoundScores';
-import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
+import { deriveRoundBoundaries } from '../../lib/aggregator';
 
 export function RecapSection() {
   const { game } = useGame();

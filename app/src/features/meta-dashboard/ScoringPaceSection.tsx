@@ -7,10 +7,16 @@ const PAD = { top: 12, right: 12, bottom: 24, left: 28 };
 
 export function ScoringPaceSection() {
   const { scoringPace } = useMetaContext();
-  if (scoringPace === null || scoringPace.curves.length === 0) return null;
+  const sectionStyle = { padding: '14px 16px', borderBottom: '1px solid var(--rule)' };
 
-  const maxVp = Math.max(...scoringPace.curves.map(c => c.victoryPoints));
-  if (maxVp === 0) return null;
+  const maxVp = scoringPace !== null && scoringPace.curves.length > 0
+    ? Math.max(...scoringPace.curves.map(c => c.victoryPoints))
+    : 0;
+
+  if (scoringPace === null || scoringPace.curves.length === 0 || maxVp === 0) {
+    return <section id="scoring-pace" data-section="scoring-pace" style={sectionStyle} />;
+  }
+
   const innerW = W - PAD.left - PAD.right;
   const innerH = H - PAD.top - PAD.bottom;
 
@@ -24,7 +30,7 @@ export function ScoringPaceSection() {
   }
 
   return (
-    <section id="scoring-pace" data-section="scoring-pace" style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }}>
+    <section id="scoring-pace" data-section="scoring-pace" style={sectionStyle}>
       <Kicker>Scoring Pace</Kicker>
       <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontStyle: 'italic', fontSize: 11, color: 'var(--ink-3)', marginBottom: 8 }}>
         Winner VP trajectory per game — normalized to game duration

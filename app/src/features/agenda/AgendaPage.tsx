@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { loadAllGames } from '../../adapters/firestore';
-import { buildAgendaStats } from '../../lib/aggregator/buildAgendaStats';
+import { buildAgendaStats } from '../../lib/aggregator';
 import type { ParsedGame } from '../../lib/parser/types';
 import { Kicker, Rule } from '../../shared';
 
