@@ -1,6 +1,6 @@
 import type { ParsedGame, VpSource } from '../parser/types';
 import { getFactionExpansion, type ExpansionTag } from './factionExpansions';
-import { deriveRoundBoundaries } from './deriveRoundBoundaries';
+import { deriveRoundBoundaries, type RoundBoundary } from './deriveRoundBoundaries';
 import { buildRoundScores } from '../recap/buildRoundScores';
 
 export interface FactionStat {
@@ -53,7 +53,10 @@ const SFT_NOTE = 'Support for the Throne';
 /** Pipe is safe — real factionIds may contain spaces, apostrophes, hyphens, and digits, but never `|`. */
 const KEY_SEP = '|';
 
-export function buildFactionStats(games: ParsedGame[]): FactionStatsSummary {
+export function buildFactionStats(
+  games: ParsedGame[],
+  roundBoundariesByGame?: Map<string, RoundBoundary[]>,
+): FactionStatsSummary {
   if (games.length === 0) {
     return { totalGames: 0, factions: [], topPairings: [], sftTransfers: [] };
   }
@@ -94,7 +97,12 @@ export function buildFactionStats(games: ParsedGame[]): FactionStatsSummary {
       }
     }
     // Per-game cumulative VP per round, contributed to each faction's sample bucket.
-    const boundaries = deriveRoundBoundaries(game.strategyCardEvents, game.factions.length);
+    // Match the sibling-builder pattern (buildStrategyCardStats / buildTechStats / buildGameStats):
+    // when MetaContext provides a pre-computed map, look it up; otherwise fall back to
+    // inline derivation so unit-test call sites (`buildFactionStats(games)`) keep working.
+    const boundaries = roundBoundariesByGame !== undefined
+      ? roundBoundariesByGame.get(game.gameId) ?? []
+      : deriveRoundBoundaries(game.strategyCardEvents, game.factions.length);
     if (boundaries.length > 0) {
       const rows = buildRoundScores(game.vpEvents, game.factions, boundaries);
       for (const faction of game.factions) {
