@@ -13,3 +13,4 @@ export {
   formatKicker,
 } from './formatters';
 export { useFontScale } from './useFontScale';
+export { useScrollSpy } from './hooks/useScrollSpy';
