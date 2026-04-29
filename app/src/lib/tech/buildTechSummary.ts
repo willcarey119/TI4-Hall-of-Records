@@ -1,10 +1,7 @@
 import { lookupTechColor } from '../parser/techs';
 import type { TechColor } from '../parser/techs';
 import type { TechEvent, FactionSetup } from '../parser/types';
-import { deriveRoundBoundaries, assignRound, type RoundBoundary } from '../aggregator/deriveRoundBoundaries';
-
-export { deriveRoundBoundaries, assignRound };
-export type { RoundBoundary };
+import { assignRound, type RoundBoundary } from '../aggregator/deriveRoundBoundaries';
 
 export interface TechTimelineEntry {
   round: number;

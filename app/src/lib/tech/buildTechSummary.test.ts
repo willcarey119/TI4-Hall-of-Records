@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { buildTechSummary, deriveRoundBoundaries } from './buildTechSummary';
-import type { RoundBoundary } from './buildTechSummary';
+import { buildTechSummary } from './buildTechSummary';
+import { deriveRoundBoundaries } from '../aggregator/deriveRoundBoundaries';
+import type { RoundBoundary } from '../aggregator/deriveRoundBoundaries';
 import type { TechEvent, FactionSetup } from '../parser/types';
 
 const makeFaction = (id: string, map = 0): FactionSetup => ({
@@ -138,14 +139,5 @@ describe('buildTechSummary', () => {
       boundaries,
     );
     expect(r2result.timeline[0]?.round).toBe(2);
-  });
-});
-
-describe('deriveRoundBoundaries (re-export from buildTechSummary)', () => {
-  it('is re-exported from the aggregator module for backward compatibility', () => {
-    // The canonical implementation lives in src/lib/aggregator/deriveRoundBoundaries.ts.
-    // buildTechSummary.ts re-exports it so existing imports keep working.
-    expect(typeof deriveRoundBoundaries).toBe('function');
-    expect(deriveRoundBoundaries([], 4)).toEqual([]);
   });
 });

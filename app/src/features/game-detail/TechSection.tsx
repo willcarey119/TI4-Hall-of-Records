@@ -1,7 +1,8 @@
 // app/src/features/game-detail/TechSection.tsx
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
-import { buildTechSummary, deriveRoundBoundaries } from '../../lib/tech/buildTechSummary';
+import { buildTechSummary } from '../../lib/tech/buildTechSummary';
+import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
 import { Label, Rule, FactionDot, TechPip } from '../../shared';
 
 export function TechSection() {
