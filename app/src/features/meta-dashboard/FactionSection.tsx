@@ -88,7 +88,7 @@ export function FactionSection() {
       {view === 'table' ? (
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
           {sorted.map(f => (
-            <div key={f.factionId} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 60px 50px 60px', gap: 8, padding: '3px 0', borderBottom: '1px dotted var(--ink-4)' }}>
+            <div key={f.factionId} style={{ display: 'grid', gridTemplateColumns: '1fr 72px 72px 64px 80px', gap: 8, padding: '3px 0', borderBottom: '1px dotted var(--ink-4)' }}>
               <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)', fontWeight: 700 }}>
                 {f.factionId} <span style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase' }}>{f.expansion}</span>
               </span>
@@ -100,7 +100,7 @@ export function FactionSection() {
           ))}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
           {sorted.map(f => (
             <div key={f.factionId} style={{ border: f.winRate === topWinRate && f.winRate > 0 ? '2px solid var(--rule)' : '1px solid var(--ink-4)', padding: 8, background: 'var(--paper-2)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>

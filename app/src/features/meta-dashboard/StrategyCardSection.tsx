@@ -57,48 +57,52 @@ export function StrategyCardSection() {
 
       <Rule />
 
-      {/* Most Picked by Round */}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>
-        Most Picked · By Round
-      </div>
-      {roundsAsc.map(r => {
-        const cardsInRound = [...strategyCardStats.cards]
-          .filter(c => (c.pickCountByRound[r] ?? 0) > 0)
-          .sort((a, b) => (b.pickCountByRound[r] ?? 0) - (a.pickCountByRound[r] ?? 0))
-          .slice(0, 3);
-        return (
-          <div key={r} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '3px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-            <span style={{ width: 32, color: 'var(--ink-3)' }}>R{r}</span>
-            {cardsInRound.map(c => (
-              <span key={c.card} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, border: '1px solid var(--ink-4)', padding: '1px 6px' }}>
-                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{c.card}</span>
-                <span style={{ color: 'var(--ink-3)' }}>{c.pickCountByRound[r] ?? 0}×</span>
-              </span>
-            ))}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 8 }}>
+        {/* Most Picked by Round */}
+        <div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4 }}>
+            Most Picked · By Round
           </div>
-        );
-      })}
+          {roundsAsc.map(r => {
+            const cardsInRound = [...strategyCardStats.cards]
+              .filter(c => (c.pickCountByRound[r] ?? 0) > 0)
+              .sort((a, b) => (b.pickCountByRound[r] ?? 0) - (a.pickCountByRound[r] ?? 0))
+              .slice(0, 3);
+            return (
+              <div key={r} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '3px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
+                <span style={{ width: 32, color: 'var(--ink-3)' }}>R{r}</span>
+                {cardsInRound.map(c => (
+                  <span key={c.card} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, border: '1px solid var(--ink-4)', padding: '1px 6px' }}>
+                    <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{c.card}</span>
+                    <span style={{ color: 'var(--ink-3)' }}>{c.pickCountByRound[r] ?? 0}×</span>
+                  </span>
+                ))}
+              </div>
+            );
+          })}
+        </div>
 
-      <Rule />
-
-      {/* Most contested */}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>
-        Draft Position · Most Contested
-      </div>
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', marginBottom: 4 }}>
-        {strategyCardStats.mostContested.map((card, i) => {
-          const stat = strategyCardStats.cards.find(c => c.card === card);
-          return (
-            <span key={card} style={{ marginRight: 12 }}>
-              <span style={{ color: 'var(--ink-3)' }}>{i + 1}.</span>{' '}
-              <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{card}</span>{' '}
-              <span style={{ color: 'var(--ink-3)' }}>(avg pick {fmtPos(stat?.avgPickPosition ?? null)})</span>
-            </span>
-          );
-        })}
-      </div>
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
-        Lower = grabbed earlier in strategy phase.
+        {/* Draft Position */}
+        <div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4 }}>
+            Draft Position · Most Contested
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', marginBottom: 4 }}>
+            {strategyCardStats.mostContested.map((card, i) => {
+              const stat = strategyCardStats.cards.find(c => c.card === card);
+              return (
+                <span key={card} style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+                  <span style={{ color: 'var(--ink-3)' }}>{i + 1}.</span>
+                  <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{card}</span>
+                  <span style={{ color: 'var(--ink-3)' }}>(avg {fmtPos(stat?.avgPickPosition ?? null)})</span>
+                </span>
+              );
+            })}
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
+            Lower = grabbed earlier in strategy phase.
+          </div>
+        </div>
       </div>
     </section>
   );
