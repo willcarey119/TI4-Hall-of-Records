@@ -203,15 +203,61 @@ export function StatsSection() {
 
       <Rule />
 
-      {/* Relics */}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Relic Activity</div>
-      {gameStats.relics.map(r => (
-        <div key={r.relic} style={{ display: 'flex', gap: 6, padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{r.relic}</span>
-          <span style={{ color: 'var(--ink-3)' }}>Drawn {r.drawnCount}× · Played {r.playedCount}×</span>
-          {r.grantsVp && <span style={{ color: 'var(--accent)', textTransform: 'uppercase', fontSize: 'var(--font-micro)', letterSpacing: '0.1em' }}>VP</span>}
-        </div>
-      ))}
+      {/* Relics — unified panel merging activity (gameStats.relics) and performance (relicStats.relics) */}
+      {(() => {
+        const perfMap = new Map(
+          (relicStats?.relics ?? []).map(r => [r.relic, r])
+        );
+        const activityRelics = gameStats.relics;
+        const perfOnlyRelics = (relicStats?.relics ?? []).filter(
+          r => !activityRelics.some(a => a.relic === r.relic)
+        );
+
+        type MergedRelic = {
+          relic: string;
+          drawn: number;
+          played: number;
+          grantsVp: boolean;
+        };
+
+        const merged: MergedRelic[] = [
+          ...activityRelics.map(a => {
+            const perf = perfMap.get(a.relic);
+            return {
+              relic: a.relic,
+              drawn: a.drawnCount,
+              played: perf !== undefined ? perf.playCount : a.playedCount,
+              grantsVp: a.grantsVp || (perf?.grantsVp ?? false),
+            };
+          }),
+          ...perfOnlyRelics.map(p => ({
+            relic: p.relic,
+            drawn: p.gainCount,
+            played: p.playCount,
+            grantsVp: p.grantsVp,
+          })),
+        ];
+
+        if (merged.length === 0) return null;
+
+        return (
+          <>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 2px' }}>Relics</div>
+            {relicStats !== null && (
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginBottom: 4 }}>
+                {relicStats.gamesWithRelicVp} of {relicStats.totalGames} games had relic VP
+              </div>
+            )}
+            {merged.map(r => (
+              <div key={r.relic} style={{ display: 'flex', gap: 6, alignItems: 'baseline', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
+                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{r.relic}</span>
+                <span style={{ color: 'var(--ink-3)' }}>Drawn {r.drawn}× · Played {r.played}×</span>
+                {r.grantsVp && <span style={{ color: 'var(--accent)', textTransform: 'uppercase', fontSize: 'var(--font-micro)', letterSpacing: '0.1em' }}>VP</span>}
+              </div>
+            ))}
+          </>
+        );
+      })()}
 
       <Rule />
 
@@ -269,27 +315,6 @@ export function StatsSection() {
         </div>
       )}
 
-      {relicStats !== null && relicStats.relics.length > 0 && (
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 6 }}>
-            Relic Performance
-          </div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginBottom: 6 }}>
-            {relicStats.gamesWithRelicVp} of {relicStats.totalGames} games had relic VP
-          </div>
-          {relicStats.relics.map(r => (
-            <div key={r.relic} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4, gap: 6 }}>
-              <span style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-sm)', fontStyle: 'italic' }}>{r.relic}</span>
-                {r.grantsVp && <span style={{ color: 'var(--accent)', textTransform: 'uppercase', fontSize: 'var(--font-micro)', letterSpacing: '0.1em' }}>VP</span>}
-              </span>
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
-                {r.gainCount}× gained · {r.playCount}× played
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
     </section>
   );
 }

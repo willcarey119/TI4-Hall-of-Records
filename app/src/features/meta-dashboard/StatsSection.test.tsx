@@ -106,8 +106,8 @@ describe('StatsSection · VP Source Breakdown', () => {
   });
 });
 
-describe('StatsSection · Relic Performance panel', () => {
-  it('renders a "VP" badge for relics that grant VP and omits it for non-VP relics', () => {
+describe('StatsSection · unified Relics panel', () => {
+  function setupWithRelicStats() {
     mockState = {
       loading: false,
       error: null,
@@ -121,17 +121,25 @@ describe('StatsSection · Relic Performance panel', () => {
       relicStats: makeRelicStats(),
       techPaths: null,
     };
+  }
 
+  it('renders relic names in the unified Relics panel', () => {
+    setupWithRelicStats();
     render(<MemoryRouter><StatsSection /></MemoryRouter>);
 
-    // Locate each relic row in the Relic Performance panel by its italic
-    // Newsreader label, then walk up to its row container.
+    expect(screen.getByText('Shard of the Throne')).toBeInTheDocument();
+    expect(screen.getByText('The Crown of Emphidia')).toBeInTheDocument();
+    expect(screen.getByText('Stellar Converter')).toBeInTheDocument();
+  });
+
+  it('renders a "VP" badge for relics that grant VP and omits it for non-VP relics', () => {
+    setupWithRelicStats();
+    render(<MemoryRouter><StatsSection /></MemoryRouter>);
+
     const shardLabel = screen.getByText('Shard of the Throne');
     const crownLabel = screen.getByText('The Crown of Emphidia');
     const stellarLabel = screen.getByText('Stellar Converter');
 
-    // Each row contains the relic name and the gained/played counts; for
-    // VP-granting relics the row also contains a "VP" badge sibling.
     const shardRow = shardLabel.closest('div')!;
     const crownRow = crownLabel.closest('div')!;
     const stellarRow = stellarLabel.closest('div')!;
@@ -139,5 +147,33 @@ describe('StatsSection · Relic Performance panel', () => {
     expect(within(shardRow).getByText('VP')).toBeInTheDocument();
     expect(within(crownRow).getByText('VP')).toBeInTheDocument();
     expect(within(stellarRow).queryByText('VP')).not.toBeInTheDocument();
+  });
+
+  it('merges gameStats.relics and relicStats.relics by relic name without duplicates', () => {
+    const gameStats = makeGameStatsStub();
+    (gameStats as unknown as { relics: Array<{ relic: string; drawnCount: number; playedCount: number; grantsVp: boolean }> }).relics = [
+      { relic: 'Shard of the Throne', drawnCount: 3, playedCount: 0, grantsVp: true },
+      { relic: 'Stellar Converter', drawnCount: 1, playedCount: 1, grantsVp: false },
+    ];
+    mockState = {
+      loading: false,
+      error: null,
+      games: [],
+      factionStats: null,
+      strategyCardStats: null,
+      techStats: null,
+      gameStats,
+      speakerStats: null,
+      scoringPace: null,
+      relicStats: makeRelicStats(),
+      techPaths: null,
+    };
+
+    render(<MemoryRouter><StatsSection /></MemoryRouter>);
+
+    // All three relics appear exactly once
+    expect(screen.getAllByText('Shard of the Throne')).toHaveLength(1);
+    expect(screen.getAllByText('Stellar Converter')).toHaveLength(1);
+    expect(screen.getAllByText('The Crown of Emphidia')).toHaveLength(1);
   });
 });
