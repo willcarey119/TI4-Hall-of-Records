@@ -16,13 +16,9 @@ interface AuthState {
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthState>({
-  user: null,
-  isAuthorized: false,
-  authLoading: true,
-  signIn: async () => {},
-  signOut: async () => {},
-});
+// Default value is null so useAuth() can detect a missing AuthProvider
+// and fail loudly instead of silently returning a permanently-unauthenticated state.
+const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -50,5 +46,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth(): AuthState {
-  return useContext(AuthContext);
+  const ctx = useContext(AuthContext);
+  if (ctx === null) {
+    throw new Error(
+      'useAuth() must be called inside an <AuthProvider>. ' +
+      'Wrap your component tree (or test render) in <AuthProvider>.',
+    );
+  }
+  return ctx;
 }

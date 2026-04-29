@@ -54,12 +54,12 @@ export function UploadPage({ onSaved }: UploadPageProps) {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
-      {/* Upload / error states */}
+      {/* Upload / error states.
+          Note: the parent (HomePage) renders the "File Dispatch" section label,
+          so we don't repeat it here. If UploadPage is ever used standalone,
+          the parent should provide the heading. */}
       {(status === 'idle' || status === 'parsing' || status === 'error') && (
         <section className="space-y-4">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-ink-3">
-            File Dispatch
-          </h2>
           <DropZone
             onFile={(f) => { void handleFile(f); }}
             disabled={status === 'parsing'}
