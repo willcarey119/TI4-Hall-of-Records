@@ -30,3 +30,5 @@ export { buildAgendaStats } from './buildAgendaStats';
 export type { AgendaFreqStat, AgendaStatsSummary } from './buildAgendaStats';
 export { buildTechPaths } from './buildTechPaths';
 export type { FactionTechPath, TechPathSummary, TechPathEntry } from './buildTechPaths';
+export { buildAgendaCrossGame } from './buildAgendaCrossGame';
+export type { AgendaCrossGameSummary, AgendaCrossGameStat, AgendaAppearance, AgendaFactionVotingSummary, FactionAgendaVote } from './buildAgendaCrossGame';
