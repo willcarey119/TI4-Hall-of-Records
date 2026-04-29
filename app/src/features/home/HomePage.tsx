@@ -29,7 +29,6 @@ export function HomePage() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchGames = useCallback(() => {
-    setLoading(true);
     import('../../adapters/firestore')
       .then(({ listGames }) => listGames())
       .then((result) => {

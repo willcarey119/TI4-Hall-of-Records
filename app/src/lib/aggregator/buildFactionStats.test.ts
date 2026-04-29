@@ -193,11 +193,11 @@ describe('buildFactionStats', () => {
         strategyCardEvents: makeRoundPicks(['Sol', 'Hacan'], 3),
         // Sol scores in rounds 1,2,3; Hacan scores in rounds 2,3.
         vpEvents: [
-          { faction: 'Sol',   objective: 'O1', points: 1, timestamp: 1500, source: 'objective_public' },
-          { faction: 'Sol',   objective: 'O2', points: 2, timestamp: 2500, source: 'objective_public' },
-          { faction: 'Sol',   objective: 'O3', points: 1, timestamp: 3500, source: 'objective_public' },
-          { faction: 'Hacan', objective: 'O1', points: 1, timestamp: 2500, source: 'objective_public' },
-          { faction: 'Hacan', objective: 'O2', points: 1, timestamp: 3500, source: 'objective_public' },
+          { faction: 'Sol',   objective: 'O1', points: 1, timestamp: 1500, source: 'score_objective' },
+          { faction: 'Sol',   objective: 'O2', points: 2, timestamp: 2500, source: 'score_objective' },
+          { faction: 'Sol',   objective: 'O3', points: 1, timestamp: 3500, source: 'score_objective' },
+          { faction: 'Hacan', objective: 'O1', points: 1, timestamp: 2500, source: 'score_objective' },
+          { faction: 'Hacan', objective: 'O2', points: 1, timestamp: 3500, source: 'score_objective' },
         ],
       })];
       const stats = buildFactionStats(games).factions;
@@ -211,10 +211,10 @@ describe('buildFactionStats', () => {
         finalScores: { Sol: 5 }, winner: null,
         strategyCardEvents: makeRoundPicks(['Sol'], 4),
         vpEvents: [
-          { faction: 'Sol', objective: 'O1', points: 2, timestamp: 1500, source: 'objective_public' }, // R1: 2
-          { faction: 'Sol', objective: 'O2', points: 1, timestamp: 2500, source: 'objective_public' }, // R2: 3
-          { faction: 'Sol', objective: 'O3', points: 1, timestamp: 3500, source: 'objective_public' }, // R3: 4
-          { faction: 'Sol', objective: 'O4', points: 1, timestamp: 4500, source: 'objective_public' }, // R4: 5
+          { faction: 'Sol', objective: 'O1', points: 2, timestamp: 1500, source: 'score_objective' }, // R1: 2
+          { faction: 'Sol', objective: 'O2', points: 1, timestamp: 2500, source: 'score_objective' }, // R2: 3
+          { faction: 'Sol', objective: 'O3', points: 1, timestamp: 3500, source: 'score_objective' }, // R3: 4
+          { faction: 'Sol', objective: 'O4', points: 1, timestamp: 4500, source: 'score_objective' }, // R4: 5
         ],
       })];
       const sol = buildFactionStats(games).factions.find(f => f.factionId === 'Sol');
@@ -236,9 +236,9 @@ describe('buildFactionStats', () => {
           finalScores: { Sol: 6 }, winner: 'Sol',
           strategyCardEvents: makeRoundPicks(['Sol'], 3),
           vpEvents: [
-            { faction: 'Sol', objective: 'O1', points: 2, timestamp: 1500, source: 'objective_public' },
-            { faction: 'Sol', objective: 'O2', points: 2, timestamp: 2500, source: 'objective_public' },
-            { faction: 'Sol', objective: 'O3', points: 2, timestamp: 3500, source: 'objective_public' },
+            { faction: 'Sol', objective: 'O1', points: 2, timestamp: 1500, source: 'score_objective' },
+            { faction: 'Sol', objective: 'O2', points: 2, timestamp: 2500, source: 'score_objective' },
+            { faction: 'Sol', objective: 'O3', points: 2, timestamp: 3500, source: 'score_objective' },
           ],
         }),
         makeGame({
@@ -246,8 +246,8 @@ describe('buildFactionStats', () => {
           finalScores: { Sol: 3 }, winner: null,
           strategyCardEvents: makeRoundPicks(['Sol'], 2),
           vpEvents: [
-            { faction: 'Sol', objective: 'O1', points: 1, timestamp: 1500, source: 'objective_public' },
-            { faction: 'Sol', objective: 'O2', points: 2, timestamp: 2500, source: 'objective_public' },
+            { faction: 'Sol', objective: 'O1', points: 1, timestamp: 1500, source: 'score_objective' },
+            { faction: 'Sol', objective: 'O2', points: 2, timestamp: 2500, source: 'score_objective' },
           ],
         }),
       ];
@@ -274,8 +274,8 @@ describe('buildFactionStats', () => {
           finalScores: { Sol: 4 }, winner: null,
           strategyCardEvents: makeRoundPicks(['Sol'], 2),
           vpEvents: [
-            { faction: 'Sol', objective: 'O1', points: 2, timestamp: 1500, source: 'objective_public' },
-            { faction: 'Sol', objective: 'O2', points: 2, timestamp: 2500, source: 'objective_public' },
+            { faction: 'Sol', objective: 'O1', points: 2, timestamp: 1500, source: 'score_objective' },
+            { faction: 'Sol', objective: 'O2', points: 2, timestamp: 2500, source: 'score_objective' },
           ],
         }),
         makeGame({
@@ -283,9 +283,9 @@ describe('buildFactionStats', () => {
           finalScores: { Sol: 1, Hacan: 3 }, winner: null,
           strategyCardEvents: makeRoundPicks(['Sol', 'Hacan'], 2),
           vpEvents: [
-            { faction: 'Sol',   objective: 'O1', points: 1, timestamp: 1500, source: 'objective_public' },
-            { faction: 'Hacan', objective: 'O1', points: 1, timestamp: 1500, source: 'objective_public' },
-            { faction: 'Hacan', objective: 'O2', points: 2, timestamp: 2500, source: 'objective_public' },
+            { faction: 'Sol',   objective: 'O1', points: 1, timestamp: 1500, source: 'score_objective' },
+            { faction: 'Hacan', objective: 'O1', points: 1, timestamp: 1500, source: 'score_objective' },
+            { faction: 'Hacan', objective: 'O2', points: 2, timestamp: 2500, source: 'score_objective' },
           ],
         }),
       ];
