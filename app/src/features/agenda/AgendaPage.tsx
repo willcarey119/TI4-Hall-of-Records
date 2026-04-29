@@ -10,12 +10,19 @@ export function AgendaPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     loadAllGames()
-      .then(g => { setGames(g); setLoading(false); })
+      .then(g => {
+        if (cancelled) return;
+        setGames(g);
+        setLoading(false);
+      })
       .catch((e: unknown) => {
+        if (cancelled) return;
         setError(e instanceof Error ? e.message : 'Failed to load games');
         setLoading(false);
       });
+    return () => { cancelled = true; };
   }, []);
 
   const stats = useMemo(() => buildAgendaStats(games), [games]);
@@ -37,7 +44,7 @@ export function AgendaPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, margin: '12px 0' }}>
         <div>
           <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 32, lineHeight: 1 }}>
-            {Math.round(stats.overallPassRate * 100)}%
+            {stats.overallPassRate !== null ? `${Math.round(stats.overallPassRate * 100)}%` : '—'}
           </div>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-3)', marginTop: 2 }}>overall pass rate</div>
         </div>
@@ -57,21 +64,30 @@ export function AgendaPage() {
 
       <Rule weight="double" />
 
-      {stats.agendas.map(agenda => (
-        <div key={agenda.name} style={{ marginBottom: 10 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontStyle: 'italic', fontSize: 14 }}>
-              {agenda.name}
-            </span>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-3)' }}>
-              {agenda.appearances}× · {Math.round(agenda.passRate * 100)}% pass
-            </span>
+      {stats.agendas.map(agenda => {
+        // Elect-only agendas have no pass/fail concept — show a different label and no bar.
+        const hasBinary = agenda.passRate !== null;
+        const ratioText = hasBinary
+          ? `${Math.round(agenda.passRate * 100)}% pass`
+          : `${agenda.electCount} elect`;
+        return (
+          <div key={agenda.name} style={{ marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontStyle: 'italic', fontSize: 14 }}>
+                {agenda.name}
+              </span>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-3)' }}>
+                {agenda.appearances}× · {ratioText}
+              </span>
+            </div>
+            {hasBinary && (
+              <div style={{ height: 4, background: 'var(--paper-2)', marginTop: 3, borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${agenda.passRate * 100}%`, background: 'var(--accent)', borderRadius: 2 }} />
+              </div>
+            )}
           </div>
-          <div style={{ height: 4, background: 'var(--paper-2)', marginTop: 3, borderRadius: 2, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${agenda.passRate * 100}%`, background: 'var(--accent)', borderRadius: 2 }} />
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

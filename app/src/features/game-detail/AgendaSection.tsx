@@ -35,15 +35,18 @@ function EffectBlock({ entry }: { entry: AgendaDisplayEntry['entry'] }) {
   };
 
   if (entry.elect === null) {
+    // The discriminated union requires forEffect and againstEffect when elect === null.
+    // The `!== ''` guard surfaces missing catalog data instead of silently rendering
+    // an empty effect line under the "For:" / "Against:" label.
     return (
       <div style={blockStyle}>
-        {entry.forEffect && (
+        {entry.forEffect !== '' && (
           <>
             <span style={labelStyle('var(--accent)')}>For:</span>
             <span style={textStyle}>{entry.forEffect}</span>
           </>
         )}
-        {entry.againstEffect && (
+        {entry.againstEffect !== '' && (
           <>
             <span style={labelStyle('var(--cool)')}>Against:</span>
             <span style={{ ...textStyle, marginBottom: 0 }}>{entry.againstEffect}</span>
@@ -235,8 +238,8 @@ export function AgendaSection() {
           No agendas resolved this game.
         </div>
       ) : (
-        summary.entries.map((entry, i) => (
-          <div key={i}>
+        summary.entries.map((entry) => (
+          <div key={`${entry.round}-${entry.indexInRound}-${entry.agenda}`}>
             {/* Round label */}
             <Label>Round {entry.round} · Agenda {INDEX_LABEL[(entry.indexInRound - 1) as 0 | 1]}</Label>
 

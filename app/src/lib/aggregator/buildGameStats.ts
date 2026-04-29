@@ -1,11 +1,8 @@
 import type { ParsedGame, VpSource, PlayerActionType } from '../parser/types';
 import { getObjectivePoints } from '../parser/objectives';
+import { relicGrantsVp } from '../parser/relicVpRules';
 import { assignRound, type RoundBoundary } from './deriveRoundBoundaries';
 import { isHeroLeader } from './heroLeaders';
-
-// ── VP-granting relic sets (mirrors gameReducer.ts constants) ─────────────────
-const VP_ON_GAIN = new Set<string>(['Shard of the Throne', 'Styx']);
-const VP_ON_PLAY = new Set<string>(['Crown of Emphidia', 'The Crown of Emphidia']);
 
 // ── Sub-interfaces ─────────────────────────────────────────────────────────────
 
@@ -305,7 +302,7 @@ function buildRelics(games: ParsedGame[]): RelicStat[] {
     relic,
     drawnCount: a.drawn,
     playedCount: a.played,
-    grantsVp: VP_ON_GAIN.has(relic) || VP_ON_PLAY.has(relic),
+    grantsVp: relicGrantsVp(relic),
   }));
 }
 

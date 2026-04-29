@@ -27,6 +27,7 @@ import type {
   PlayerActionType,
   PhaseSnapshot,
 } from './types';
+import { VP_ON_GAIN_RELICS, VP_ON_PLAY_RELICS, VP_ON_LOSE_RELICS } from './relicVpRules';
 import { getObjectivePoints } from './objectives';
 
 export interface ReducerState {
@@ -257,8 +258,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         type: 'gain',
         ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
       };
-      const VP_ON_GAIN = new Set(['Shard of the Throne']);
-      const grantsVp = VP_ON_GAIN.has(relic);
+      const grantsVp = VP_ON_GAIN_RELICS.has(relic);
       const prevScore = state.currentScores[faction] ?? 0;
       const vpEvent: VpEvent | null = grantsVp
         ? {
@@ -299,8 +299,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         type: 'play',
         ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
       };
-      const VP_ON_PLAY = new Set(['Crown of Emphidia', 'The Crown of Emphidia']);
-      const grantsVp = VP_ON_PLAY.has(relic);
+      const grantsVp = VP_ON_PLAY_RELICS.has(relic);
       const prevScore = state.currentScores[faction] ?? 0;
       const vpEvent: VpEvent | null = grantsVp
         ? {
@@ -337,8 +336,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         type: 'lose',
         ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
       };
-      const VP_ON_LOSE = new Set(['Shard of the Throne']);
-      const losesVp = VP_ON_LOSE.has(relic);
+      const losesVp = VP_ON_LOSE_RELICS.has(relic);
       const prevScore = state.currentScores[faction] ?? 0;
       const vpEvent: VpEvent | null = losesVp
         ? {
@@ -461,34 +459,31 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
         ? [`RESOLVE_AGENDA "${agenda}" may affect VP but no handler is implemented yet`]
         : [];
 
-      if (agenda === 'Seed of an Empire') {
+      // Seed of an Empire (PoK directive). Per the agenda card text:
+      //   FOR:     Each player tied for most VP gains 1 VP.
+      //   AGAINST: Each player tied for fewest VP loses 1 VP.
+      // The two clauses are mutually exclusive — only the resolved outcome's
+      // clause fires. (Earlier code applied both regardless of outcome.)
+      if (agenda === 'Seed of an Empire' && (outcome === 'For' || outcome === 'Against')) {
         const scoreEntries = Object.entries(state.currentScores);
         if (scoreEntries.length > 0) {
           const scoreValues = scoreEntries.map(([, s]) => s);
           const maxScore = Math.max(...scoreValues);
           const minScore = Math.min(...scoreValues);
           if (maxScore !== minScore) {
+            const targetScore = outcome === 'For' ? maxScore : minScore;
+            const points = outcome === 'For' ? 1 : -1;
             for (const [f, score] of scoreEntries) {
-              if (score === maxScore) {
+              if (score === targetScore) {
                 newVpEvents.push({
                   faction: f,
                   objective: agenda,
-                  points: 1,
+                  points,
                   timestamp: entry.timestamp,
                   source: 'agenda',
                   ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
                 });
-                newScores = { ...newScores, [f]: (newScores[f] ?? 0) + 1 };
-              } else if (score === minScore) {
-                newVpEvents.push({
-                  faction: f,
-                  objective: agenda,
-                  points: -1,
-                  timestamp: entry.timestamp,
-                  source: 'agenda',
-                  ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
-                });
-                newScores = { ...newScores, [f]: (newScores[f] ?? 0) - 1 };
+                newScores = { ...newScores, [f]: (newScores[f] ?? 0) + points };
               }
             }
           }

@@ -1,4 +1,4 @@
-import { useMetaContext } from './MetaContext';
+import { useMeta } from './MetaContext';
 import { Kicker } from '../../shared';
 
 const W = 480;
@@ -6,7 +6,7 @@ const H = 200;
 const PAD = { top: 12, right: 12, bottom: 24, left: 28 };
 
 export function ScoringPaceSection() {
-  const { scoringPace } = useMetaContext();
+  const { scoringPace } = useMeta();
   const sectionStyle = { padding: '14px 16px', borderBottom: '1px solid var(--rule)' };
 
   const maxVp = scoringPace !== null && scoringPace.curves.length > 0

@@ -83,7 +83,3 @@ export function MetaProvider({ children }: { children: ReactNode }) {
 export function useMeta(): MetaState {
   return useContext(MetaContext);
 }
-
-export function useMetaContext(): MetaState {
-  return useContext(MetaContext);
-}

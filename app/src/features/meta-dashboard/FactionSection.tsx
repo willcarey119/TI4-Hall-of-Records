@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMeta } from './MetaContext';
 import { Rule, FactionDot } from '../../shared';
+import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 
 type ViewMode = 'table' | 'cards';
 type SortKey = 'winRate' | 'gamesPlayed' | 'avgFinalVp';
@@ -103,7 +104,7 @@ export function FactionSection() {
           {sorted.map(f => (
             <div key={f.factionId} style={{ border: f.winRate === topWinRate && f.winRate > 0 ? '2px solid var(--rule)' : '1px solid var(--ink-4)', padding: 8, background: 'var(--paper-2)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-                <FactionDot color="#888" size={8} />
+                <FactionDot color={getFactionBrandColor(f.factionId, 'var(--ink-4)')} size={8} />
                 <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 11 }}>{f.factionId}</span>
               </div>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 7, color: 'var(--ink-3)', textTransform: 'uppercase', marginBottom: 2 }}>{f.expansion}</div>

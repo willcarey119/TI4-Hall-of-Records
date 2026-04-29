@@ -10,8 +10,9 @@ import {
   listGames,
   loadGame,
   loadAllGames,
+  deleteGames,
 } from '../firestore';
-import { setDoc, getDoc, getDocs } from 'firebase/firestore';
+import { setDoc, getDoc, getDocs, deleteDoc } from 'firebase/firestore';
 import { signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged } from 'firebase/auth';
 
 // ── Mocks (hoisted by Vitest before imports) ─────────────────────────────────
@@ -27,6 +28,7 @@ vi.mock('firebase/firestore', () => ({
   setDoc: vi.fn(() => Promise.resolve()),
   getDoc: vi.fn(),
   getDocs: vi.fn(),
+  deleteDoc: vi.fn(() => Promise.resolve()),
   query: vi.fn(() => 'query-ref'),
   orderBy: vi.fn(() => 'orderby-ref'),
 }));
@@ -205,5 +207,24 @@ describe('loadGame', () => {
     } as unknown as DocumentSnapshot<DocumentData>);
 
     await expect(loadGame('missing-id')).rejects.toThrow('Game not found: missing-id');
+  });
+});
+
+describe('deleteGames', () => {
+  it('calls deleteDoc once per id', async () => {
+    await deleteGames(['abc123', 'def456', 'ghi789']);
+    expect(deleteDoc).toHaveBeenCalledTimes(3);
+  });
+
+  it('resolves without calling deleteDoc when given an empty array', async () => {
+    await expect(deleteGames([])).resolves.toBeUndefined();
+    expect(deleteDoc).not.toHaveBeenCalled();
+  });
+
+  it('rejects if any underlying deleteDoc rejects (Promise.all semantics)', async () => {
+    vi.mocked(deleteDoc)
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('Permission denied'));
+    await expect(deleteGames(['ok-id', 'bad-id'])).rejects.toThrow('Permission denied');
   });
 });

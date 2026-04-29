@@ -250,7 +250,7 @@ const BASE_DIRECTIVES: Record<string, AgendaEntry> = {
   'Seed of an Empire': {
     type: 'directive', elect: null, expansion: 'base',
     forEffect: 'The player with most victory points gains 1 victory point.',
-    againstEffect: 'The player with the fewest victory points gains 1 victory point.',
+    againstEffect: 'The player with the fewest victory points loses 1 victory point.',
   },
   'Swords to Plowshares': {
     type: 'directive', elect: null, expansion: 'base',

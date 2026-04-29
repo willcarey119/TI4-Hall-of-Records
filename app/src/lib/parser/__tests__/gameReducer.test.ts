@@ -390,7 +390,9 @@ describe('gameReducer — agenda system', () => {
     expect(result.agendaResolutions).toHaveLength(0);
   });
 
-  it('Seed of an Empire awards +1 VP to the leader and -1 VP to the trailer', () => {
+  it('Seed of an Empire "For" outcome: leader gains +1 VP only (trailer is unaffected)', () => {
+    // FOR card text: "Each player that has the most victory points gains 1 victory point."
+    // No effect on trailers — that's the AGAINST clause.
     const result = reduce([
       makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Lead from the Front' }, 100),
       makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Construct Massive Cities' }, 200),
@@ -399,8 +401,25 @@ describe('gameReducer — agenda system', () => {
     ], [makeFaction('barony'), makeFaction('arborec')]);
     const agendaVps = result.vpEvents.filter((e) => e.source === 'agenda');
     expect(agendaVps.find((e) => e.faction === 'barony' && e.points === 1)).toBeDefined();
-    expect(agendaVps.find((e) => e.faction === 'arborec' && e.points === -1)).toBeDefined();
+    // Trailer should NOT lose VP on a "For" outcome.
+    expect(agendaVps.find((e) => e.faction === 'arborec')).toBeUndefined();
     expect(result.currentScores['barony']).toBe(4); // 3 + 1
+    expect(result.currentScores['arborec']).toBe(0); // unchanged
+  });
+
+  it('Seed of an Empire "Against" outcome: trailer loses 1 VP only (leader is unaffected)', () => {
+    // AGAINST card text: "Each player that has the fewest victory points loses 1 victory point."
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Lead from the Front' }, 100),
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Construct Massive Cities' }, 200),
+      makeEntry('REVEAL_AGENDA', { agenda: 'Seed of an Empire' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Seed of an Empire', target: 'Against' }, 1300),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    const agendaVps = result.vpEvents.filter((e) => e.source === 'agenda');
+    expect(agendaVps.find((e) => e.faction === 'arborec' && e.points === -1)).toBeDefined();
+    // Leader should NOT gain VP on an "Against" outcome.
+    expect(agendaVps.find((e) => e.faction === 'barony')).toBeUndefined();
+    expect(result.currentScores['barony']).toBe(3); // unchanged
     expect(result.currentScores['arborec']).toBe(-1); // 0 - 1
   });
 
