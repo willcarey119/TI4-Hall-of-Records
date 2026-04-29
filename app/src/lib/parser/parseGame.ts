@@ -165,6 +165,7 @@ export function parseGame(raw: unknown): ParsedGame {
 
   let adjustedVpEvents = finalState.vpEvents;
   const adjustedScores: Record<string, number> = { ...finalState.currentScores };
+  const overrideWarnings: string[] = [];
 
   for (const [faction, targetRaw] of Object.entries(imperialVPOverridesRaw)) {
     if (typeof targetRaw !== 'number') continue;
@@ -175,7 +176,6 @@ export function parseGame(raw: unknown): ParsedGame {
     if (existing === target) continue;
 
     const delta = target - existing;
-    adjustedScores[faction] = (adjustedScores[faction] ?? 0) + delta;
 
     if (delta < 0) {
       // Remove the |delta| most-recent imperial_point events for this faction.
@@ -189,8 +189,17 @@ export function parseGame(raw: unknown): ParsedGame {
         }
       }
       adjustedVpEvents = adjustedVpEvents.filter((_, i) => !removeIndices.has(i));
+      adjustedScores[faction] = (adjustedScores[faction] ?? 0) + delta;
+    } else {
+      // Positive delta (target > parser count): unsupported because synthesizing
+      // imperial_point events would require fabricated timestamps. Skip the
+      // adjustment to preserve the invariant `finalScores ≡ Σ vpEvents.points`
+      // and emit a warning so the unhandled override is visible. Use `data.winner`
+      // to record the actual winner if the parser undercounts.
+      overrideWarnings.push(
+        `imperialVPOverrides: positive delta for "${faction}" (target ${target}, parser count ${existing}) is unsupported; finalScores left unchanged`,
+      );
     }
-    // Positive delta (parser undercount) is not currently needed; add if required.
   }
 
   const firstTimestamp = entries[0]?.timestamp ?? 0;
@@ -242,6 +251,6 @@ export function parseGame(raw: unknown): ParsedGame {
     finalScores: adjustedScores,
     winner,
     timers,
-    warnings: finalState.warnings,
+    warnings: [...finalState.warnings, ...overrideWarnings],
   };
 }

@@ -426,6 +426,31 @@ describe('parseGame — imperialVPOverrides', () => {
     expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(1);
   });
 
+  it('positive-delta override (target > parser count) does NOT modify scores and emits a warning', () => {
+    // Parser computes 1 Imperial VP for Vaden. Override asks for 3 (delta = +2).
+    // Positive delta is currently unsupported because synthesizing VP events would
+    // require fabricated timestamps; instead we preserve the invariant
+    // (finalScores ≡ Σ vpEvents.points per faction) and warn loudly.
+    const input = {
+      ...minimalInput(),
+      data: { ...minimalInput().data, imperialVPOverrides: { 'Vaden Banking Clans': 3 } },
+      actionLog: [
+        setupWithMecatol('Vaden Banking Clans'),
+        makeImperialTurn('Vaden Banking Clans', 200),
+      ],
+    };
+    const result = parseGame(input);
+    // Score and vpEvents are both unchanged from the parser's natural count of 1.
+    expect(result.finalScores['Vaden Banking Clans']).toBe(1);
+    expect(result.vpEvents.filter((e) => e.source === 'imperial_point')).toHaveLength(1);
+    // A warning is emitted so the unsupported case is visible.
+    expect(
+      result.warnings.some(
+        (w) => w.includes('imperialVPOverrides') && w.includes('Vaden Banking Clans'),
+      ),
+    ).toBe(true);
+  });
+
   it('winner computed from adjusted scores (not raw computed scores)', () => {
     // Vaden gets 2 Imperial VPs → score=2, threshold=2 → normally wins.
     // Override to 1 → score=1 < 2 → no winner.

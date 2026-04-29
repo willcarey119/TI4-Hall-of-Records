@@ -518,16 +518,22 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       // as the target. When the target is a known faction, it means the hidden agenda
       // was an elect-player VP law (e.g. Political Censure) — grant that faction +1 VP.
       // When target is "For"/"Against" the hidden agenda was a directive with no elect VP.
-      if (agenda === 'Covert Legislation' && outcome in newScores) {
-        newVpEvents.push({
-          faction: outcome,
-          objective: agenda,
-          points: 1,
-          timestamp: entry.timestamp,
-          source: 'agenda',
-          ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
-        });
-        newScores = { ...newScores, [outcome]: (newScores[outcome] ?? 0) + 1 };
+      // Any other target string is a faction name we don't recognize — warn rather than
+      // silently drop the VP (mirrors the ELECT_PLAYER_VP_AGENDAS branch above).
+      if (agenda === 'Covert Legislation') {
+        if (outcome in newScores) {
+          newVpEvents.push({
+            faction: outcome,
+            objective: agenda,
+            points: 1,
+            timestamp: entry.timestamp,
+            source: 'agenda',
+            ...(entry.gameTime !== undefined ? { gameTime: entry.gameTime } : {}),
+          });
+          newScores = { ...newScores, [outcome]: (newScores[outcome] ?? 0) + 1 };
+        } else if (outcome !== 'For' && outcome !== 'Against') {
+          watchWarning.push(`RESOLVE_AGENDA "Covert Legislation" target "${outcome}" is not a known faction at ${entry.timestamp}`);
+        }
       }
 
       // Mutiny: For-voters gain +1 VP when For wins; lose -1 VP when Against wins.

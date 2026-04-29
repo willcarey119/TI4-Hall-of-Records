@@ -79,6 +79,7 @@ export function HomePage() {
       fetchGames();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Delete failed');
+    } finally {
       setDeleting(false);
     }
   }

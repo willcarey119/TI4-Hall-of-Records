@@ -484,6 +484,15 @@ describe('gameReducer — agenda system', () => {
     expect(result.currentScores['barony']).toBe(0);
   });
 
+  it('Covert Legislation with an unknown faction target emits a warning (no silent VP drop)', () => {
+    const result = reduce([
+      makeEntry('REVEAL_AGENDA', { agenda: 'Covert Legislation' }, 1000),
+      makeEntry('RESOLVE_AGENDA', { agenda: 'Covert Legislation', target: 'mispelled-faction' }, 1300),
+    ], [makeFaction('barony'), makeFaction('arborec')]);
+    expect(result.vpEvents.filter((e) => e.source === 'agenda')).toHaveLength(0);
+    expect(result.warnings.some((w) => w.includes('Covert Legislation') && w.includes('mispelled-faction'))).toBe(true);
+  });
+
   // ── Mutiny ────────────────────────────────────────────────────────────────
 
   it('Mutiny "For" outcome: each For-voter gains +1 VP', () => {
