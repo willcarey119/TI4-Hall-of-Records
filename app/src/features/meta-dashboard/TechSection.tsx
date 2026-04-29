@@ -10,7 +10,7 @@ const COLOR_LABEL: Record<TechColor | 'all', string> = {
 const TABS: ReadonlyArray<TechColor | 'all'> = ['all', 'green', 'blue', 'yellow', 'red', 'unit'];
 
 export function TechSection() {
-  const { techStats } = useMeta();
+  const { techStats, techPaths } = useMeta();
   const [filter, setFilter] = useState<TechColor | 'all'>('all');
 
   const visibleTechs = useMemo(() => {
@@ -72,6 +72,38 @@ export function TechSection() {
           )}
         </div>
       ))}
+      {techPaths !== null && techPaths.factions.length > 0 && (
+        <>
+          <Rule />
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 8 }}>
+            Research Openings
+          </div>
+          {techPaths.factions.map(f => (
+            <div key={f.factionId} style={{ marginBottom: 14 }}>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontStyle: 'italic', fontSize: 13, marginBottom: 4 }}>
+                {f.factionId} <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', color: 'var(--ink-4)' }}>({f.gamesAnalyzed} games)</span>
+              </div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                {f.pathByPosition.map(pos => (
+                  <div key={pos.position} style={{ minWidth: 80 }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '8px', color: 'var(--ink-4)', marginBottom: 2 }}>
+                      #{pos.position}
+                    </div>
+                    {pos.topTechs.map(t => (
+                      <div key={t.tech} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                        <TechPip color={t.color} size={6} />
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '8px' }}>
+                          {t.tech} <span style={{ color: 'var(--ink-4)' }}>×{t.count}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
     </section>
   );
 }
