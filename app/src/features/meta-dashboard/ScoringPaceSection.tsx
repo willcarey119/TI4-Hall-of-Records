@@ -10,6 +10,7 @@ export function ScoringPaceSection() {
   if (scoringPace === null || scoringPace.curves.length === 0) return null;
 
   const maxVp = Math.max(...scoringPace.curves.map(c => c.victoryPoints));
+  if (maxVp === 0) return null;
   const innerW = W - PAD.left - PAD.right;
   const innerH = H - PAD.top - PAD.bottom;
 
