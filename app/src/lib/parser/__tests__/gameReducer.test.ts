@@ -948,6 +948,28 @@ describe('gameReducer — Task 12 remaining events', () => {
     expect(result.phaseSnapshots.length).toBeGreaterThanOrEqual(1);
   });
 
+  it('ADVANCE_PHASE skipAgenda=true skips agenda phase and goes directly to strategy (round+1)', () => {
+    // Advance: strategy→action→status, then skipAgenda=true from status skips agenda→strategy
+    const result = reduce([
+      makeEntry('ADVANCE_PHASE', { skipAgenda: false }, 1000), // strategy→action
+      makeEntry('ADVANCE_PHASE', { skipAgenda: false }, 2000), // action→status
+      makeEntry('ADVANCE_PHASE', { skipAgenda: true }, 3000),  // status→(skip agenda)→strategy, round+1
+    ]);
+    expect(result.currentPhase).toBe('strategy');
+    expect(result.currentRound).toBe(2);
+  });
+
+  it('ADVANCE_PHASE skipAgenda=false does NOT skip agenda phase', () => {
+    // Advance: strategy→action→status→agenda (no skip)
+    const result = reduce([
+      makeEntry('ADVANCE_PHASE', { skipAgenda: false }, 1000), // strategy→action
+      makeEntry('ADVANCE_PHASE', { skipAgenda: false }, 2000), // action→status
+      makeEntry('ADVANCE_PHASE', { skipAgenda: false }, 3000), // status→agenda (not skipped)
+    ]);
+    expect(result.currentPhase).toBe('agenda');
+    expect(result.currentRound).toBe(1);
+  });
+
   it('catch-all events emit ActionEvent with currentTurnFaction', () => {
     const result = reduce([
       makeEntry('END_TURN', { prevFaction: 'barony' }, 1000),

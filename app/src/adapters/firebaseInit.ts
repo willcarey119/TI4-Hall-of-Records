@@ -7,6 +7,21 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
+const REQUIRED_ENV = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_STORAGE_BUCKET',
+  'VITE_FIREBASE_MESSAGING_SENDER_ID',
+  'VITE_FIREBASE_APP_ID',
+] as const;
+
+for (const key of REQUIRED_ENV) {
+  if (!import.meta.env[key]) {
+    throw new Error(`Missing required env var: ${key}. Check your .env file.`);
+  }
+}
+
 const existingApp = getApps()[0];
 const app =
   existingApp !== undefined
