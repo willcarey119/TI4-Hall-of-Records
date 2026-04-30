@@ -2,9 +2,9 @@
 
 Phased delivery plan. Each phase has a goal, a set of deliverables, the test surface that proves it works, and an explicit acceptance bar. We do not start phase N+1 until phase N's acceptance bar is met.
 
-> **Current position (2026-04-28):** **V1.0 shipped.** All phases 0–5d complete.
+> **Current position (2026-04-29):** **V1.1 shipped.** All V1.1 phases 1–6 complete.
 > App is live at https://ti4-hall-of-records-da562.web.app (Firebase project: `ti4-hall-of-records-da562`).
-> 493 tests passing. Next: V1.1 (data integrity → human validation → bug fixes → Agenda tab).
+> 691 tests passing. Next: V1.2+ (see backlog below).
 > See `CLAUDE.md` for the full status table and working conventions.
 
 The Master Guidance Document defines four phases (Ingestion → Single-Game Replay → Meta-Dashboard → Polish). This roadmap **prepends a Phase 0** for project scaffolding, which is currently missing, and breaks each phase into concrete TDD-sized tickets.
@@ -283,9 +283,11 @@ All four bugs confirmed from live-app review:
 
 ---
 
-## V1.1 — Data Integrity, Human Validation & Agenda
+## V1.1 — Data Integrity, Human Validation & Agenda ✅ SHIPPED 2026-04-29
 
 **Goal:** Ensure the data underneath the app is trustworthy, confirm what's working and what isn't through structured human review, fix confirmed bugs, and ship a complete Agenda analytics experience.
+
+**Delivered:** 691 tests. All 6 walkthrough bugs fixed (B1–B6). Typography pass complete. VP Race chart rebuilt on round-based data. Agenda tab full scope (A1–A8, cross-game pass rates, vote tallies, VP impact, faction voting patterns, timing, riders). Per-section UX polish (Mecatol Rex widget, Scoring Pace chart, Tech clarity, Relics merge, GameCard phase callout, Frequent Pairings removed). Multi-file upload. Tier-C tech debt (main.tsx guard, env var assertions, skipAgenda test).
 
 **Scope guardrail:** V1.1 contains only (a) data fixes, (b) bug fixes confirmed by human validation, (c) UI/UX improvements identified in the walkthrough, and (d) the Agenda tab full scope. Any request that adds new analytics views or features beyond the Agenda tab belongs in V1.2+.
 

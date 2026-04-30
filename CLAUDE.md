@@ -30,11 +30,11 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 | Phase 5c — Consolidation | ✅ Complete — FactionDot/TechPip shared, useScrollSpy extracted, formatters deduped, dead code removed; 463 tests |
 | Phase 5d — New analytics views | ✅ Complete — round scores table, speaker stats, scoring pace SVG, relic stats, /agenda route, tech paths; 493 tests |
 | **V1.0** | ✅ **Shipped 2026-04-28** — full game detail + meta dashboard + agenda route live |
-| V1.1 — Data integrity + Agenda | 🔲 Planned — game file triage, human validation walkthrough, bug fixes, Agenda full scope |
+| **V1.1** | ✅ **Shipped 2026-04-29** — 691 tests; all 6 bugs fixed; Agenda full scope; Mecatol widget; Scoring Pace rebuilt; typography pass; multi-file upload |
 
-**Next up:** V1.1. See ROADMAP.md §V1.1 for the sequenced plan.
+**Next up:** V1.2+. See ROADMAP.md §V1.2+ for the backlog.
 
-**V1.1 scope guardrail:** V1.1 contains only data fixes, confirmed bug fixes, UI/UX polish from the validation walkthrough, and the Agenda tab full scope. Any request for new analytics views or features beyond these goes to the V1.2+ backlog in ROADMAP.md — not into V1.1 scope.
+**V1.2+ scope guardrail:** New analytics views, player attribution, CSV export, and all features beyond V1.1 go to the V1.2+ backlog in ROADMAP.md.
 
 All app code lives under `D:\_TI4 App\app\`.
 
