@@ -86,7 +86,9 @@ export async function listGames(): Promise<ParsedGameSummary[]> {
       })),
       finalScores: game.finalScores,
       winner: game.winner,
-      lastPhase: game.phaseSnapshots.at(-1)?.phase,
+      ...(game.phaseSnapshots.at(-1)?.phase !== undefined
+        ? { lastPhase: game.phaseSnapshots.at(-1)!.phase }
+        : {}),
     };
   });
 }
