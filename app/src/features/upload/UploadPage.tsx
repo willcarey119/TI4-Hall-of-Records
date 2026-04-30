@@ -1,11 +1,8 @@
-// src/features/upload/UploadPage.tsx
 import { useState } from 'react';
 import type { ParsedGame } from '../../lib/parser/types';
 import { parseGame } from '../../lib/parser/parseGame';
 import { DropZone } from './DropZone';
 import { GamePreview } from './GamePreview';
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 type FileStatus =
   | { state: 'pending' }
@@ -22,11 +19,9 @@ interface FileEntry {
 type SingleStatus = 'parsing' | 'preview' | 'saving' | 'saved' | 'error';
 type Mode = 'idle' | 'single' | 'bulk';
 
-// ── Constants ─────────────────────────────────────────────────────────────────
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function fileSizeError(file: File): string | null {
   if (file.size > MAX_FILE_BYTES) {
@@ -41,7 +36,6 @@ async function parseSingle(file: File): Promise<ParsedGame> {
   return parseGame(raw);
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
 
 interface UploadPageProps {
   onSaved?: () => void;
@@ -58,7 +52,6 @@ export function UploadPage({ onSaved }: UploadPageProps) {
   // Bulk state
   const [bulkFiles, setBulkFiles] = useState<FileEntry[]>([]);
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
 
   async function handleSingleFile(file: File): Promise<void> {
     setSingleStatus('parsing');
@@ -172,6 +165,10 @@ export function UploadPage({ onSaved }: UploadPageProps) {
     }
   }
 
+  const isBulkProcessing = bulkFiles.some(
+    e => e.status.state === 'parsing' || e.status.state === 'saving',
+  );
+
   function resetToIdle(): void {
     setMode('idle');
     setSingleGame(null);
@@ -180,7 +177,6 @@ export function UploadPage({ onSaved }: UploadPageProps) {
     setBulkFiles([]);
   }
 
-  // ── Render helpers ──────────────────────────────────────────────────────────
 
   function renderBulkRow(entry: FileEntry, idx: number): React.ReactElement {
     const { file, status } = entry;
@@ -215,12 +211,9 @@ export function UploadPage({ onSaved }: UploadPageProps) {
     );
   }
 
-  // ── Layout ──────────────────────────────────────────────────────────────────
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
-      {/* Note: the parent (HomePage) renders the "File Dispatch" section label. */}
-
       {/* Idle — show drop zone */}
       {mode === 'idle' && (
         <section className="space-y-4">
@@ -280,12 +273,7 @@ export function UploadPage({ onSaved }: UploadPageProps) {
       {/* Bulk mode — drop zone stays visible + file list */}
       {mode === 'bulk' && (
         <section className="space-y-6">
-          {(() => {
-            const isBulkProcessing = bulkFiles.some(
-              e => e.status.state === 'parsing' || e.status.state === 'saving',
-            );
-            return <DropZone onFiles={handleFiles} disabled={isBulkProcessing} />;
-          })()}
+          <DropZone onFiles={handleFiles} disabled={isBulkProcessing} />
           <p className="font-mono text-[10px] uppercase tracking-widest text-ink-4">
             Drop more files to upload additional games.
           </p>
