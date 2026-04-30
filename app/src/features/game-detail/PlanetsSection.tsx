@@ -1,15 +1,12 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildPlanetSummary, type PlanetSummary, type FactionPlanetInventory } from '../../lib/planets/buildPlanetSummary';
+import { buildMecatolTimeline } from '../../lib/planets/buildMecatolTimeline';
+import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
+import { MecatolWidget } from './MecatolWidget';
 import { Label, Rule, FactionDot } from '../../shared';
 
-function PlanetsContent({
-  summary,
-  factionColorMap,
-}: {
-  summary: PlanetSummary;
-  factionColorMap: Record<string, string>;
-}) {
+function PlanetsContent({ summary }: { summary: PlanetSummary }) {
   const contestedNames = new Set(summary.contested.map(p => p.planet));
 
   return (
@@ -56,47 +53,6 @@ function PlanetsContent({
       </div>
 
       <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
-
-      {/* Mecatol Rex callout */}
-      {summary.mecatol !== null && (
-        <>
-          <Label>Mecatol Rex</Label>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '4px 0 6px',
-              fontSize: 'var(--font-micro)',
-            }}
-          >
-            <FactionDot color={factionColorMap[summary.mecatol.factionId] ?? 'var(--ink-4)'} />
-            <span
-              style={{
-                fontFamily: "'Newsreader', Georgia, serif",
-                fontWeight: 700,
-              }}
-            >
-              {summary.mecatol.factionId}
-            </span>
-            {summary.mecatol.changeCount >= 1 && (
-              <span
-                style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 'var(--font-micro)',
-                  background: 'var(--paper-2)',
-                  border: '1px solid var(--rule)',
-                  padding: '0 4px',
-                  color: 'var(--ink-3)',
-                }}
-              >
-                changed hands {summary.mecatol.changeCount}&times;
-              </span>
-            )}
-          </div>
-          <Rule />
-        </>
-      )}
 
       {/* Per-faction inventories */}
       <Label>Final Control</Label>
@@ -204,13 +160,11 @@ export function PlanetsSection() {
     [game],
   );
 
-  const factionColorMap = useMemo(
-    () =>
-      game !== null
-        ? Object.fromEntries(game.factions.map(f => [f.factionId, f.color]))
-        : {},
-    [game],
-  );
+  const mecatolTimeline = useMemo(() => {
+    if (game === null) return null;
+    const roundBoundaries = deriveRoundBoundaries(game.strategyCardEvents, game.factions.length);
+    return buildMecatolTimeline(game.planetEvents, game.factions, roundBoundaries);
+  }, [game]);
 
   return (
     <section
@@ -218,8 +172,11 @@ export function PlanetsSection() {
       data-section="planets"
       style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }}
     >
+      {mecatolTimeline !== null && (
+        <MecatolWidget timeline={mecatolTimeline} factions={game!.factions} />
+      )}
       {summary !== null && (
-        <PlanetsContent summary={summary} factionColorMap={factionColorMap} />
+        <PlanetsContent summary={summary} />
       )}
     </section>
   );

@@ -72,6 +72,17 @@ export function TechSection() {
 
       {/* Final Inventories */}
       <Label>Final Inventories</Label>
+      <div
+        style={{
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 'var(--font-micro)',
+          color: 'var(--ink-4)',
+          letterSpacing: '0.04em',
+          marginBottom: 4,
+        }}
+      >
+        Researched + starting techs · <span style={{ fontStyle: 'italic' }}>origin</span> badge = faction starting tech
+      </div>
       {summary.inventories
         .filter((inv) => {
           const faction = game.factions.find(f => f.factionId === inv.factionId);
@@ -120,14 +131,15 @@ export function TechSection() {
                         style={{
                           fontFamily: "'IBM Plex Mono', monospace",
                           fontSize: 'var(--font-micro)',
-                          border: '1px solid var(--cool)',
-                          color: 'var(--cool)',
+                          border: '1px solid var(--ink-4)',
+                          color: 'var(--ink-4)',
                           padding: '0 3px',
                           lineHeight: '12px',
                           display: 'inline-block',
+                          letterSpacing: '0.04em',
                         }}
                       >
-                        start
+                        origin
                       </span>
                     )}
                   </span>
@@ -142,6 +154,17 @@ export function TechSection() {
 
       {/* Research Order */}
       <Label>Research Order</Label>
+      <div
+        style={{
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 'var(--font-micro)',
+          color: 'var(--ink-4)',
+          letterSpacing: '0.04em',
+          marginBottom: 4,
+        }}
+      >
+        Active researches only · starting techs excluded
+      </div>
       <div
         style={{
           borderLeft: '2px solid var(--cool)',

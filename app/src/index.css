@@ -22,8 +22,8 @@
   --font-display-md: calc(28px * var(--font-scale));
   --font-display-lg: calc(32px * var(--font-scale));
   --cool:    oklch(0.45 0.08 240);   /* faded ink-blue — secondary accent */
-  --gold:    oklch(0.62 0.10 75);    /* tech color: yellow */
-  --moss:    oklch(0.45 0.06 145);   /* tech color: green */
+  --gold:    oklch(0.64 0.13 75);    /* tech color: Cybernetic (yellow) */
+  --moss:    oklch(0.52 0.09 145);   /* tech color: Biotic (green) — lighter than red/blue for separation */
 }
 
 body {

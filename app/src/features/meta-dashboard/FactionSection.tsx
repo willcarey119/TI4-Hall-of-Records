@@ -122,20 +122,6 @@ export function FactionSection() {
 
       <Rule />
 
-      {/* Frequent Pairings */}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4 }}>
-        Frequent Pairings
-      </div>
-      {factionStats.topPairings.slice(0, 5).map((p, i) => (
-        <div key={i} style={{ display: 'flex', gap: 6, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', padding: '2px 0' }}>
-          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{p.factionA} · {p.factionB}</span>
-          <span style={{ marginLeft: 'auto', color: 'var(--ink-3)' }}>{p.coAppearances} game{p.coAppearances !== 1 ? 's' : ''}</span>
-        </div>
-      ))}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>
-        Win-rate split by pairing requires 10+ games.
-      </div>
-
       {/* Senate Power Index */}
       {factionStats.factions.some(f => f.winningVoteRate !== null) && (
         <>

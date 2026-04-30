@@ -51,7 +51,6 @@ describe('buildFactionStats', () => {
     const result = buildFactionStats([]);
     expect(result.totalGames).toBe(0);
     expect(result.factions).toEqual([]);
-    expect(result.topPairings).toEqual([]);
     expect(result.sftTransfers).toEqual([]);
   });
 
@@ -93,17 +92,6 @@ describe('buildFactionStats', () => {
     const result = buildFactionStats(games);
     expect(result.factions[0]?.factionId).toBe('C'); // 100% win rate
     expect(result.factions[0]?.gamesPlayed).toBe(1);
-  });
-
-  it('topPairings counts co-appearances in canonical (lex-sorted) order', () => {
-    const games = [
-      makeGame({ gameId: 'g1', factions: ['Sol', 'Hacan'], finalScores: { Sol: 10, Hacan: 5 }, winner: 'Sol' }),
-      makeGame({ gameId: 'g2', factions: ['Hacan', 'Sol'], finalScores: { Sol: 5, Hacan: 10 }, winner: 'Hacan' }),
-    ];
-    const pairing = buildFactionStats(games).topPairings[0];
-    expect(pairing?.factionA).toBe('Hacan'); // lex-first
-    expect(pairing?.factionB).toBe('Sol');
-    expect(pairing?.coAppearances).toBe(2);
   });
 
   it('sftTransfers records Support for the Throne play events', () => {
