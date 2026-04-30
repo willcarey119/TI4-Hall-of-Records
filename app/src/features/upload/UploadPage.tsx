@@ -188,28 +188,28 @@ export function UploadPage({ onSaved }: UploadPageProps) {
 
     if (status.state === 'pending') {
       return (
-        <li key={idx} className="font-mono text-xs text-ink-3">
+        <li key={entry.file.name + String(idx)} className="font-mono text-xs text-ink-3">
           ◌ {name}
         </li>
       );
     }
     if (status.state === 'parsing' || status.state === 'saving') {
       return (
-        <li key={idx} className="font-mono text-xs text-ink-3">
+        <li key={entry.file.name + String(idx)} className="font-mono text-xs text-ink-3">
           ⟳ {name}
         </li>
       );
     }
     if (status.state === 'saved') {
       return (
-        <li key={idx} className="font-mono text-xs text-accent">
+        <li key={entry.file.name + String(idx)} className="font-mono text-xs text-ink-2">
           ✓ {name}
         </li>
       );
     }
     // error
     return (
-      <li key={idx} className="font-mono text-xs text-accent">
+      <li key={entry.file.name + String(idx)} className="font-mono text-xs text-accent">
         ✗ {name} — {status.message}
       </li>
     );
@@ -280,7 +280,12 @@ export function UploadPage({ onSaved }: UploadPageProps) {
       {/* Bulk mode — drop zone stays visible + file list */}
       {mode === 'bulk' && (
         <section className="space-y-6">
-          <DropZone onFiles={handleFiles} />
+          {(() => {
+            const isBulkProcessing = bulkFiles.some(
+              e => e.status.state === 'parsing' || e.status.state === 'saving',
+            );
+            return <DropZone onFiles={handleFiles} disabled={isBulkProcessing} />;
+          })()}
           <p className="font-mono text-[10px] uppercase tracking-widest text-ink-4">
             Drop more files to upload additional games.
           </p>

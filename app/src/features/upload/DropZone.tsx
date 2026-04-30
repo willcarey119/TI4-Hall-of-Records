@@ -14,7 +14,7 @@ export function DropZone({ onFiles, disabled = false }: DropZoneProps) {
     if (disabled) return;
     const files = Array.from(e.target.files ?? []);
     if (files.length > 0) onFiles(files);
-    e.target.value = ''; // reset so the same file can be re-uploaded
+    e.target.value = '';
   }
 
   function handleDrop(e: React.DragEvent<HTMLButtonElement>) {
