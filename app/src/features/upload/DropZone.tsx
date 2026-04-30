@@ -2,18 +2,18 @@
 import { useRef, useState } from 'react';
 
 interface DropZoneProps {
-  onFile: (file: File) => void;
+  onFiles: (files: File[]) => void;
   disabled?: boolean;
 }
 
-export function DropZone({ onFile, disabled = false }: DropZoneProps) {
+export function DropZone({ onFiles, disabled = false }: DropZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (disabled) return;
-    const file = e.target.files?.[0];
-    if (file !== undefined) onFile(file);
+    const files = Array.from(e.target.files ?? []);
+    if (files.length > 0) onFiles(files);
     e.target.value = ''; // reset so the same file can be re-uploaded
   }
 
@@ -21,8 +21,8 @@ export function DropZone({ onFile, disabled = false }: DropZoneProps) {
     e.preventDefault();
     setDragging(false);
     if (disabled) return;
-    const file = e.dataTransfer.files[0];
-    if (file !== undefined) onFile(file);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) onFiles(files);
   }
 
   function handleDragOver(e: React.DragEvent<HTMLButtonElement>) {
@@ -63,6 +63,7 @@ export function DropZone({ onFile, disabled = false }: DropZoneProps) {
         data-testid="file-input"
         type="file"
         accept=".json"
+        multiple
         disabled={disabled}
         onChange={handleChange}
         aria-hidden="true"

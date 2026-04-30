@@ -1,6 +1,6 @@
 // src/features/upload/__tests__/UploadPage.test.tsx
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ParsedGame } from '../../../lib/parser/types';
 import { parseGame } from '../../../lib/parser/parseGame';
@@ -57,9 +57,9 @@ beforeEach(() => {
   vi.mocked(parseGame).mockReturnValue(mockGame);
 });
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+// ── Single-file flow ──────────────────────────────────────────────────────────
 
-describe('UploadPage', () => {
+describe('UploadPage — single file flow', () => {
   it('renders the drop zone on initial load', () => {
     render(<UploadPage />);
     expect(screen.getByText(/drop.*json/i)).toBeInTheDocument();
@@ -96,7 +96,6 @@ describe('UploadPage', () => {
       throw new Error('Unexpected token at position 3');
     });
     render(<UploadPage />);
-    // Valid JSON so JSON.parse succeeds; the mocked parseGame throws the error.
     const file = new File(['{}'], 'bad.json', { type: 'application/json' });
     await userEvent.upload(screen.getByTestId('file-input'), file);
     expect(await screen.findByText(/unexpected token at position 3/i)).toBeInTheDocument();
@@ -114,8 +113,6 @@ describe('UploadPage', () => {
 
   it('shows an error and stays on the drop zone when file exceeds 10 MB', async () => {
     render(<UploadPage />);
-    // Simulate a file larger than 10 MB — File constructor doesn't check size limits,
-    // so we override the size property via Object.defineProperty.
     const bigFile = new File(['{}'], 'huge.json', { type: 'application/json' });
     Object.defineProperty(bigFile, 'size', { value: 11 * 1024 * 1024 });
     await userEvent.upload(screen.getByTestId('file-input'), bigFile);
@@ -142,5 +139,113 @@ describe('UploadPage', () => {
     );
     await userEvent.click(await screen.findByRole('button', { name: /save to records/i }));
     expect(await screen.findByText(/firestore write failed/i)).toBeInTheDocument();
+  });
+});
+
+// ── Bulk flow ─────────────────────────────────────────────────────────────────
+
+describe('UploadPage — bulk flow (2+ files)', () => {
+  it('enters bulk mode and shows status list when 2 files are uploaded', async () => {
+    render(<UploadPage />);
+    const file1 = new File(['{}'], 'game1.json', { type: 'application/json' });
+    const file2 = new File(['{}'], 'game2.json', { type: 'application/json' });
+    await userEvent.upload(screen.getByTestId('file-input'), [file1, file2]);
+
+    // Status list should appear
+    expect(await screen.findByRole('list', { name: /upload status/i })).toBeInTheDocument();
+  });
+
+  it('shows saved checkmarks for each file after successful bulk upload', async () => {
+    render(<UploadPage />);
+    const file1 = new File(['{}'], 'alpha.json', { type: 'application/json' });
+    const file2 = new File(['{}'], 'beta.json', { type: 'application/json' });
+    await userEvent.upload(screen.getByTestId('file-input'), [file1, file2]);
+
+    await waitFor(() => {
+      const items = screen.getAllByRole('listitem');
+      expect(items.some(el => el.textContent?.includes('✓') && el.textContent.includes('alpha.json'))).toBe(true);
+      expect(items.some(el => el.textContent?.includes('✓') && el.textContent.includes('beta.json'))).toBe(true);
+    });
+  });
+
+  it('calls saveGame once per file in bulk mode', async () => {
+    render(<UploadPage />);
+    const file1 = new File(['{}'], 'game1.json', { type: 'application/json' });
+    const file2 = new File(['{}'], 'game2.json', { type: 'application/json' });
+    await userEvent.upload(screen.getByTestId('file-input'), [file1, file2]);
+
+    await waitFor(() => {
+      expect(saveGame).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it('calls onSaved once per successfully saved file in bulk mode', async () => {
+    const onSaved = vi.fn();
+    render(<UploadPage onSaved={onSaved} />);
+    const file1 = new File(['{}'], 'game1.json', { type: 'application/json' });
+    const file2 = new File(['{}'], 'game2.json', { type: 'application/json' });
+    await userEvent.upload(screen.getByTestId('file-input'), [file1, file2]);
+
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it('marks a file as error in bulk mode when parse fails', async () => {
+    vi.mocked(parseGame)
+      .mockReturnValueOnce(mockGame)          // file1 succeeds
+      .mockImplementationOnce(() => {         // file2 throws
+        throw new Error('Bad JSON structure');
+      });
+
+    render(<UploadPage />);
+    const file1 = new File(['{}'], 'ok.json', { type: 'application/json' });
+    const file2 = new File(['{}'], 'bad.json', { type: 'application/json' });
+    await userEvent.upload(screen.getByTestId('file-input'), [file1, file2]);
+
+    await waitFor(() => {
+      const items = screen.getAllByRole('listitem');
+      expect(items.some(el => el.textContent?.includes('✗') && el.textContent.includes('bad.json'))).toBe(true);
+      expect(items.some(el => el.textContent?.includes('Bad JSON structure'))).toBe(true);
+    });
+  });
+
+  it('marks a file as error in bulk mode when save fails', async () => {
+    vi.mocked(saveGame)
+      .mockResolvedValueOnce('id1')
+      .mockRejectedValueOnce(new Error('Write quota exceeded'));
+
+    render(<UploadPage />);
+    const file1 = new File(['{}'], 'ok.json', { type: 'application/json' });
+    const file2 = new File(['{}'], 'fail.json', { type: 'application/json' });
+    await userEvent.upload(screen.getByTestId('file-input'), [file1, file2]);
+
+    await waitFor(() => {
+      const items = screen.getAllByRole('listitem');
+      expect(items.some(el => el.textContent?.includes('✗') && el.textContent.includes('fail.json'))).toBe(true);
+      expect(items.some(el => el.textContent?.includes('Write quota exceeded'))).toBe(true);
+    });
+  });
+
+  it('keeps the DropZone visible during and after bulk upload', async () => {
+    render(<UploadPage />);
+    const file1 = new File(['{}'], 'game1.json', { type: 'application/json' });
+    const file2 = new File(['{}'], 'game2.json', { type: 'application/json' });
+    await userEvent.upload(screen.getByTestId('file-input'), [file1, file2]);
+
+    // After completion the file input (hidden within DropZone) is still in the DOM
+    await waitFor(() => {
+      expect(saveGame).toHaveBeenCalledTimes(2);
+    });
+    expect(screen.getByTestId('file-input')).toBeInTheDocument();
+  });
+
+  it('shows the "drop more files" subtitle in bulk mode', async () => {
+    render(<UploadPage />);
+    const file1 = new File(['{}'], 'game1.json', { type: 'application/json' });
+    const file2 = new File(['{}'], 'game2.json', { type: 'application/json' });
+    await userEvent.upload(screen.getByTestId('file-input'), [file1, file2]);
+
+    expect(await screen.findByText(/drop more files/i)).toBeInTheDocument();
   });
 });
