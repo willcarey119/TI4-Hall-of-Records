@@ -152,9 +152,13 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       if (def === null) {
         return { ...state, warnings: [...state.warnings, `Unknown objective: "${objective}" at ${entry.timestamp}`] };
       }
-      const prevScore = state.currentScores[faction] ?? 0;
+      // SFT: the pledging faction (faction) gives VP to the recipient (key)
+      const keyRaw = entry.event['key'];
+      const scoringFaction =
+        objective === 'Support for the Throne' && typeof keyRaw === 'string' ? keyRaw : faction;
+      const prevScore = state.currentScores[scoringFaction] ?? 0;
       const newVpEvent: VpEvent = {
-        faction,
+        faction: scoringFaction,
         objective,
         points: def.points,
         timestamp: entry.timestamp,
@@ -164,7 +168,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       return {
         ...state,
         vpEvents: [...state.vpEvents, newVpEvent],
-        currentScores: { ...state.currentScores, [faction]: prevScore + def.points },
+        currentScores: { ...state.currentScores, [scoringFaction]: prevScore + def.points },
       };
     }
 
@@ -180,9 +184,13 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       if (def === null) {
         return { ...state, warnings: [...state.warnings, `Unknown objective (unscore): "${objective}" at ${entry.timestamp}`] };
       }
-      const prevScore = state.currentScores[faction] ?? 0;
+      // SFT: remove VP from the recipient (key), not the pledger (faction)
+      const keyRaw = entry.event['key'];
+      const scoringFaction =
+        objective === 'Support for the Throne' && typeof keyRaw === 'string' ? keyRaw : faction;
+      const prevScore = state.currentScores[scoringFaction] ?? 0;
       const newVpEvent: VpEvent = {
-        faction,
+        faction: scoringFaction,
         objective,
         points: -def.points,
         timestamp: entry.timestamp,
@@ -192,7 +200,7 @@ export function gameReducer(state: ReducerState, entry: RawLogEntry): ReducerSta
       return {
         ...state,
         vpEvents: [...state.vpEvents, newVpEvent],
-        currentScores: { ...state.currentScores, [faction]: prevScore - def.points },
+        currentScores: { ...state.currentScores, [scoringFaction]: prevScore - def.points },
       };
     }
 

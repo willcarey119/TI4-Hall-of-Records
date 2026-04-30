@@ -1,13 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { buildScoringPaceRounds } from './buildScoringPace';
 import type { ParsedGame } from '../parser/types';
-import type { RoundBoundary } from './deriveRoundBoundaries';
 
 describe('buildScoringPaceRounds', () => {
-  const R1: RoundBoundary = { round: 1, startTimestamp: 1000 };
-  const R2: RoundBoundary = { round: 2, startTimestamp: 5000 };
-  const R3: RoundBoundary = { round: 3, startTimestamp: 9000 };
-
   function makeGameWithRounds(overrides: Partial<ParsedGame>): ParsedGame {
     return {
       gameId: 'g1', playedAt: 0, durationSeconds: 15,

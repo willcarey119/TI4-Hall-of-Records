@@ -470,4 +470,44 @@ describe('parseGame — imperialVPOverrides', () => {
     const result = parseGame(input);
     expect(result.winner).toBeNull(); // adjusted score (1) doesn't reach threshold (2)
   });
+
+  // ── finalScoreOverrides ──────────────────────────────────────────────────
+
+  it('finalScoreOverrides directly patches finalScores for factions with incomplete logs', () => {
+    const input = {
+      ...minimalInput(),
+      data: {
+        ...minimalInput().data,
+        finalScoreOverrides: { 'Vaden Banking Clans': 7 },
+      },
+    };
+    const result = parseGame(input);
+    expect(result.finalScores['Vaden Banking Clans']).toBe(7);
+    expect(result.finalScores["L'tokk Khrask"]).toBe(0);
+  });
+
+  it('finalScoreOverrides feeds into winner inference', () => {
+    const input = {
+      ...minimalInput(),
+      data: {
+        ...minimalInput().data,
+        options: { 'victory-points': 10 },
+        finalScoreOverrides: { 'Vaden Banking Clans': 10 },
+      },
+    };
+    const result = parseGame(input);
+    expect(result.winner).toBe('Vaden Banking Clans');
+  });
+
+  it('finalScoreOverrides does not modify vpEvents', () => {
+    const input = {
+      ...minimalInput(),
+      data: {
+        ...minimalInput().data,
+        finalScoreOverrides: { 'Vaden Banking Clans': 5 },
+      },
+    };
+    const result = parseGame(input);
+    expect(result.vpEvents).toHaveLength(0);
+  });
 });

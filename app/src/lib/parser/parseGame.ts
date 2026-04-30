@@ -202,6 +202,18 @@ export function parseGame(raw: unknown): ParsedGame {
     }
   }
 
+  // finalScoreOverrides: directly patch finalScores for games where the log is incomplete
+  // (events were never recorded by TI Assistant). vpEvents are NOT modified — the VP Race
+  // chart shows logged progression; only finalScores and winner inference use these values.
+  const finalScoreOverridesRaw = dataObj['finalScoreOverrides'];
+  if (typeof finalScoreOverridesRaw === 'object' && finalScoreOverridesRaw !== null) {
+    for (const [faction, target] of Object.entries(finalScoreOverridesRaw as Record<string, unknown>)) {
+      if (typeof target === 'number') {
+        adjustedScores[faction] = target;
+      }
+    }
+  }
+
   const firstTimestamp = entries[0]?.timestamp ?? 0;
   const sortedFactionIds = [...factions.map((f) => f.factionId)].sort();
   const gameId = hashGameId(firstTimestamp, sortedFactionIds);

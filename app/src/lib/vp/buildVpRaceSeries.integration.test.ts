@@ -53,12 +53,16 @@ describe('buildVpRaceSeries integration — round-aligned chart matches scores t
       }
     });
 
-    it('terminal point cumulativeVp matches finalScores', () => {
+    it('terminal point cumulativeVp matches last round logged score; finalVp matches finalScores', () => {
       if (!hasBoundaries) return;
 
+      // cumulativeVp comes from buildRoundScores (vpEvents — logged data).
+      // finalVp comes from game.finalScores (may include finalScoreOverrides for data-gap games).
+      // These two intentionally diverge when finalScoreOverrides are applied.
       for (const s of summary.series) {
         const last = s.points[s.points.length - 1];
-        expect(last?.cumulativeVp).toBe(game.finalScores[s.factionId] ?? 0);
+        const loggedScore = rows[rows.length - 1]?.scores[s.factionId] ?? 0;
+        expect(last?.cumulativeVp).toBe(loggedScore);
         expect(s.finalVp).toBe(game.finalScores[s.factionId] ?? 0);
       }
     });

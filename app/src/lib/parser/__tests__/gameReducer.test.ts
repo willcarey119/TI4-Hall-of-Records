@@ -102,12 +102,14 @@ describe('gameReducer — SCORE_OBJECTIVE', () => {
     expect(result.currentScores['barony']).toBe(3);
   });
 
-  it('handles "Support for the Throne" with optional key field', () => {
+  it('attributes "Support for the Throne" VP to the key (recipient), not the pledging faction', () => {
     const result = reduce([
       makeEntry('SCORE_OBJECTIVE', { faction: 'arborec', objective: 'Support for the Throne', key: 'barony' }),
     ], [makeFaction('arborec'), makeFaction('barony')]);
-    expect(result.vpEvents[0]?.faction).toBe('arborec');
+    expect(result.vpEvents[0]?.faction).toBe('barony');
     expect(result.vpEvents[0]?.points).toBe(1);
+    expect(result.currentScores['barony']).toBe(1);
+    expect(result.currentScores['arborec']).toBe(0);
   });
 
   it('classifies "Support for the Throne" as source: support_for_throne', () => {
@@ -115,6 +117,14 @@ describe('gameReducer — SCORE_OBJECTIVE', () => {
       makeEntry('SCORE_OBJECTIVE', { faction: 'arborec', objective: 'Support for the Throne', key: 'barony' }),
     ], [makeFaction('arborec'), makeFaction('barony')]);
     expect(result.vpEvents[0]?.source).toBe('support_for_throne');
+  });
+
+  it('falls back to pledger faction for SFT when key field is absent', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Support for the Throne' }),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents[0]?.faction).toBe('barony');
+    expect(result.currentScores['barony']).toBe(1);
   });
 
   it('classifies relic VP scoring (Crown of Emphidia) as source: relic', () => {
@@ -177,6 +187,26 @@ describe('gameReducer — UNSCORE_OBJECTIVE', () => {
       makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Construct Massive Cities' }),
       makeEntry('UNSCORE_OBJECTIVE', { faction: 'barony', objective: 'Construct Massive Cities' }),
     ], [makeFaction('barony')]);
+    expect(result.currentScores['barony']).toBe(0);
+  });
+
+  it('UNSCORE_OBJECTIVE for SFT removes VP from recipient (key), not pledger', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'arborec', objective: 'Support for the Throne', key: 'barony' }),
+      makeEntry('UNSCORE_OBJECTIVE', { faction: 'arborec', objective: 'Support for the Throne', key: 'barony' }),
+    ], [makeFaction('arborec'), makeFaction('barony')]);
+    expect(result.vpEvents[1]?.faction).toBe('barony');
+    expect(result.vpEvents[1]?.points).toBe(-1);
+    expect(result.currentScores['barony']).toBe(0);
+    expect(result.currentScores['arborec']).toBe(0);
+  });
+
+  it('UNSCORE_OBJECTIVE for SFT falls back to pledger when key field is absent', () => {
+    const result = reduce([
+      makeEntry('SCORE_OBJECTIVE', { faction: 'barony', objective: 'Support for the Throne' }),
+      makeEntry('UNSCORE_OBJECTIVE', { faction: 'barony', objective: 'Support for the Throne' }),
+    ], [makeFaction('barony')]);
+    expect(result.vpEvents[1]?.faction).toBe('barony');
     expect(result.currentScores['barony']).toBe(0);
   });
 });

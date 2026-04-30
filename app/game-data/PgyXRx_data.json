@@ -62,6 +62,12 @@
     "winner": "Titans of Ul",
     "imperialVPOverrides": {
       "Titans of Ul": 0
+    },
+    "finalScoreOverrides": {
+      "Arborec": 10,
+      "Naaz-Rokha Alliance": 13,
+      "Sardakk N'orr": 13,
+      "Ral Nel Consortium": 12
     }
   },
   "timers": {
