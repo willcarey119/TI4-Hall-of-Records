@@ -10,7 +10,6 @@ interface Props {
 export function MecatolWidget({ timeline, factions }: Props) {
   return (
     <div style={{ marginBottom: 12 }}>
-      {/* Kicker */}
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
@@ -94,7 +93,6 @@ function MecatolStrip({
               borderRadius: 2,
             }}
           >
-            {/* Round label */}
             <span
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
@@ -106,7 +104,6 @@ function MecatolStrip({
               R{entry.round}
             </span>
 
-            {/* Faction dot or dash */}
             {brandColor !== null ? (
               <FactionDot color={brandColor} size={8} />
             ) : (
@@ -122,7 +119,6 @@ function MecatolStrip({
               </span>
             )}
 
-            {/* Faction abbreviation */}
             <span
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",

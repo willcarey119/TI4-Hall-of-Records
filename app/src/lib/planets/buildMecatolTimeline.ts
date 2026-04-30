@@ -35,13 +35,8 @@ export function buildMecatolTimeline(
   const sorted = roundBoundaries.slice().sort((a, b) => a.round - b.round);
 
   const rounds: MecatolRoundEntry[] = sorted.map(boundary => {
-    // Walk all events up to boundary.startTimestamp of the NEXT round (exclusive),
-    // i.e. all events that occurred at or before the boundary's own start
-    // plus events between this boundary start and the next boundary start.
-    // The spec says: find all events with timestamp <= boundary.startTimestamp of THIS
-    // round boundary. But boundaries use startTimestamp of each round, not endTimestamp.
-    // We need all events that happened before the NEXT round started.
-    // Derive endTimestamp: everything up to (but not including) the next boundary's start.
+    // Use the next round's start as an exclusive ceiling so late-round events
+    // (e.g. a claim in the action phase) are attributed to the correct round.
     const nextBoundary = sorted.find(b => b.round === boundary.round + 1);
     const endTimestamp = nextBoundary !== undefined ? nextBoundary.startTimestamp - 1 : Infinity;
 

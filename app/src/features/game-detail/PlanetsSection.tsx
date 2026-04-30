@@ -173,7 +173,7 @@ export function PlanetsSection() {
       style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }}
     >
       {mecatolTimeline !== null && (
-        <MecatolWidget timeline={mecatolTimeline} factions={game?.factions ?? []} />
+        <MecatolWidget timeline={mecatolTimeline} factions={game!.factions} />
       )}
       {summary !== null && (
         <PlanetsContent summary={summary} />
