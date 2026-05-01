@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { loadAllGames } from '../../adapters/firestore';
 import { buildAgendaCrossGame } from '../../lib/aggregator/buildAgendaCrossGame';
 import type { ParsedGame } from '../../lib/parser/types';
-import { Kicker, Rule, FontScaleControls } from '../../shared';
+import { Kicker, Rule, FontScaleControls, SectionDesc, Tooltip } from '../../shared';
 import { FactionVotingPanel } from './FactionVotingPanel';
 import { AgendaCard } from './AgendaCard';
 
@@ -14,13 +14,15 @@ const monoMicro = {
 interface StatBoxProps {
   label: string;
   value: string;
+  tooltip?: string;
 }
 
-function StatBox({ label, value }: StatBoxProps) {
+function StatBox({ label, value, tooltip }: StatBoxProps) {
   return (
     <div style={{ background: 'var(--paper-2)', padding: 8, border: '1px solid var(--ink-4)' }}>
-      <div style={{ ...monoMicro, textTransform: 'uppercase' as const, letterSpacing: '0.1em', color: 'var(--ink-3)' }}>
+      <div style={{ ...monoMicro, textTransform: 'uppercase' as const, letterSpacing: '0.1em', color: 'var(--ink-3)', display: 'flex', alignItems: 'center' }}>
         {label}
+        {tooltip !== undefined && <Tooltip text={tooltip} />}
       </div>
       <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800 }}>
         {value}
@@ -75,11 +77,16 @@ export function AgendaPage() {
       </div>
       <Kicker text={`Cross-game agenda analytics · ${summary.gamesAnalyzed} games`} />
 
+      <SectionDesc>
+        Every political agenda voted on across all recorded sessions, aggregated by outcome and VP impact. Each round of TI4 ends with a Galactic Senate phase where players vote on laws and directives — this page tracks how those votes went.
+      </SectionDesc>
+
       {/* Definitions section (A8) */}
-      <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-caption)', color: 'var(--ink-2)', lineHeight: 1.5, margin: '10px 0 14px' }}>
-        A binary agenda resolves as For or Against. An elect agenda names a winner.
-        Pass rate counts binary resolutions only — elect-type agendas show '—'.
-        VP impact tracks points gained or lost per faction from agenda outcomes.
+      <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-caption)', color: 'var(--ink-2)', lineHeight: 1.5, margin: '0 0 14px' }}>
+        A <strong>binary agenda</strong> resolves as For or Against (law or directive).
+        An <strong>elect agenda</strong> names a specific winner (a faction, planet, or player).
+        Pass rate applies to binary agendas only — elect-type agendas show '—'.
+        VP impact tracks points gained or lost per faction as a direct result of agenda outcomes.
       </p>
 
       {/* Top stats row */}
@@ -87,18 +94,22 @@ export function AgendaPage() {
         <StatBox
           label="Pass Rate"
           value={summary.overallPassRate !== null ? `${Math.round(summary.overallPassRate * 100)}%` : '—'}
+          tooltip="How often binary agendas pass (For wins). Elect-type agendas are excluded."
         />
         <StatBox
           label="Agendas"
           value={String(summary.agendas.length)}
+          tooltip="Distinct agenda cards that have been resolved at least once across all sessions."
         />
         <StatBox
           label="Resolutions"
           value={String(summary.totalResolutions)}
+          tooltip="Total number of agenda votes resolved across all games and all rounds."
         />
         <StatBox
           label="VP Swung"
           value={String(totalVpSwung)}
+          tooltip="Total victory points transferred between factions as a direct result of agenda outcomes."
         />
       </div>
 

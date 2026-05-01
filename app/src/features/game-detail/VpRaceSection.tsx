@@ -10,7 +10,7 @@ import {
   type VpRaceEditorial,
 } from '../../lib/vp/buildVpRaceEditorial';
 import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
-import { Rule, FactionDot } from '../../shared';
+import { Rule, FactionDot, SectionDesc } from '../../shared';
 import { formatDuration } from '../../shared/formatters';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 
@@ -238,6 +238,10 @@ function VpRaceContent({
       <div style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
         {editorial.deckText}
       </div>
+
+      <SectionDesc>
+        Victory point trajectory across every round of this game. Each line tracks one faction's running VP total as they scored — revealing momentum shifts, who surged late, and how close the finish really was.
+      </SectionDesc>
 
       <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMeta } from './MetaContext';
-import { Rule, FactionDot } from '../../shared';
+import { Rule, FactionDot, SectionDesc } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 
 type ViewMode = 'table' | 'cards';
@@ -69,6 +69,10 @@ export function FactionSection() {
       <div style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 6 }}>
         Sample sizes are small — based on {factionStats.totalGames} game{factionStats.totalGames !== 1 ? 's' : ''}.
       </div>
+
+      <SectionDesc>
+        Win rates, average scores, and performance history for each faction played across all recorded sessions. Toggle between cards (visual) and table (sortable) views to compare factions.
+      </SectionDesc>
 
       {/* View / sort toggles */}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>

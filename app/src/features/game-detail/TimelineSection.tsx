@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildTimelineFeed, type TimelineFeedItem } from '../../lib/timeline/buildTimelineFeed';
-import { Rule, FactionDot } from '../../shared';
+import { Rule, FactionDot, SectionDesc } from '../../shared';
 
 /** Format a raw timestamp (ms) as relative game time h:mm */
 function formatGameTime(timestamp: number, firstTimestamp: number): string {
@@ -164,6 +164,10 @@ export function TimelineSection() {
           <div style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
             {summary.deckText}
           </div>
+
+          <SectionDesc>
+            A chronological record of notable events during this game — VP scores, agenda votes, objective reveals, and Mecatol Rex control changes. Wall-clock timestamps show when events occurred relative to the session start.
+          </SectionDesc>
 
           <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
 

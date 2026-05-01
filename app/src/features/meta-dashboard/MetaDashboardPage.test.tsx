@@ -9,6 +9,17 @@ vi.mock('../../adapters/firestore', () => ({
   loadAllGames: vi.fn(),
 }));
 
+vi.mock('../../adapters/AuthContext', () => ({
+  useAuth: vi.fn(() => ({
+    isAuthorized: false,
+    authLoading: false,
+    user: null,
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+  })),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 import { loadAllGames } from '../../adapters/firestore';
 const mockLoad = vi.mocked(loadAllGames);
 

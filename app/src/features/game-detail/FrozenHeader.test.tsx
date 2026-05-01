@@ -92,9 +92,9 @@ it('highlights the active section nav button with heavier font weight', () => {
   expect(inactive.style.fontWeight).toBe('400');
 });
 
-it('renders a back button', () => {
+it('renders a back link to the archive', () => {
   renderHeader();
-  expect(screen.getByRole('button', { name: /Archive/i })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /Archive/i })).toBeInTheDocument();
 });
 
 it('returns null when game is null', () => {

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Kicker, FactionChip, Rule, formatKicker, formatGameTitle, FontScaleControls } from '../../shared';
 import { useGame } from './GameContext';
 
@@ -59,6 +60,29 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
 
       {/* Nav bar */}
       <nav style={{ display: 'flex', overflowX: 'auto', padding: '0 12px' }}>
+        {/* Back to archive */}
+        <Link
+          to="/"
+          aria-label="Archive"
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 'var(--font-micro)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            padding: '7px 12px 7px 4px',
+            color: 'var(--ink-4)',
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            borderBottom: '2px solid transparent',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 3,
+          }}
+        >
+          ← Archive
+        </Link>
+        <span style={{ color: 'var(--ink-4)', padding: '7px 0', fontSize: 'var(--font-micro)' }}>·</span>
         {SECTIONS.map(({ id, label }) => (
           <button
             key={id}

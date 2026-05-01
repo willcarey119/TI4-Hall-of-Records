@@ -1,4 +1,7 @@
 export { AppNav } from './AppNav';
+export { AppHeader } from './AppHeader';
+export { SectionDesc } from './SectionDesc';
+export { Tooltip } from './Tooltip';
 export { ErrorBoundary } from './ErrorBoundary';
 export { Label } from './Label';
 export { Rule } from './Rule';

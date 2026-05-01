@@ -1,5 +1,5 @@
 import { useMeta } from './MetaContext';
-import { Rule } from '../../shared';
+import { Rule, SectionDesc } from '../../shared';
 
 const HIGH_FOLLOW = 0.8;
 
@@ -33,6 +33,10 @@ export function StrategyCardSection() {
       <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800, lineHeight: 1.1, marginBottom: 8 }}>
         Drafting and follow-through.
       </div>
+
+      <SectionDesc>
+        Each of TI4's 8 strategy cards grants a primary ability and a secondary that other players can follow. This section tracks pick frequency by round and how often factions execute the secondary — revealing which cards dominate the draft and which get ignored.
+      </SectionDesc>
 
       {/* Secondary follow rate */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 6 }}>

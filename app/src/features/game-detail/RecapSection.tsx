@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildRecapSummary } from '../../lib/recap/buildRecapSummary';
-import { Rule, formatDate, formatDuration, FactionDot } from '../../shared';
+import { Rule, formatDate, formatDuration, FactionDot, SectionDesc } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 import { buildRoundScores } from '../../lib/recap/buildRoundScores';
 import { deriveRoundBoundaries } from '../../lib/aggregator';
@@ -122,6 +122,10 @@ export function RecapSection() {
       >
         {editorialDeck}
       </div>
+
+      <SectionDesc>
+        Final standings and VP breakdown for this game. Each faction's total is split by source — public objectives, secret objectives, Imperial Strategy, and agenda bonuses — so you can see exactly how the win was built.
+      </SectionDesc>
 
       <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '8px 0' }} />
 

@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildTechSummary } from '../../lib/tech/buildTechSummary';
 import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
-import { Label, Rule, FactionDot, TechPip } from '../../shared';
+import { Label, Rule, FactionDot, TechPip, SectionDesc } from '../../shared';
 
 export function TechSection() {
   const { game } = useGame();
@@ -67,6 +67,10 @@ export function TechSection() {
       <div style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
         {summary.deckText}
       </div>
+
+      <SectionDesc>
+        Technologies researched and held by each faction at game end. Colored pips indicate tech category: blue = Propulsion, red = Warfare, yellow = Cybernetic, green = Biotic. Italic techs are faction-specific.
+      </SectionDesc>
 
       <Rule weight="double" />
 

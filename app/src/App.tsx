@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AppNav, ErrorBoundary } from './shared';
+import { AppHeader } from './shared/AppHeader';
+import { ErrorBoundary } from './shared';
 import { AuthProvider } from './adapters/AuthContext';
 
 const HomePage = lazy(() =>
@@ -41,7 +42,7 @@ export default function App() {
       <BrowserRouter>
         <ErrorBoundary>
           <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--paper)' }}>
-            <AppNav />
+            <AppHeader />
             <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
               <Suspense fallback={<RouteLoadingFallback />}>
                 <Routes>

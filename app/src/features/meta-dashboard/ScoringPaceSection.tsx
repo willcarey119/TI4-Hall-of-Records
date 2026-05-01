@@ -1,5 +1,5 @@
 import { useMeta } from './MetaContext';
-import { Kicker } from '../../shared';
+import { Kicker, SectionDesc } from '../../shared';
 import type { ScoringPaceRoundSummary } from '../../lib/aggregator';
 
 const W = 520;
@@ -156,6 +156,9 @@ export function ScoringPaceSection() {
       }}>
         Each line = one game's winner trajectory
       </div>
+      <SectionDesc>
+        How quickly winners accumulated VP round by round across all sessions. Each line is one game's winner — the red line is the fastest win on record. Steep early lines mean aggressive first-turn scoring; flat lines mean slow starts and late surges.
+      </SectionDesc>
       <WinnerPaceChart data={scoringPaceRounds} />
       <div style={{
         display: 'flex',

@@ -4,7 +4,7 @@ import { buildPlanetSummary, type PlanetSummary, type FactionPlanetInventory } f
 import { buildMecatolTimeline } from '../../lib/planets/buildMecatolTimeline';
 import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
 import { MecatolWidget } from './MecatolWidget';
-import { Label, Rule, FactionDot } from '../../shared';
+import { Label, Rule, FactionDot, SectionDesc } from '../../shared';
 
 function PlanetsContent({ summary }: { summary: PlanetSummary }) {
   const contestedNames = new Set(summary.contested.map(p => p.planet));
@@ -51,6 +51,10 @@ function PlanetsContent({ summary }: { summary: PlanetSummary }) {
       <div style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
         {summary.deckText}
       </div>
+
+      <SectionDesc>
+        Territorial holdings at game end — which planets each faction controlled, with total resources and influence. Contested planets (changed hands during the game) are highlighted separately.
+      </SectionDesc>
 
       <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
 

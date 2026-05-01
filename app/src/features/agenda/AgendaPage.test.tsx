@@ -13,7 +13,8 @@ it('renders the masthead', async () => {
 
 it('renders the definitions section', async () => {
   render(<AgendaPage />);
-  expect(await screen.findByText(/binary agenda/i)).toBeInTheDocument();
+  const matches = await screen.findAllByText(/binary agenda/i);
+  expect(matches.length).toBeGreaterThan(0);
 });
 
 it('renders top stats row', async () => {

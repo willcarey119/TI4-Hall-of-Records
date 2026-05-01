@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useMeta } from './MetaContext';
-import { Rule } from '../../shared';
+import { Rule, SectionDesc } from '../../shared';
 import { usePlayerNames } from '../player-attribution/usePlayerNames';
 import { buildPlayerStats, collectAllRawNames, type PlayerStat } from '../../lib/attribution/buildPlayerStats';
 
@@ -142,11 +142,14 @@ export function PlayerSection() {
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           color: 'var(--ink-3)',
-          marginBottom: 12,
+          marginBottom: 6,
         }}
       >
         {totalRawNames} distinct names · assign first names to enable player records
       </div>
+      <SectionDesc>
+        Players who have participated in this league, linked to their faction histories and win records. Names are pulled from TI Assistant exports and grouped by first name.
+      </SectionDesc>
 
       <div style={{ marginBottom: players.length > 0 ? 16 : 0 }}>
         {allRawNames.length === 0 ? (

@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildAgendaSummary } from '../../lib/agenda/buildAgendaSummary';
-import { Label, Rule } from '../../shared';
+import { Label, Rule, SectionDesc } from '../../shared';
 import { EffectBlock, VoteColumns } from '../agenda/_shared/AgendaPrimitives';
 
 const INDEX_LABEL = ['I', 'II'] as const;
@@ -62,6 +62,10 @@ export function AgendaSection() {
       <div style={{ fontSize: 'var(--font-sm)', color: 'var(--ink-2)', lineHeight: 1.4, marginBottom: 4 }}>
         {summary.deckText}
       </div>
+
+      <SectionDesc>
+        Political agendas voted on during this game's Galactic Senate phases. Each entry shows how factions voted, what passed or failed, and any VP gained or lost as a result.
+      </SectionDesc>
 
       <Rule weight="double" />
 

@@ -47,11 +47,9 @@ beforeEach(() => {
   mockListGames.mockResolvedValue(mockSummaries);
 });
 
-it('renders the Hall of Records masthead', async () => {
+it('renders the welcome blurb', async () => {
   render(<MemoryRouter><HomePage /></MemoryRouter>);
-  expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
-    'Hall of Records'
-  );
+  expect(await screen.findByText(/Hall of Records/i)).toBeInTheDocument();
 });
 
 it('shows loading state initially', () => {
@@ -68,7 +66,7 @@ it('renders game cards after loading', async () => {
 it('shows empty state when no games in archive', async () => {
   mockListGames.mockResolvedValue([]);
   render(<MemoryRouter><HomePage /></MemoryRouter>);
-  expect(await screen.findByText(/No games yet/i)).toBeInTheDocument();
+  expect(await screen.findByText(/No games on record/i)).toBeInTheDocument();
 });
 
 it('shows error state when listGames rejects', async () => {

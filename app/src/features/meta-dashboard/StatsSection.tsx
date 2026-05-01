@@ -1,5 +1,5 @@
 import { useMeta } from './MetaContext';
-import { Rule, formatDuration } from '../../shared';
+import { Rule, formatDuration, SectionDesc } from '../../shared';
 
 const SOURCE_LABEL: Record<string, string> = {
   score_objective: 'OBJ', custodians: 'CUST', imperial_point: 'IMP', support_for_throne: 'SFT (Support for the Throne)',
@@ -28,6 +28,10 @@ export function StatsSection() {
       <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800, lineHeight: 1.1, marginBottom: 8 }}>
         The almanac.
       </div>
+
+      <SectionDesc>
+        Aggregate stats across all recorded sessions — total games, average duration, average winning VP, speaker outcomes, and relic fragment trends. A quick-reference almanac for the league.
+      </SectionDesc>
 
       {/* Headline grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useMeta } from './MetaContext';
-import { Rule, TechPip, TECH_COLOR_VAR } from '../../shared';
+import { Rule, TechPip, TECH_COLOR_VAR, SectionDesc } from '../../shared';
 import type { TechColor } from '../../lib/parser/techs';
 
 const COLOR_LABEL: Record<TechColor | 'all', string> = {
@@ -34,6 +34,10 @@ export function TechSection() {
       <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800, lineHeight: 1.1, marginBottom: 8 }}>
         The research log.
       </div>
+
+      <SectionDesc>
+        Most-researched technologies across all sessions — how many times each tech was acquired, which round it typically appears, and how often the game's winner held it. Filter by tech color to isolate a research path.
+      </SectionDesc>
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
         {TABS.map(tab => (

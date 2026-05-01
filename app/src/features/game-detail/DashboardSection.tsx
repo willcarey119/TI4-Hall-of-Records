@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildDashboardSummary } from '../../lib/dashboard/buildDashboardSummary';
 import type { FactionDashboard } from '../../lib/dashboard/buildDashboardSummary';
-import { Label, Rule, FactionDot, TechPip } from '../../shared';
+import { Label, Rule, FactionDot, TechPip, SectionDesc } from '../../shared';
 
 function FactionCard({ fd }: { fd: FactionDashboard }) {
   return (
@@ -189,6 +189,10 @@ export function DashboardSection() {
               ? `${summary.winner} claimed victory.`
               : `No faction reached the victory threshold.`}
           </div>
+
+          <SectionDesc>
+            Per-faction snapshot of this game: objectives scored, technologies researched, and planet holdings at game end. Starting techs are shown in grey; techs acquired during play are in full color.
+          </SectionDesc>
 
           <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
 

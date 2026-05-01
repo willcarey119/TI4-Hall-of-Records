@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ParsedGameSummary } from '../../adapters/firestore';
 import { useAuth } from '../../adapters/AuthContext';
-import { Mast, Rule, Label, FontScaleControls } from '../../shared';
-import { UploadPage } from '../upload/UploadPage';
+import { Rule, Label } from '../../shared';
 import { GameCard } from './GameCard';
 
 const monoSm: React.CSSProperties = {
@@ -17,7 +16,7 @@ const monoSm: React.CSSProperties = {
 };
 
 export function HomePage() {
-  const { isAuthorized, signIn, signOut, authLoading } = useAuth();
+  const { isAuthorized } = useAuth();
   const [games, setGames] = useState<ParsedGameSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,57 +92,40 @@ export function HomePage() {
       : `Archive — ${games.length} game${games.length !== 1 ? 's' : ''}`;
 
   return (
-    <main style={{ maxWidth: '640px', margin: '0 auto', padding: '48px 16px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <Mast title="Hall of Records" subtitle="Twilight Imperium IV · Game Archive" />
-        <FontScaleControls />
-      </div>
+    <main style={{ maxWidth: '680px', margin: '0 auto', padding: '32px 16px 64px' }}>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '16px' }}>
-        <a
-          href="/meta"
+      {/* Welcome blurb — visible to all visitors */}
+      <section style={{ marginBottom: '28px' }}>
+        <p
           style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: 'var(--accent)',
-            textDecoration: 'none',
+            fontFamily: "'IBM Plex Sans', sans-serif",
+            fontSize: 'var(--font-body)',
+            color: 'var(--ink-2)',
+            lineHeight: 1.65,
+            margin: 0,
           }}
         >
-          League Stats →
-        </a>
-        {/* Archivist sign-in control — unobtrusive but always reachable */}
-        {!authLoading && (
-          isAuthorized ? (
-            <button
-              type="button"
-              onClick={() => { void signOut(); }}
-              style={{ ...monoSm, color: 'var(--ink-4)' }}
-            >
-              Sign out
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => { void signIn(); }}
-              style={{ ...monoSm, color: 'var(--ink-4)' }}
-            >
-              Archivist →
-            </button>
-          )
-        )}
-      </div>
-
-      {/* Upload section — visible to authorized archivist only */}
-      {isAuthorized && (
-        <section style={{ marginBottom: '24px' }}>
-          <div style={{ marginBottom: '8px' }}>
-            <Label>File Dispatch</Label>
-          </div>
-          <UploadPage onSaved={() => { fetchGames(); }} />
-        </section>
-      )}
+          This is the Hall of Records for a private Twilight Imperium IV playgroup.
+          Every session played by this group is parsed from{' '}
+          <a
+            href="https://ti-assistant.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--accent)', textDecoration: 'none' }}
+          >
+            TI Assistant
+          </a>{' '}
+          exports and stored here for replay analysis and cross-game statistics.
+          Select a game below to explore its full detail — or visit{' '}
+          <a
+            href="/meta"
+            style={{ color: 'var(--accent)', textDecoration: 'none' }}
+          >
+            League Stats
+          </a>{' '}
+          for aggregate faction, strategy, and tech data across all recorded sessions.
+        </p>
+      </section>
 
       <Rule weight="thick" />
 
@@ -222,7 +204,7 @@ export function HomePage() {
 
         {!loading && error === null && games.length === 0 && (
           <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
-            No games yet — upload one above.
+            No games on record yet.
           </p>
         )}
 

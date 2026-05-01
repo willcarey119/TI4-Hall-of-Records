@@ -24,10 +24,15 @@ import type { FactionSetup, ParsedGame } from '../lib/parser/types';
 // Emails permitted to perform writes and deletes. Reads remain unrestricted.
 // Server-side enforcement lives in firestore.rules — this list is a client-side
 // UX gate that hides write controls from unauthorized visitors.
-export const AUTHORIZED_EMAILS: readonly string[] = [
-  'willcarey119@gmail.com',
-  // Add further playgroup archivists here as needed.
-];
+//
+// Set VITE_ARCHIVIST_EMAILS in your .env as a comma-separated list.
+// IMPORTANT: keep firestore.rules in sync with whatever emails you list here.
+export const AUTHORIZED_EMAILS: readonly string[] = (
+  import.meta.env['VITE_ARCHIVIST_EMAILS'] ?? ''
+)
+  .split(',')
+  .map((e: string) => e.trim())
+  .filter((e: string) => e.length > 0);
 
 /** Opens a Google Sign-In popup. Resolves when the user has authenticated. */
 export async function signInWithGoogle(): Promise<void> {
@@ -48,7 +53,7 @@ export interface ParsedGameSummary {
   gameId: string;
   playedAt: number;
   durationSeconds: number;
-  factions: Pick<FactionSetup, 'factionId' | 'color' | 'playerName'>[];
+  factions: Pick<FactionSetup, 'factionId' | 'color'>[];
   finalScores: Record<string, number>;
   winner: string | null;
   /** Phase the game ended in, derived from the last PhaseSnapshot. Absent for documents
@@ -82,7 +87,6 @@ export async function listGames(): Promise<ParsedGameSummary[]> {
       factions: game.factions.map((f) => ({
         factionId: f.factionId,
         color: f.color,
-        playerName: f.playerName,
       })),
       finalScores: game.finalScores,
       winner: game.winner,

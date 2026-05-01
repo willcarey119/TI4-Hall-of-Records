@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Rule, FontScaleControls } from '../../shared';
 import { MetaProvider, useMeta } from './MetaContext';
+import { useAuth } from '../../adapters/AuthContext';
 import { FactionSection } from './FactionSection';
 import { StrategyCardSection } from './StrategyCardSection';
 import { TechSection } from './TechSection';
@@ -8,24 +9,27 @@ import { StatsSection } from './StatsSection';
 import { PlayerSection } from './PlayerSection';
 import { ScoringPaceSection } from './ScoringPaceSection';
 
-const META_SECTIONS = [
+const PUBLIC_SECTIONS = [
   { id: 'factions',     label: 'Factions' },
   { id: 'strategy',     label: 'Strategy' },
   { id: 'techs',        label: 'Techs'    },
   { id: 'stats',        label: 'Stats'    },
   { id: 'scoring-pace', label: 'Pace'     },
-  { id: 'players',      label: 'Players'  },
 ] as const;
 
-type MetaSectionId = typeof META_SECTIONS[number]['id'];
+const ARCHIVIST_SECTIONS = [
+  ...PUBLIC_SECTIONS,
+  { id: 'players', label: 'Players' },
+] as const;
 
-const SECTION_IDS = META_SECTIONS.map(s => s.id) as MetaSectionId[];
+type MetaSectionId = typeof ARCHIVIST_SECTIONS[number]['id'];
 
 function scrollToSection(id: string): void {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 }
 
-function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
+function MetaFrozenHeader({ activeSection, isAuthorized }: { activeSection: string; isAuthorized: boolean }) {
+  const sections = isAuthorized ? ARCHIVIST_SECTIONS : PUBLIC_SECTIONS;
   return (
     <div
       style={{
@@ -70,7 +74,7 @@ function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
 
       {/* Nav bar */}
       <nav style={{ display: 'flex', overflowX: 'auto', padding: '0 12px' }}>
-        {META_SECTIONS.map(({ id, label }) => (
+        {sections.map(({ id, label }) => (
           <button
             key={id}
             type="button"
@@ -103,9 +107,10 @@ function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
   );
 }
 
-function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => void }) {
+function MetaScrollBody({ onSectionChange, isAuthorized }: { onSectionChange: (id: string) => void; isAuthorized: boolean }) {
   const { loading, error } = useMeta();
   const callbackRef = useRef(onSectionChange);
+  const sectionIds = (isAuthorized ? ARCHIVIST_SECTIONS : PUBLIC_SECTIONS).map(s => s.id);
 
   useEffect(() => {
     callbackRef.current = onSectionChange;
@@ -117,7 +122,7 @@ function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => 
 
     const observers: IntersectionObserver[] = [];
 
-    SECTION_IDS.forEach((id) => {
+    sectionIds.forEach((id) => {
       const el = document.getElementById(id);
       if (el === null) return;
 
@@ -141,7 +146,7 @@ function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => 
     return () => {
       observers.forEach((o) => { o.disconnect(); });
     };
-  }, [loading, error]);
+  }, [loading, error, isAuthorized]);
 
   if (loading) {
     return (
@@ -203,13 +208,14 @@ function MetaScrollBody({ onSectionChange }: { onSectionChange: (id: string) => 
       <TechSection />
       <StatsSection />
       <ScoringPaceSection />
-      <PlayerSection />
+      {isAuthorized && <PlayerSection />}
     </div>
   );
 }
 
 export function MetaDashboardPage() {
   const [activeSection, setActiveSection] = useState<string>('factions');
+  const { isAuthorized } = useAuth();
 
   return (
     <MetaProvider>
@@ -221,8 +227,8 @@ export function MetaDashboardPage() {
           background: 'var(--paper)',
         }}
       >
-        <MetaFrozenHeader activeSection={activeSection} />
-        <MetaScrollBody onSectionChange={setActiveSection} />
+        <MetaFrozenHeader activeSection={activeSection} isAuthorized={isAuthorized} />
+        <MetaScrollBody onSectionChange={setActiveSection} isAuthorized={isAuthorized} />
       </div>
     </MetaProvider>
   );
