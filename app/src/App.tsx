@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ErrorBoundary } from './shared';
+import { AppNav, ErrorBoundary } from './shared';
 import { AuthProvider } from './adapters/AuthContext';
 
 const HomePage = lazy(() =>
@@ -19,28 +19,18 @@ const NotFoundPage = lazy(() =>
   import('./features/not-found').then(m => ({ default: m.NotFoundPage }))
 );
 
+const loadingStyle: React.CSSProperties = {
+  fontFamily: "'IBM Plex Mono', monospace",
+  fontSize: 'var(--font-micro)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.1em',
+  color: 'var(--ink-3)',
+};
+
 function RouteLoadingFallback() {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        background: 'var(--paper)',
-      }}
-    >
-      <p
-        style={{
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 'var(--font-micro)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          color: 'var(--ink-3)',
-        }}
-      >
-        Loading…
-      </p>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, background: 'var(--paper)' }}>
+      <p style={loadingStyle}>Loading…</p>
     </div>
   );
 }
@@ -50,15 +40,20 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <ErrorBoundary>
-          <Suspense fallback={<RouteLoadingFallback />}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/games/:gameId" element={<GameDetailPage />} />
-              <Route path="/meta" element={<MetaDashboardPage />} />
-              <Route path="/agenda" element={<AgendaPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Suspense>
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--paper)' }}>
+            <AppNav />
+            <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+              <Suspense fallback={<RouteLoadingFallback />}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/games/:gameId" element={<GameDetailPage />} />
+                  <Route path="/meta" element={<MetaDashboardPage />} />
+                  <Route path="/agenda" element={<AgendaPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </Suspense>
+            </div>
+          </div>
         </ErrorBoundary>
       </BrowserRouter>
     </AuthProvider>

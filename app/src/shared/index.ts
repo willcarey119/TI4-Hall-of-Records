@@ -1,3 +1,4 @@
+export { AppNav } from './AppNav';
 export { ErrorBoundary } from './ErrorBoundary';
 export { Label } from './Label';
 export { Rule } from './Rule';

@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { Kicker, FactionChip, Rule, formatKicker, formatGameTitle, FontScaleControls } from '../../shared';
 import { useGame } from './GameContext';
 
@@ -21,7 +20,6 @@ interface FrozenHeaderProps {
 }
 
 export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
-  const navigate = useNavigate();
   const { game } = useGame();
 
   if (game === null) return null;
@@ -35,27 +33,6 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
         zIndex: 10,
       }}
     >
-      {/* Back link */}
-      <div style={{ padding: '10px 16px 4px' }}>
-        <button
-          type="button"
-          onClick={() => { navigate(-1); }}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: 'var(--ink-3)',
-            padding: 0,
-          }}
-        >
-          ← Archive
-        </button>
-      </div>
-
       {/* Masthead */}
       <div style={{ padding: '0 16px 8px' }}>
         <Rule weight="double" />

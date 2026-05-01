@@ -42,3 +42,6 @@ yarn-error.log*
 
 # Claude Code personal memory and session cache (machine-local)
 .claude/
+
+# Firebase
+.firebase/

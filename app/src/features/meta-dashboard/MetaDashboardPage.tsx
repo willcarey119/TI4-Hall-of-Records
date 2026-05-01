@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Rule, FontScaleControls } from '../../shared';
 import { MetaProvider, useMeta } from './MetaContext';
 import { FactionSection } from './FactionSection';
@@ -27,8 +26,6 @@ function scrollToSection(id: string): void {
 }
 
 function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
-  const navigate = useNavigate();
-
   return (
     <div
       style={{
@@ -38,27 +35,6 @@ function MetaFrozenHeader({ activeSection }: { activeSection: string }) {
         zIndex: 10,
       }}
     >
-      {/* Back link */}
-      <div style={{ padding: '10px 16px 4px' }}>
-        <button
-          type="button"
-          onClick={() => { navigate(-1); }}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: 'var(--ink-3)',
-            padding: 0,
-          }}
-        >
-          ← Archive
-        </button>
-      </div>
-
       {/* Masthead */}
       <div style={{ padding: '0 16px 8px' }}>
         <Rule weight="double" />
@@ -241,7 +217,7 @@ export function MetaDashboardPage() {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          height: '100vh',
+          height: '100%',
           background: 'var(--paper)',
         }}
       >
