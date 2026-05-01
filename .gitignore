@@ -45,3 +45,6 @@ yarn-error.log*
 
 # Firebase
 .firebase/
+
+# Game data (keep local/private)
+game-data/
