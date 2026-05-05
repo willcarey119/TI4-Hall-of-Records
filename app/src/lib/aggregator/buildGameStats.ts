@@ -596,9 +596,11 @@ function buildByThreshold(
 ): ThresholdSegment[] {
   const grouped = new Map<number, ParsedGame[]>();
   for (const game of games) {
-    const arr = grouped.get(game.vpThreshold) ?? [];
+    // vpThreshold may be absent on Firestore docs uploaded before this field was added
+    const threshold = (game.vpThreshold as number | undefined) ?? 10;
+    const arr = grouped.get(threshold) ?? [];
     arr.push(game);
-    grouped.set(game.vpThreshold, arr);
+    grouped.set(threshold, arr);
   }
 
   return [...grouped.entries()]
