@@ -163,6 +163,54 @@ export function StatsSection() {
 
       <Rule />
 
+      {/* Imperial Strategy Card · Mecatol Correlation */}
+      {gameStats.imperialMecatol.totalActivations > 0 && (
+        <>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 2px' }}>
+            Imperial Strategy Card · Mecatol Correlation
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 8, fontStyle: 'italic' }}>
+            How often the Imperial card holder controlled Mecatol Rex when they played the primary — and what happened when they didn't.
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 10 }}>
+            {([
+              { label: 'Total activations', value: String(gameStats.imperialMecatol.totalActivations), color: 'var(--ink)' },
+              { label: 'Owned Mecatol → scored VP', value: String(gameStats.imperialMecatol.scoredVp), color: 'var(--accent)' },
+              { label: 'Had Mecatol at pick, contested away', value: String(gameStats.imperialMecatol.contestedAway), color: '#e67e22' },
+              { label: 'No Mecatol involvement', value: String(gameStats.imperialMecatol.noMecatol), color: 'var(--ink-3)' },
+            ] as const).map(cell => (
+              <div key={cell.label} style={{ background: 'var(--paper-2)', padding: 8, border: '1px solid var(--ink-4)' }}>
+                <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800, color: cell.color }}>{cell.value}</div>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2, lineHeight: 1.3 }}>{cell.label}</div>
+              </div>
+            ))}
+          </div>
+          {([
+            { label: 'Scored VP', n: gameStats.imperialMecatol.scoredVp, color: 'var(--accent)' },
+            { label: 'Contested away', n: gameStats.imperialMecatol.contestedAway, color: '#e67e22' },
+            { label: 'No Mecatol', n: gameStats.imperialMecatol.noMecatol, color: 'var(--ink-3)' },
+          ] as const).map(row => {
+            const pct = gameStats.imperialMecatol.totalActivations > 0
+              ? row.n / gameStats.imperialMecatol.totalActivations
+              : 0;
+            return (
+              <div key={row.label} style={{ display: 'grid', gridTemplateColumns: '110px 1fr 44px', gap: 6, alignItems: 'center', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
+                <span style={{ color: row.color }}>{row.label}</span>
+                <div style={{ background: 'var(--ink-4)', height: 4 }}>
+                  <div style={{ background: row.color, height: 4, width: `${pct * 100}%` }} />
+                </div>
+                <span style={{ textAlign: 'right' }}>{Math.round(pct * 100)}%</span>
+              </div>
+            );
+          })}
+          <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginTop: 8, borderTop: '1px solid var(--rule)', paddingTop: 6 }}>
+            <strong style={{ color: '#e67e22' }}>Contested away</strong> — owned Mecatol at card selection, lost control before playing the primary.<br />
+            <strong style={{ color: 'var(--ink-3)' }}>No Mecatol involvement</strong> — never held Mecatol that round. Could be a strategic block, failed capture, or disinterest — the data cannot distinguish these.
+          </div>
+          <Rule />
+        </>
+      )}
+
       {/* Action types */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Action Type Breakdown</div>
       <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 6 }}>
