@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
+import { useRoundFilter } from './RoundFilterContext';
 import { buildDashboardSummary } from '../../lib/dashboard/buildDashboardSummary';
 import type { FactionDashboard } from '../../lib/dashboard/buildDashboardSummary';
+import {
+  assignRound,
+  deriveRoundBoundaries,
+} from '../../lib/aggregator/deriveRoundBoundaries';
 import { Label, Rule, FactionDot, TechPip, SectionDesc } from '../../shared';
 
 function FactionCard({ fd }: { fd: FactionDashboard }) {
@@ -126,21 +131,46 @@ function FactionCard({ fd }: { fd: FactionDashboard }) {
 
 export function DashboardSection() {
   const { game } = useGame();
+  const { scrubRound } = useRoundFilter();
 
-  const summary = useMemo(
-    () =>
-      game !== null
-        ? buildDashboardSummary(
-            game.vpEvents,
-            game.planetEvents,
-            game.techEvents,
-            game.factions,
-            game.finalScores,
-            game.options,
-          )
-        : null,
-    [game],
-  );
+  const summary = useMemo(() => {
+    if (game === null) return null;
+    if (scrubRound === null) {
+      return buildDashboardSummary(
+        game.vpEvents,
+        game.planetEvents,
+        game.techEvents,
+        game.factions,
+        game.finalScores,
+        game.options,
+      );
+    }
+    const boundaries = deriveRoundBoundaries(
+      game.strategyCardEvents,
+      game.factions.length,
+    );
+    const inRound = (ts: number): boolean =>
+      assignRound(ts, boundaries) <= scrubRound;
+    const filteredVp = game.vpEvents.filter(e => inRound(e.timestamp));
+    const filteredPlanets = game.planetEvents.filter(e => inRound(e.timestamp));
+    const filteredTech = game.techEvents.filter(
+      e => e.type !== 'research' || inRound(e.timestamp),
+    );
+    // Recompute scores from filtered VP events so totals reflect end-of-round-N.
+    const scores: Record<string, number> = {};
+    for (const f of game.factions) scores[f.factionId] = 0;
+    for (const ev of filteredVp) {
+      scores[ev.faction] = (scores[ev.faction] ?? 0) + ev.points;
+    }
+    return buildDashboardSummary(
+      filteredVp,
+      filteredPlanets,
+      filteredTech,
+      game.factions,
+      scores,
+      game.options,
+    );
+  }, [game, scrubRound]);
 
   return (
     <section

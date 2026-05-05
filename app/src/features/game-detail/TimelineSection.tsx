@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
+import { useRoundFilter } from './RoundFilterContext';
 import { buildTimelineFeed, type TimelineFeedItem } from '../../lib/timeline/buildTimelineFeed';
+import {
+  assignRound,
+  deriveRoundBoundaries,
+} from '../../lib/aggregator/deriveRoundBoundaries';
 import { Rule, FactionDot, SectionDesc } from '../../shared';
-
-// TODO: round filter for TimelineSection requires deriveRoundBoundaries — deferred to follow-up
 
 /** Format a raw timestamp (ms) as relative game time h:mm */
 function formatGameTime(timestamp: number, firstTimestamp: number): string {
@@ -96,19 +99,33 @@ function FeedItem({
 
 export function TimelineSection() {
   const { game } = useGame();
+  const { scrubRound } = useRoundFilter();
 
-  const summary = useMemo(
-    () =>
-      game !== null
-        ? buildTimelineFeed(
-            game.vpEvents,
-            game.agendaResolutions,
-            game.objectiveReveals,
-            game.planetEvents,
-          )
-        : null,
-    [game],
-  );
+  const summary = useMemo(() => {
+    if (game === null) return null;
+    if (scrubRound === null) {
+      return buildTimelineFeed(
+        game.vpEvents,
+        game.agendaResolutions,
+        game.objectiveReveals,
+        game.planetEvents,
+      );
+    }
+    const boundaries = deriveRoundBoundaries(
+      game.strategyCardEvents,
+      game.factions.length,
+    );
+    const filterByTs = <T extends { timestamp: number }>(arr: T[]): T[] =>
+      arr.filter(e => assignRound(e.timestamp, boundaries) <= scrubRound);
+    const filterByRound = <T extends { round: number }>(arr: T[]): T[] =>
+      arr.filter(e => e.round <= scrubRound);
+    return buildTimelineFeed(
+      filterByTs(game.vpEvents),
+      filterByTs(game.agendaResolutions),
+      filterByRound(game.objectiveReveals),
+      filterByTs(game.planetEvents),
+    );
+  }, [game, scrubRound]);
 
   const factionColorMap = useMemo(
     () =>

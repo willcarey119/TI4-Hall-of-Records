@@ -1,8 +1,12 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
+import { useRoundFilter } from './RoundFilterContext';
 import { buildPlanetSummary, type PlanetSummary, type FactionPlanetInventory } from '../../lib/planets/buildPlanetSummary';
 import { buildMecatolTimeline } from '../../lib/planets/buildMecatolTimeline';
-import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
+import {
+  assignRound,
+  deriveRoundBoundaries,
+} from '../../lib/aggregator/deriveRoundBoundaries';
 import { MecatolWidget } from './MecatolWidget';
 import { PlanetControlSlideshow } from './PlanetControlSlideshow';
 import { Label, Rule, FactionDot, SectionDesc } from '../../shared';
@@ -172,10 +176,23 @@ function FactionTerritoryCard({
 
 export function PlanetsSection() {
   const { game } = useGame();
+  const { scrubRound } = useRoundFilter();
+
+  const filteredPlanetEvents = useMemo(() => {
+    if (game === null) return [];
+    if (scrubRound === null) return game.planetEvents;
+    const boundaries = deriveRoundBoundaries(
+      game.strategyCardEvents,
+      game.factions.length,
+    );
+    return game.planetEvents.filter(
+      e => assignRound(e.timestamp, boundaries) <= scrubRound,
+    );
+  }, [game, scrubRound]);
 
   const summary = useMemo(
-    () => (game !== null ? buildPlanetSummary(game.planetEvents, game.factions) : null),
-    [game],
+    () => (game !== null ? buildPlanetSummary(filteredPlanetEvents, game.factions) : null),
+    [game, filteredPlanetEvents],
   );
 
   const mecatolTimeline = useMemo(() => {
@@ -199,7 +216,7 @@ export function PlanetsSection() {
       {game !== null && (
         <>
           <Rule weight="double" />
-          <PlanetControlSlideshow game={game} />
+          <PlanetControlSlideshow game={game} scrubRound={scrubRound} />
         </>
       )}
     </section>

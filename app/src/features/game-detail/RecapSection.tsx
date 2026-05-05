@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
+import { useRoundFilter } from './RoundFilterContext';
 import { buildRecapSummary } from '../../lib/recap/buildRecapSummary';
 import { Rule, formatDate, formatDuration, SectionDesc, Tooltip } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
@@ -9,6 +10,7 @@ import { FactionSnapshotCards } from './FactionSnapshotCards';
 
 export function RecapSection() {
   const { game } = useGame();
+  const { scrubRound } = useRoundFilter();
 
   const recap = useMemo(
     () => (game !== null ? buildRecapSummary(game) : null),
@@ -267,8 +269,25 @@ export function RecapSection() {
 
       <Rule />
 
+      {scrubRound !== null && (
+        <div
+          data-testid="recap-scrub-notice"
+          style={{
+            border: '1px dashed var(--ink-3)',
+            background: 'var(--paper-2)',
+            padding: '5px 8px',
+            margin: '6px 0',
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 'var(--font-micro)',
+            color: 'var(--ink-2)',
+          }}
+        >
+          Final standings reflect end-of-game · per-round recap snapshots coming in V1.3b. Round scores below are dimmed past R{scrubRound}.
+        </div>
+      )}
+
       {/* Faction snapshot cards + per-round scores in one aligned grid */}
-      <FactionSnapshotCards game={game} roundScores={roundScores} />
+      <FactionSnapshotCards game={game} roundScores={roundScores} scrubRound={scrubRound} />
     </section>
   );
 }

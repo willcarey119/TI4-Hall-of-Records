@@ -407,9 +407,11 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
 export function FactionSnapshotCards({
   game,
   roundScores = [],
+  scrubRound = null,
 }: {
   game: ParsedGame;
   roundScores?: RoundScoreRow[];
+  scrubRound?: number | null;
 }) {
   const cards = buildCardData(game);
   if (cards.length === 0) return null;
@@ -475,6 +477,7 @@ export function FactionSnapshotCards({
               row={row}
               cards={cards}
               cellStyle={cellBase}
+              dimmed={scrubRound !== null && row.round > scrubRound}
             />
           ))}
         </>
@@ -487,14 +490,17 @@ function RoundScoreRowFragment({
   row,
   cards,
   cellStyle,
+  dimmed = false,
 }: {
   row: RoundScoreRow;
   cards: CardData[];
   cellStyle: React.CSSProperties;
+  dimmed?: boolean;
 }) {
+  const opacity = dimmed ? 0.3 : 1;
   return (
     <>
-      <div style={{ ...cellStyle, textAlign: 'left', color: 'var(--ink-3)' }}>
+      <div style={{ ...cellStyle, textAlign: 'left', color: 'var(--ink-3)', opacity }}>
         R{row.round}
       </div>
       {cards.map(c => (
@@ -504,6 +510,7 @@ function RoundScoreRowFragment({
             ...cellStyle,
             fontWeight: 800,
             color: c.isWinner ? 'var(--accent)' : 'var(--ink)',
+            opacity,
           }}
         >
           {row.scores[c.faction.factionId] ?? 0}

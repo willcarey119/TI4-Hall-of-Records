@@ -1,24 +1,35 @@
 // app/src/features/game-detail/TechSection.tsx
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
+import { useRoundFilter } from './RoundFilterContext';
 import { buildTechSummary } from '../../lib/tech/buildTechSummary';
-import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
+import {
+  assignRound,
+  deriveRoundBoundaries,
+} from '../../lib/aggregator/deriveRoundBoundaries';
 import { Label, Rule, FactionDot, TechPip, SectionDesc } from '../../shared';
 
 export function TechSection() {
   const { game } = useGame();
+  const { scrubRound } = useRoundFilter();
 
-  const summary = useMemo(
-    () =>
-      game
-        ? buildTechSummary(
-            game.techEvents,
-            game.factions,
-            deriveRoundBoundaries(game.strategyCardEvents, game.factions.length),
-          )
-        : null,
-    [game],
-  );
+  const summary = useMemo(() => {
+    if (game === null) return null;
+    const boundaries = deriveRoundBoundaries(
+      game.strategyCardEvents,
+      game.factions.length,
+    );
+    // Filter research events past the scrubbed round; keep starting techs intact.
+    const filteredTechEvents =
+      scrubRound === null
+        ? game.techEvents
+        : game.techEvents.filter(
+            e =>
+              e.type !== 'research' ||
+              assignRound(e.timestamp, boundaries) <= scrubRound,
+          );
+    return buildTechSummary(filteredTechEvents, game.factions, boundaries);
+  }, [game, scrubRound]);
 
   if (game === null || summary === null) return null;
 

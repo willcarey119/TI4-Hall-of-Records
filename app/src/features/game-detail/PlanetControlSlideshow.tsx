@@ -12,9 +12,10 @@ const SPEED_OPTIONS: { label: string; ms: number }[] = [
 
 interface Props {
   game: ParsedGame;
+  scrubRound?: number | null;
 }
 
-export function PlanetControlSlideshow({ game }: Props) {
+export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
   const territoryByRound = useMemo(() => {
     const boundaries = deriveRoundBoundaries(game.strategyCardEvents, game.factions.length);
     return buildTerritoryByRound(game.planetEvents, game.factions, boundaries);
@@ -25,15 +26,24 @@ export function PlanetControlSlideshow({ game }: Props) {
   const [playing, setPlaying] = useState(false);
   const [speedMs, setSpeedMs] = useState(1500);
 
+  // External round-scrubber override: jump to scrubRound and pause auto-advance.
+  useEffect(() => {
+    if (scrubRound === null) return;
+    const targetIdx = Math.min(Math.max(scrubRound - 1, 0), totalRounds - 1);
+    setRoundIdx(targetIdx);
+    setPlaying(false);
+  }, [scrubRound, totalRounds]);
+
   useEffect(() => {
     if (!playing) return;
+    if (scrubRound !== null) return; // disable auto-advance while scrubber is active
     if (roundIdx >= totalRounds - 1) {
       setPlaying(false);
       return;
     }
     const timer = setTimeout(() => setRoundIdx(i => i + 1), speedMs);
     return () => clearTimeout(timer);
-  }, [playing, roundIdx, totalRounds, speedMs]);
+  }, [playing, roundIdx, totalRounds, speedMs, scrubRound]);
 
   if (totalRounds === 0) return null;
 
