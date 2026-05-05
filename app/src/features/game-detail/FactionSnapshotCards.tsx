@@ -1,9 +1,11 @@
+import React from 'react';
 import type { ParsedGame, VpEvent, TechEvent, FactionSetup } from '../../lib/parser/types';
+import type { RoundScoreRow } from '../../lib/recap/buildRoundScores';
 import { getObjectivePoints } from '../../lib/parser/objectives';
 import { lookupTechColor, type TechColor } from '../../lib/parser/techs';
 import { buildPlanetSummary } from '../../lib/planets/buildPlanetSummary';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
-import { FactionDot } from '../../shared';
+import { FactionDot, Tooltip } from '../../shared';
 
 type SourceTag = 'stage1' | 'stage2' | 'secret' | 'imperial' | 'custodians' | 'sft' | 'agenda' | 'rider' | 'relic' | 'legendary' | 'manual' | 'other';
 
@@ -402,21 +404,111 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
   );
 }
 
-export function FactionSnapshotCards({ game }: { game: ParsedGame }) {
+export function FactionSnapshotCards({
+  game,
+  roundScores = [],
+}: {
+  game: ParsedGame;
+  roundScores?: RoundScoreRow[];
+}) {
   const cards = buildCardData(game);
   if (cards.length === 0) return null;
 
+  // Shared grid template: row-label gutter + N data columns (one per faction, VP-desc order)
+  const gridTemplateColumns = `36px repeat(${cards.length}, minmax(0, 1fr))`;
+  const showRoundScores = roundScores.length > 0;
+
+  const cellBase = {
+    fontFamily: "'IBM Plex Mono', monospace",
+    fontSize: 'var(--font-micro)',
+    textAlign: 'center' as const,
+    padding: '3px 2px',
+  };
+
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-        gap: 8,
-      }}
-    >
+    <div style={{ display: 'grid', gridTemplateColumns, gap: 8, alignItems: 'stretch' }}>
+      {/* Row 1: cards (skip the row-label gutter) */}
+      <div />
       {cards.map(c => (
         <FactionCard key={c.faction.factionId} data={c} vpThreshold={game.vpThreshold} />
       ))}
+
+      {/* Round scores grid — shares the same column template */}
+      {showRoundScores && (
+        <>
+          {/* Header row: "Rd" label + faction dots */}
+          <div
+            style={{
+              ...cellBase,
+              textAlign: 'left',
+              color: 'var(--ink-3)',
+              borderTop: '1px solid var(--rule)',
+              paddingTop: 6,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            Rd<Tooltip text="VP scored by each faction per round. Numbers are cumulative — each cell shows total points at end of that round." />
+          </div>
+          {cards.map(c => (
+            <div
+              key={`hd-${c.faction.factionId}`}
+              style={{
+                ...cellBase,
+                color: 'var(--ink-3)',
+                borderTop: '1px solid var(--rule)',
+                paddingTop: 6,
+              }}
+            >
+              <FactionDot
+                color={getFactionBrandColor(c.faction.factionId, c.faction.color)}
+                size={5}
+              />
+            </div>
+          ))}
+
+          {/* Data rows */}
+          {roundScores.map(row => (
+            <RoundScoreRowFragment
+              key={row.round}
+              row={row}
+              cards={cards}
+              cellStyle={cellBase}
+            />
+          ))}
+        </>
+      )}
     </div>
+  );
+}
+
+function RoundScoreRowFragment({
+  row,
+  cards,
+  cellStyle,
+}: {
+  row: RoundScoreRow;
+  cards: CardData[];
+  cellStyle: React.CSSProperties;
+}) {
+  return (
+    <>
+      <div style={{ ...cellStyle, textAlign: 'left', color: 'var(--ink-3)' }}>
+        R{row.round}
+      </div>
+      {cards.map(c => (
+        <div
+          key={`${row.round}-${c.faction.factionId}`}
+          style={{
+            ...cellStyle,
+            fontWeight: 800,
+            color: c.isWinner ? 'var(--accent)' : 'var(--ink)',
+          }}
+        >
+          {row.scores[c.faction.factionId] ?? 0}
+        </div>
+      ))}
+    </>
   );
 }

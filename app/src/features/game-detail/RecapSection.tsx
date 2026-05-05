@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildRecapSummary } from '../../lib/recap/buildRecapSummary';
-import { Rule, formatDate, formatDuration, FactionDot, SectionDesc, Tooltip } from '../../shared';
+import { Rule, formatDate, formatDuration, SectionDesc, Tooltip } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 import { buildRoundScores } from '../../lib/recap/buildRoundScores';
 import { deriveRoundBoundaries } from '../../lib/aggregator';
@@ -267,49 +267,8 @@ export function RecapSection() {
 
       <Rule />
 
-      {/* Faction snapshot cards (replaces flat standings strip) */}
-      <FactionSnapshotCards game={game} />
-
-      {roundScores.length > 0 && (
-        <>
-          <Rule />
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left', color: 'var(--ink-3)', fontWeight: 'normal', paddingRight: 8, whiteSpace: 'nowrap' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>Rd<Tooltip text="VP scored by each faction per round. Numbers are cumulative — each cell shows total points at end of that round." /></span>
-                  </th>
-                  {standings.map(s => (
-                    <th key={s.factionId} style={{ textAlign: 'center', color: 'var(--ink-3)', fontWeight: 'normal', paddingBottom: 2 }}>
-                      <FactionDot color={s.color} size={5} />
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {roundScores.map(row => (
-                  <tr key={row.round}>
-                    <td style={{ color: 'var(--ink-3)', paddingRight: 8 }}>R{row.round}</td>
-                    {standings.map(s => (
-                      <td
-                        key={s.factionId}
-                        style={{
-                          textAlign: 'center',
-                          fontWeight: 800,
-                          color: s.isWinner ? 'var(--accent)' : 'var(--ink)',
-                        }}
-                      >
-                        {row.scores[s.factionId] ?? 0}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
+      {/* Faction snapshot cards + per-round scores in one aligned grid */}
+      <FactionSnapshotCards game={game} roundScores={roundScores} />
     </section>
   );
 }
