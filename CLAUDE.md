@@ -14,7 +14,7 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 
 ## Current Status
 
-**V1.0 shipped 2026-04-28.** All phases 0–5d complete and live. 493 tests passing.
+**V1.2 wireframe kit shipped 2026-05-05.** App live at https://ti4-hall-of-records-da562.web.app. 786 tests passing.
 
 | Phase | Status |
 |---|---|
@@ -31,10 +31,12 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 | Phase 5d — New analytics views | ✅ Complete — round scores table, speaker stats, scoring pace SVG, relic stats, /agenda route, tech paths; 493 tests |
 | **V1.0** | ✅ **Shipped 2026-04-28** — full game detail + meta dashboard + agenda route live |
 | **V1.1** | ✅ **Shipped 2026-04-29** — 691 tests; all 6 bugs fixed; Agenda full scope; Mecatol widget; Scoring Pace rebuilt; typography pass; multi-file upload |
+| **V1.2 — Card UI redesign** | ✅ **Shipped 2026-05-05** — 719 tests; Recap/Planets/Tech/Agenda card layouts; Mecatol widget rewrite; PlanetControlSlideshow; per-faction snapshot cards |
+| **V1.2 — Wireframe kit rollout** | ✅ **Shipped 2026-05-05** — 786 tests; font floor 11→14px; SubSectionNav, CommandPalette (Ctrl+K), EntityCard, StatCard (8 variants), LeaderboardPodium, ComparisonBlock, TrendCard, DistributionCard, CategoryBreakdown, FilterBar, EmptyState/LoadingSkeleton/ErrorState; storyline match cards |
 
-**Next up:** V1.2+. See ROADMAP.md §V1.2+ for the backlog.
+**Next up:** V1.3+. See ROADMAP.md §V1.2+ for the backlog (round-scrubber section filtering, player attribution, CSV export, etc.).
 
-**V1.2+ scope guardrail:** New analytics views, player attribution, CSV export, and all features beyond V1.1 go to the V1.2+ backlog in ROADMAP.md.
+**V1.3+ scope guardrail:** New analytics views, player attribution, CSV export, and any feature beyond what shipped in V1.2 go to the V1.2+ backlog in ROADMAP.md.
 
 All app code lives under `D:\_TI4 App\app\`.
 

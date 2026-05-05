@@ -2,9 +2,9 @@
 
 Phased delivery plan. Each phase has a goal, a set of deliverables, the test surface that proves it works, and an explicit acceptance bar. We do not start phase N+1 until phase N's acceptance bar is met.
 
-> **Current position (2026-04-29):** **V1.1 shipped.** All V1.1 phases 1–6 complete.
+> **Current position (2026-05-05):** **V1.2 wireframe kit shipped.** Editorial newspaper-aesthetic redesign live.
 > App is live at https://ti4-hall-of-records-da562.web.app (Firebase project: `ti4-hall-of-records-da562`).
-> 691 tests passing. Next: V1.2+ (see backlog below).
+> 786 tests passing. Next: V1.2+ backlog (see below).
 > See `CLAUDE.md` for the full status table and working conventions.
 
 The Master Guidance Document defines four phases (Ingestion → Single-Game Replay → Meta-Dashboard → Polish). This roadmap **prepends a Phase 0** for project scaffolding, which is currently missing, and breaks each phase into concrete TDD-sized tickets.
@@ -407,6 +407,47 @@ Improvements identified in Step 3, plus any cross-cutting legibility work. Examp
 **New aggregator:** `buildTerritoryByRound(planetEvents, factions, roundBoundaries)` — reconstructs per-faction planet holdings at end of each round with gained/lost diffs.
 
 **Tests:** 719 passing. No logic regressions.
+
+---
+
+## V1.2 Addendum — Wireframe Kit Rollout ✅ COMPLETE (2026-05-05)
+
+**Goal:** Apply the new design handoff (`design_handoff_ti4_tracker/`) wireframe kit to the live app — fixing legibility (font floor too small) and rolling out 9 component sections.
+
+**What was done:**
+
+*Foundation:*
+- Raised CSS font tokens to 14px floor: `--font-micro` 11→14, `--font-sm` 13→16, `--font-body` 15→18, `--font-subhead` 17→20, `--font-display-sm` 22→26, `--font-display-md` 28→32, `--font-display-lg` 32→38
+- Added `.card-fill` container-query utility for cards that should expand type to fill space before collapsing padding
+
+*Page chrome (§01):*
+- `SubSectionNav` — sticky scroll-spy nav using IntersectionObserver
+- `CommandPalette` — Ctrl+K quick-jump to games by faction name
+- Compact "HoR" masthead on Meta dashboard (replaces tall masthead)
+- Round scrubber strip in game-detail `FrozenHeader` (display-only stub; section filtering deferred to V1.3)
+
+*New shared components (in `app/src/shared/`):*
+- `EntityCard` — newsprint / tabular / player / chip variants for faction display
+- `StatCard` — anchor / delta / rank / stack / hero / rate / quote / sparkline variants (replaces inline stat divs)
+- `LeaderboardPodium` — top-3 strip with 1st-2nd-3rd left-to-right ordering above the existing faction table
+- `ComparisonBlock` — `DivergingComparison` (head-to-head bars) + `MultiEntityComparison` (3+ column table)
+- `TrendCard` — `MultiLineChart` (overlay) + `SmallMultiples` (per-entity sparklines on shared y-scale)
+- `DistributionCard` — `BarHistogram` + `HeatmapGrid` (oklch intensity)
+- `CategoryBreakdown` — `StackedRowBreakdown` + `Treemap` (no donut per design preference)
+- `FilterBar` — segmented control + dropdown (wired to FactionSection card/table toggle)
+- `EmptyState` ("The presses await ink.") + `LoadingSkeleton` + `ErrorState` ("Stop the press") replace bare loading/error strings
+
+*Match cards (§05):* `GameCard` extended with `tile` / `ladder` / `storyline` variants on top of existing `row`. Latest game on the home page renders as `storyline` (PHOTO FINISH / CONTESTED / BLOWOUT tag derived from VP spread).
+
+*Polish pass:*
+- Body text legibility: `--ink-3` → `--ink-2` across StatCard / LeaderboardPodium / SubSectionNav / FilterBar / EntityCard
+- Mecatol Rex / Action Type Breakdown / VP Source Breakdown sections wrapped in editorial cards with `<Kicker>` headers and `<StatCard>` for numerics
+- FactionSection sparklines moved inside the EntityCard border; faction headlines sized down to handle long names ("Naaz-Rokha Alliance", "Universities of Jol-Nar")
+- Removed duplicate section nav row on Meta dashboard
+
+**Tests:** 786 passing. No logic regressions; 76 new tests added across the new components.
+
+**Build fix:** Removed unused `React` value imports from 9 shared files (modern JSX transform); fixed `GameCard` → `FactionChip` `score` prop to satisfy `exactOptionalPropertyTypes: true`.
 
 ---
 
