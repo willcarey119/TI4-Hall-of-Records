@@ -32,7 +32,7 @@ export function LeaderboardPodium({ top3 }: Props) {
               background: i === 0 ? 'var(--paper-2)' : 'var(--paper)',
             }}
           >
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase' as const, color: 'var(--ink-3)', letterSpacing: '0.1em' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase' as const, color: 'var(--ink-2)', letterSpacing: '0.1em' }}>
               {labels[i]}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
@@ -44,7 +44,7 @@ export function LeaderboardPodium({ top3 }: Props) {
             <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-display-sm)', color: i === 0 ? 'var(--accent)' : 'var(--ink)', marginTop: 6 }}>
               {winRate}%
             </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-2)' }}>
               {entry.wins}W · {entry.gamesPlayed}GP · {entry.avgVp.toFixed(1)} avg VP
             </div>
             <div style={{ height: 3, background: 'var(--rule)', marginTop: 8 }}>

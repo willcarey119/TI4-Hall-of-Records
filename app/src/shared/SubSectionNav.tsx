@@ -38,7 +38,7 @@ export function SubSectionNav({ sections }: { sections: Section[] }) {
             fontSize: 'var(--font-micro)',
             textTransform: 'uppercase' as const,
             letterSpacing: '0.1em',
-            color: active === id ? 'var(--ink)' : 'var(--ink-3)',
+            color: active === id ? 'var(--ink)' : 'var(--ink-2)',
             borderBottom: active === id ? '2px solid var(--ink)' : '2px solid transparent',
             borderTop: 'none',
             borderLeft: 'none',

@@ -31,7 +31,7 @@ export function StatCard(props: StatCardProps) {
     fontSize: 'var(--font-micro)',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.1em',
-    color: 'var(--ink-3)',
+    color: 'var(--ink-2)',
   };
   const bigNum: React.CSSProperties = {
     fontFamily: "'Newsreader', Georgia, serif",
@@ -45,7 +45,7 @@ export function StatCard(props: StatCardProps) {
     <div style={base}>
       <div style={labelStyle}>{label}</div>
       <div style={{ ...bigNum, fontSize: 'var(--font-display-md)', marginTop: 4 }}>{value}</div>
-      {caption && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>{caption}</div>}
+      {caption && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-2)', marginTop: 4 }}>{caption}</div>}
     </div>
   );
 
@@ -72,7 +72,7 @@ export function StatCard(props: StatCardProps) {
           <div style={{ background: 'var(--rule)', height: 3, marginTop: 8, position: 'relative' as const }}>
             <div style={{ position: 'absolute' as const, left: 0, top: 0, height: '100%', width: `${percentile}%`, background: 'var(--accent)' }} />
           </div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 2 }}>{percentile}th percentile</div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-2)', marginTop: 2 }}>{percentile}th percentile</div>
         </>
       )}
     </div>
@@ -97,7 +97,7 @@ export function StatCard(props: StatCardProps) {
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase' as const, color: 'var(--accent)', letterSpacing: '0.1em' }}>{label}</div>
       <div style={{ ...bigNum, fontSize: 'clamp(var(--font-display-md), 10cqi, 84px)', marginTop: 4 }}>{value}</div>
       {caption && <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-body)', color: 'var(--ink-2)', marginTop: 4 }}>{caption}</div>}
-      {footnote && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 8, borderTop: '1px solid var(--rule)', paddingTop: 4 }}>{footnote}</div>}
+      {footnote && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-2)', marginTop: 8, borderTop: '1px solid var(--rule)', paddingTop: 4 }}>{footnote}</div>}
     </div>
   );
 
@@ -108,7 +108,7 @@ export function StatCard(props: StatCardProps) {
         <span style={{ ...bigNum, fontSize: 'var(--font-display-md)' }}>{numerator}</span>
         <span style={{ ...bigNum, fontSize: 'var(--font-display-sm)', color: 'var(--ink-3)' }}>/{denominator}</span>
         {numerator != null && denominator != null && denominator > 0 && (
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-sm)', color: 'var(--ink-3)', marginLeft: 8 }}>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-sm)', color: 'var(--ink-2)', marginLeft: 8 }}>
             {Math.round((numerator / denominator) * 100)}%
           </span>
         )}
@@ -121,7 +121,7 @@ export function StatCard(props: StatCardProps) {
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase' as const, color: 'var(--accent)', letterSpacing: '0.1em' }}>{label}</div>
       <div style={{ borderTop: '1px solid var(--rule)', marginTop: 4 }} />
       <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontStyle: 'italic', fontSize: 'var(--font-display-sm)', color: 'var(--ink)', marginTop: 4 }}>{value}</div>
-      {caption && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 6 }}>{caption}</div>}
+      {caption && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-2)', marginTop: 6 }}>{caption}</div>}
     </div>
   );
 
@@ -130,7 +130,7 @@ export function StatCard(props: StatCardProps) {
     <div style={base}>
       <div style={labelStyle}>{label}</div>
       <div style={{ ...bigNum, fontSize: 'var(--font-display-md)', marginTop: 4 }}>{value}</div>
-      {caption && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>{caption}</div>}
+      {caption && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-2)' }}>{caption}</div>}
     </div>
   );
 }

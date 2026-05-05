@@ -49,7 +49,7 @@ export function FilterBar({
       )}
       {dropdownLabel && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase' as const, color: 'var(--ink-3)', letterSpacing: '0.1em' }}>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase' as const, color: 'var(--ink-2)', letterSpacing: '0.1em' }}>
             {dropdownLabel}
           </span>
           <select
