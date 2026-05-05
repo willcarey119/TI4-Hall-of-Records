@@ -358,7 +358,14 @@ function buildVpSources(games: ParsedGame[]): VpSourceStat[] {
 
   for (const game of games) {
     for (const ev of game.vpEvents) {
-      totals.set(ev.source, (totals.get(ev.source) ?? 0) + ev.points);
+      let source: VpSource = ev.source;
+      if (ev.source === 'score_objective') {
+        const def = getObjectivePoints(ev.objective);
+        if (def?.stage === 'II') source = 'score_objective_stage2';
+        else if (def?.stage === 'secret') source = 'score_objective_secret';
+        else source = 'score_objective_stage1';
+      }
+      totals.set(source, (totals.get(source) ?? 0) + ev.points);
       grandTotal += ev.points;
     }
   }

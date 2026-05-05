@@ -10,7 +10,7 @@ function makeGame(gameId: string, opts: Partial<ParsedGame>): ParsedGame {
       { factionId: 'Sol',   playerName: 'p', color: '#00f', mapPosition: 0, startingTechs: [], startingPlanets: [] },
       { factionId: 'Hacan', playerName: 'p', color: '#fa0', mapPosition: 1, startingTechs: [], startingPlanets: [] },
     ],
-    options: {}, initialSpeaker: 'Sol',
+    options: {}, vpThreshold: 10, initialSpeaker: 'Sol',
     phaseSnapshots: [], vpEvents: [], planetEvents: [], techEvents: [],
     agendaResolutions: [], strategyCardEvents: [], actionCardEvents: [], componentEvents: [],
     relicEvents: [], leaderEvents: [], objectiveReveals: [], speakerEvents: [],
@@ -96,12 +96,13 @@ describe('buildGameStats', () => {
   });
 
   it('vpSources breakdown sums points by source and computes share', () => {
+    // 'Expand Borders' is a Stage I objective — emitted as score_objective_stage1
     const vpEvents: VpEvent[] = [
-      { faction: 'Sol',   objective: 'O1', points: 3, timestamp: 100, source: 'score_objective' },
-      { faction: 'Hacan', objective: 'O2', points: 1, timestamp: 200, source: 'custodians' },
+      { faction: 'Sol',   objective: 'Expand Borders', points: 3, timestamp: 100, source: 'score_objective' },
+      { faction: 'Hacan', objective: 'O2',             points: 1, timestamp: 200, source: 'custodians' },
     ];
     const result = buildGameStats([makeGame('g1', { vpEvents })], new Map());
-    const obj = result.vpSources.find(s => s.source === 'score_objective');
+    const obj = result.vpSources.find(s => s.source === 'score_objective_stage1');
     expect(obj?.totalPoints).toBe(3);
     expect(obj?.sharePct).toBeCloseTo(0.75, 5);
   });
@@ -237,5 +238,48 @@ describe('buildGameStats', () => {
     expect(result.vpSources).toEqual([]);
     expect(result.vpDiversity.avgWinnerDistinctSources).toBeNull();
     expect(result.stage2.firstStage2ScorerWinRate).toBeNull();
+  });
+});
+
+describe('buildVpSources — objective stage split', () => {
+  function makeVpEvent(objective: string, points: number): VpEvent {
+    return { faction: 'f1', objective, points, timestamp: 1, source: 'score_objective' };
+  }
+
+  it('buckets Stage I objective as score_objective_stage1', () => {
+    // 'Expand Borders' is a known Stage I objective
+    const game = makeGame('g1', { vpEvents: [makeVpEvent('Expand Borders', 1)] });
+    const result = buildGameStats([game], new Map());
+    const stageI = result.vpSources.find(s => s.source === 'score_objective_stage1');
+    expect(stageI?.totalPoints).toBe(1);
+  });
+
+  it('buckets Stage II objective as score_objective_stage2', () => {
+    // 'Centralize Galactic Trade' is a known Stage II objective
+    const game = makeGame('g1', { vpEvents: [makeVpEvent('Centralize Galactic Trade', 2)] });
+    const result = buildGameStats([game], new Map());
+    const stageII = result.vpSources.find(s => s.source === 'score_objective_stage2');
+    expect(stageII?.totalPoints).toBe(2);
+  });
+
+  it('buckets secret objective as score_objective_secret', () => {
+    // 'Destroy Their Greatest Ship' is a known secret objective
+    const game = makeGame('g1', { vpEvents: [makeVpEvent('Destroy Their Greatest Ship', 1)] });
+    const result = buildGameStats([game], new Map());
+    const secret = result.vpSources.find(s => s.source === 'score_objective_secret');
+    expect(secret?.totalPoints).toBe(1);
+  });
+
+  it('buckets unknown objective name as score_objective_stage1 (safe fallback)', () => {
+    const game = makeGame('g1', { vpEvents: [makeVpEvent('Unknown Objective XYZ', 1)] });
+    const result = buildGameStats([game], new Map());
+    const stageI = result.vpSources.find(s => s.source === 'score_objective_stage1');
+    expect(stageI?.totalPoints).toBe(1);
+  });
+
+  it('does not emit bare score_objective in vpSources', () => {
+    const game = makeGame('g1', { vpEvents: [makeVpEvent('Expand Borders', 1)] });
+    const result = buildGameStats([game], new Map());
+    expect(result.vpSources.find(s => s.source === 'score_objective')).toBeUndefined();
   });
 });

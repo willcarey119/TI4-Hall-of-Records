@@ -3,7 +3,10 @@
 // Zero runtime code — pure type definitions.
 
 export type VpSource =
-  | 'score_objective'
+  | 'score_objective'           // kept for VpEvent.source — parser still emits this
+  | 'score_objective_stage1'    // aggregator-only: Stage I public objectives (1 VP)
+  | 'score_objective_stage2'    // aggregator-only: Stage II public objectives (2–3 VP)
+  | 'score_objective_secret'    // aggregator-only: secret objectives (1 VP)
   | 'custodians'
   | 'support_for_throne'
   | 'imperial_point'
