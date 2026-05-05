@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMeta } from './MetaContext';
-import { Rule, formatDuration, SectionDesc, Tooltip } from '../../shared';
+import { Rule, formatDuration, SectionDesc, Tooltip, StatCard } from '../../shared';
 
 const SOURCE_LABEL: Record<string, string> = {
   score_objective_stage1: 'Obj · Stage I',
@@ -39,19 +39,22 @@ export function StatsSection() {
 
       {/* Headline grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
-        {[
-          { label: 'Total games',    value: String(gameStats.totalGames),    tip: 'Count of complete game sessions with valid parsed data in this archive.' },
-          { label: 'Avg duration',   value: formatDuration(Math.round(gameStats.avgDurationSeconds)), tip: 'Mean wall-clock time per game from session start to final score, as recorded by TI Assistant.' },
-          { label: 'Avg winning VP', value: gameStats.avgWinningVp === null ? '—' : gameStats.avgWinningVp.toFixed(1), tip: 'Mean final victory point total of the winning faction across all games.' },
-          { label: 'Avg players',    value: gameStats.avgPlayersPerGame.toFixed(1), tip: 'Mean number of factions per game. TI4 supports 3–8 players.' },
-        ].map(cell => (
-          <div key={cell.label} style={{ background: 'var(--paper-2)', padding: 8, border: '1px solid var(--ink-4)' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', display: 'flex', alignItems: 'center' }}>
-              {cell.label}<Tooltip text={cell.tip} />
-            </div>
-            <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800 }}>{cell.value}</div>
-          </div>
-        ))}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <StatCard variant="anchor" label="Total games" value={String(gameStats.totalGames)} />
+          <Tooltip text="Count of complete game sessions with valid parsed data in this archive." />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <StatCard variant="anchor" label="Avg duration" value={formatDuration(Math.round(gameStats.avgDurationSeconds))} />
+          <Tooltip text="Mean wall-clock time per game from session start to final score, as recorded by TI Assistant." />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <StatCard variant="anchor" label="Avg winning VP" value={gameStats.avgWinningVp === null ? '—' : gameStats.avgWinningVp.toFixed(1)} />
+          <Tooltip text="Mean final victory point total of the winning faction across all games." />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <StatCard variant="anchor" label="Avg players" value={gameStats.avgPlayersPerGame.toFixed(1)} />
+          <Tooltip text="Mean number of factions per game. TI4 supports 3–8 players." />
+        </div>
       </div>
 
       {/* VP Threshold segmentation table */}
@@ -560,29 +563,25 @@ export function StatsSection() {
             The Speaker token passes clockwise each round. The speaker acts last in the Strategy Phase but controls agenda tiebreaks.
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, maxWidth: 580 }}>
-            <div style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', borderLeft: '3px solid var(--accent)', padding: '10px 12px' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>Initial speaker wins</div>
-              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--accent)' }}>
-                {Math.round(speakerStats.initialSpeakerWinRate * 100)}%
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>
-                {speakerStats.initialSpeakerWinCount} of {speakerStats.gamesAnalyzed} games
-              </div>
-            </div>
-            <div style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: '10px 12px' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>Avg rounds — winners</div>
-              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1 }}>
-                {speakerStats.avgRoundsAsSpeakerWinner.toFixed(1)}
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>rounds held speaker token</div>
-            </div>
-            <div style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: '10px 12px' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>Avg rounds — others</div>
-              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--ink-3)' }}>
-                {speakerStats.avgRoundsAsSpeakerNonWinner.toFixed(1)}
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>rounds held speaker token</div>
-            </div>
+            <StatCard
+              variant="rate"
+              label="Initial speaker wins"
+              value=""
+              numerator={speakerStats.initialSpeakerWinCount}
+              denominator={speakerStats.gamesAnalyzed}
+            />
+            <StatCard
+              variant="anchor"
+              label="Avg rounds — winners"
+              value={speakerStats.avgRoundsAsSpeakerWinner.toFixed(1)}
+              caption="rounds held speaker token"
+            />
+            <StatCard
+              variant="anchor"
+              label="Avg rounds — others"
+              value={speakerStats.avgRoundsAsSpeakerNonWinner.toFixed(1)}
+              caption="rounds held speaker token"
+            />
           </div>
         </div>
       )}

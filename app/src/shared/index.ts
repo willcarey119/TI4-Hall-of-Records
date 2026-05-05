@@ -22,3 +22,4 @@ export { useScrollSpy } from './hooks/useScrollSpy';
 export { SubSectionNav } from './SubSectionNav';
 export { CommandPalette } from './CommandPalette';
 export { EntityCard } from './EntityCard';
+export { StatCard } from './StatCard';
