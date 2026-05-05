@@ -1,5 +1,43 @@
 import { useMeta } from './MetaContext';
-import { Rule, SectionDesc, Tooltip } from '../../shared';
+import { Rule, SectionDesc, Tooltip, HeatmapGrid, Kicker } from '../../shared';
+import type { ParsedGame } from '../../lib/parser/types';
+
+const STRATEGY_CARDS = [
+  'Leadership', 'Diplomacy', 'Politics', 'Construction',
+  'Trade', 'Warfare', 'Technology', 'Imperial',
+] as const;
+
+export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
+  rowLabels: string[];
+  colLabels: string[];
+  values: number[][];
+} {
+  // Count games-played and picks per (faction, card)
+  const gamesPlayed = new Map<string, number>();
+  const picks = new Map<string, Map<string, number>>(); // factionId -> card -> count
+  for (const g of games) {
+    for (const f of g.factions) {
+      gamesPlayed.set(f.factionId, (gamesPlayed.get(f.factionId) ?? 0) + 1);
+      if (!picks.has(f.factionId)) picks.set(f.factionId, new Map());
+    }
+    for (const e of g.strategyCardEvents) {
+      if (e.type !== 'pick') continue;
+      const m = picks.get(e.faction);
+      if (m === undefined) continue;
+      m.set(e.card, (m.get(e.card) ?? 0) + 1);
+    }
+  }
+  const rowLabels = [...gamesPlayed.keys()].sort();
+  // Use raw rate (picks / games), normalized so the max cell is 1.
+  const rates: number[][] = rowLabels.map(fid => {
+    const games = gamesPlayed.get(fid) ?? 1;
+    const m = picks.get(fid);
+    return STRATEGY_CARDS.map(card => (m?.get(card) ?? 0) / games);
+  });
+  const max = Math.max(0.0001, ...rates.flatMap(r => r));
+  const values = rates.map(r => r.map(v => v / max));
+  return { rowLabels, colLabels: [...STRATEGY_CARDS], values };
+}
 
 const HIGH_FOLLOW = 0.8;
 
@@ -12,7 +50,7 @@ function fmtPos(p: number | null): string {
 }
 
 export function StrategyCardSection() {
-  const { strategyCardStats } = useMeta();
+  const { strategyCardStats, games } = useMeta();
   if (strategyCardStats === null) {
     return <section id="strategy" data-section="strategy" style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }} />;
   }
@@ -144,6 +182,21 @@ export function StrategyCardSection() {
           );
         })()}
       </div>
+
+      {/* Faction × Strategy Card heatmap (V1.3a) */}
+      {games.length > 0 && (() => {
+        const heatmap = buildFactionStrategyHeatmap(games);
+        if (heatmap.rowLabels.length === 0) return null;
+        return (
+          <div style={{ marginTop: 16 }}>
+            <Kicker text="Heatmap">Faction × strategy card pick rate</Kicker>
+            <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, margin: '4px 0 6px', fontStyle: 'italic' }}>
+              Each cell = how often that faction drafted that strategy card per game played, normalized to the most-picked combo.
+            </p>
+            <HeatmapGrid rowLabels={heatmap.rowLabels} colLabels={heatmap.colLabels} values={heatmap.values} />
+          </div>
+        );
+      })()}
     </section>
   );
 }

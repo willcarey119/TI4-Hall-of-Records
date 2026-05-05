@@ -1,6 +1,69 @@
 import { useMeta } from './MetaContext';
-import { Kicker, SectionDesc } from '../../shared';
+import { Kicker, SectionDesc, MultiLineChart } from '../../shared';
 import type { ScoringPaceRoundSummary } from '../../lib/aggregator';
+import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
+import type { ParsedGame } from '../../lib/parser/types';
+import { deriveRoundBoundaries } from '../../lib/aggregator';
+import { buildRoundScores } from '../../lib/recap/buildRoundScores';
+
+interface FactionPaceSeries { label: string; color: string; values: number[]; }
+
+export function buildFactionAverageVpPace(games: ParsedGame[]): FactionPaceSeries[] {
+  if (games.length === 0) return [];
+  // For each game, get per-round cumulative VP per faction; then average across games.
+  let maxRounds = 0;
+  const perGame: Array<Map<string, number[]>> = [];
+  for (const g of games) {
+    const boundaries = deriveRoundBoundaries(g.strategyCardEvents, g.factions.length);
+    if (boundaries.length === 0) continue;
+    const rs = buildRoundScores(g.vpEvents, g.factions, boundaries);
+    if (rs.length === 0) continue;
+    if (rs.length > maxRounds) maxRounds = rs.length;
+    const m = new Map<string, number[]>();
+    for (const f of g.factions) m.set(f.factionId, [0]); // round 0 baseline
+    for (const row of rs) {
+      for (const f of g.factions) {
+        const arr = m.get(f.factionId);
+        if (arr === undefined) continue;
+        arr.push(row.scores[f.factionId] ?? arr[arr.length - 1] ?? 0);
+      }
+    }
+    perGame.push(m);
+  }
+  if (maxRounds === 0) return [];
+  const len = maxRounds + 1; // include round 0
+  const totals = new Map<string, number[]>();
+  const counts = new Map<string, number[]>();
+  for (const m of perGame) {
+    for (const [fid, vals] of m) {
+      let tot = totals.get(fid);
+      let cnt = counts.get(fid);
+      if (tot === undefined) { tot = new Array(len).fill(0); totals.set(fid, tot); }
+      if (cnt === undefined) { cnt = new Array(len).fill(0); counts.set(fid, cnt); }
+      for (let i = 0; i < len; i++) {
+        // If this game ended earlier, hold its final value (cumulative VP doesn't go down)
+        const v = vals[i] ?? vals[vals.length - 1] ?? 0;
+        tot[i] = (tot[i] ?? 0) + v;
+        cnt[i] = (cnt[i] ?? 0) + 1;
+      }
+    }
+  }
+  const series: FactionPaceSeries[] = [];
+  for (const [fid, tot] of totals) {
+    const cnt = counts.get(fid) ?? [];
+    const values = tot.map((s, i) => {
+      const c = cnt[i] ?? 0;
+      return c > 0 ? s / c : 0;
+    });
+    series.push({
+      label: fid,
+      color: getFactionBrandColor(fid, 'var(--ink-3)'),
+      values,
+    });
+  }
+  series.sort((a, b) => (b.values[b.values.length - 1] ?? 0) - (a.values[a.values.length - 1] ?? 0));
+  return series;
+}
 
 const W = 520;
 const H = 160;
@@ -133,7 +196,7 @@ function WinnerPaceChart({ data }: { data: ScoringPaceRoundSummary }) {
 }
 
 export function ScoringPaceSection() {
-  const { scoringPaceRounds } = useMeta();
+  const { scoringPaceRounds, games } = useMeta();
   const sectionStyle = { padding: '14px 16px', borderBottom: '1px solid var(--rule)' };
 
   if (
@@ -179,6 +242,24 @@ export function ScoringPaceSection() {
           {' · '}to {scoringPaceRounds.victoryPoints} VP
         </span>
       </div>
+
+      {/* Per-faction average VP across rounds (V1.3a) */}
+      {games.length > 0 && (() => {
+        const series = buildFactionAverageVpPace(games);
+        if (series.length === 0) return null;
+        return (
+          <div style={{ marginTop: 16 }}>
+            <Kicker text="Per-faction average">VP accumulation by faction</Kicker>
+            <div style={{ marginTop: 6 }}>
+              <MultiLineChart
+                title="Average cumulative VP at end of each round"
+                series={series}
+                yMax={scoringPaceRounds.victoryPoints}
+              />
+            </div>
+          </div>
+        );
+      })()}
     </section>
   );
 }
