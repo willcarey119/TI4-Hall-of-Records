@@ -60,7 +60,8 @@ it('shows loading state initially', () => {
 
 it('renders game cards after loading', async () => {
   render(<MemoryRouter><HomePage /></MemoryRouter>);
-  expect(await screen.findByText(/Sol Seizes the Throne/)).toBeInTheDocument();
+  // The most recent game renders as the storyline variant; look for the faction name in the headline
+  expect(await screen.findByText(/Sol takes the throne/)).toBeInTheDocument();
 });
 
 it('shows empty state when no games in archive', async () => {
