@@ -365,6 +365,51 @@ Improvements identified in Step 3, plus any cross-cutting legibility work. Examp
 
 ---
 
+## V1.2 Addendum — Card-Based UI Redesign ✅ COMPLETE (2026-05-05)
+
+**Goal:** Replace tabular standings, raw lists, and old chart sections with a consistent card-based layout across the full app — editorial newspaper aesthetic, data dense but readable.
+
+**What was done:**
+
+*Game Detail — Recap section:*
+- New `FactionSnapshotCards` component: one card per faction showing VP source breakdown (Obj/Cust/Imp/SFT/Relic/Agd), tech category summary (pip counts by color), and planet count
+- Round-by-round VP scores aligned to the same CSS grid as the cards (`36px + repeat(N, 1fr)`) so columns match exactly
+- Replaced old standings strip + HTML `<table>` with this unified component
+
+*Game Detail — Planets section:*
+- `FactionTerritoryCard` grid replaces flat `FactionInventory` list
+- New `PlanetControlSlideshow` component: round-by-round planet holdings, auto-advancing with pause/play control; gained (green) / lost (red) highlights per round
+
+*Game Detail — Tech section:*
+- Research Order rebuilt as per-faction cards with numbered sequential tech picks; starting techs dimmed
+
+*Game Detail — Agenda section:*
+- Full card-per-agenda layout with `TypeBadge` (Law/Dir/Elect), `OutcomeBadge`, proportional vote bars per faction, VP beneficiary strip, rider tracking
+
+*Game Detail — Mecatol Rex widget (PlanetsSection):*
+- Full rewrite: summary stats header (Turnovers / Final Holder / First Claimed), round-by-round control strip with event badges (First / Taken / Held), narrative change log
+
+*Meta Dashboard — StatsSection:*
+- Comeback → 2 stat cards; Stage II → 2 cards with progress bar; Objective Timing → card grid per round; Hero Activations → card per hero; Relics → card per relic with VP/No VP badge; Agenda Analysis → card per agenda; Speaker Order → 3 cards
+
+*Meta Dashboard — FactionSection:*
+- Senate Power Index: ranked faction cards with winningVoteRate bar; SFT received strip
+
+*Meta Dashboard — TechSection:*
+- Winner Tech Possession: card per tech, ★ border for ≥67% win rate, avg research round; Research Openings: card per faction showing 1st/2nd/3rd picks
+
+*Meta Dashboard — PlayerSection:*
+- `PlayerCard` grid sorted by games played; top win-rate gets accent border
+
+*Agenda tab (PoliticalBarChart):*
+- Unified political bar: For% from left, Against% from right, 50% hairline; filter chips (All / Usually Passes / Usually Fails / Contested); close-race label fallback; elect-row faction chips
+
+**New aggregator:** `buildTerritoryByRound(planetEvents, factions, roundBoundaries)` — reconstructs per-faction planet holdings at end of each round with gained/lost diffs.
+
+**Tests:** 719 passing. No logic regressions.
+
+---
+
 ## V1.2+ — Future Backlog
 
 Items confirmed out of scope for V1.1. When the user raises one of these during V1.1 work, log it here rather than implementing it.
