@@ -1,9 +1,17 @@
 // app/src/features/game-detail/VpRaceSection.test.tsx
+import { useEffect } from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { VpRaceSection } from './VpRaceSection';
 import { GameContext } from './GameContext';
+import { RoundFilterProvider, useRoundFilter } from './RoundFilterContext';
 import type { ParsedGame } from '../../lib/parser/types';
+
+function SetScrubRound({ round }: { round: number | null }) {
+  const { setScrubRound } = useRoundFilter();
+  useEffect(() => { setScrubRound(round); }, [round, setScrubRound]);
+  return null;
+}
 
 // A minimal game with two factions and two rounds of VP events so the
 // chart has enough points to render polylines (needs ≥ 2 points per series).
@@ -57,11 +65,14 @@ const twoFactionGame = {
   warnings: [],
 } as unknown as ParsedGame;
 
-function withGame(game: ParsedGame | null) {
+function withGame(game: ParsedGame | null, scrubRound: number | null = null) {
   return render(
     <MemoryRouter>
       <GameContext.Provider value={{ game, loading: false, error: null }}>
-        <VpRaceSection />
+        <RoundFilterProvider>
+          <SetScrubRound round={scrubRound} />
+          <VpRaceSection />
+        </RoundFilterProvider>
       </GameContext.Provider>
     </MemoryRouter>
   );
@@ -103,6 +114,24 @@ describe('VpRaceSection', () => {
     // Federation of Sol → #1a5eb0, Mentak Coalition → #8a4c10
     expect(strokes).toContain('#1a5eb0');
     expect(strokes).toContain('#8a4c10');
+  });
+
+  it('truncates faction polylines when scrubRound is set', () => {
+    // Unscrubbed: path has 3 points (M round0, L round1, L round2) → one M + two L commands.
+    const unscrubbed = withGame(twoFactionGame);
+    const fullPath = unscrubbed.container.querySelector<SVGPathElement>('svg path');
+    const fullD = fullPath?.getAttribute('d') ?? '';
+    const fullLs = (fullD.match(/L /g) ?? []).length;
+    unscrubbed.unmount();
+
+    // Scrubbed to round 1: path has 2 points (M round0, L round1) → one M + one L command.
+    const scrubbed = withGame(twoFactionGame, 1);
+    const scrubPath = scrubbed.container.querySelector<SVGPathElement>('svg path');
+    const scrubD = scrubPath?.getAttribute('d') ?? '';
+    const scrubLs = (scrubD.match(/L /g) ?? []).length;
+
+    expect(fullLs).toBe(2);
+    expect(scrubLs).toBe(1);
   });
 
   it('renders nothing when game is null', () => {

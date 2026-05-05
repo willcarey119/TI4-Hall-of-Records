@@ -3,6 +3,8 @@ import { useGame } from './GameContext';
 import { buildTimelineFeed, type TimelineFeedItem } from '../../lib/timeline/buildTimelineFeed';
 import { Rule, FactionDot, SectionDesc } from '../../shared';
 
+// TODO: round filter for TimelineSection requires deriveRoundBoundaries — deferred to follow-up
+
 /** Format a raw timestamp (ms) as relative game time h:mm */
 function formatGameTime(timestamp: number, firstTimestamp: number): string {
   const secs = Math.max(0, Math.floor((timestamp - firstTimestamp) / 1000));

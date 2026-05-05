@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
+import { useRoundFilter } from './RoundFilterContext';
 import {
   buildVpRaceSeries,
   type FactionVpSeries,
@@ -28,7 +29,7 @@ function yScale(vp: number, victoryPoints: number): number {
   return H - PY - (vp / (victoryPoints + 1)) * (H - PY * 2);
 }
 
-function SlopeChart({ summary }: { summary: VpRaceSummary }) {
+function SlopeChart({ summary, scrubRound }: { summary: VpRaceSummary; scrubRound: number | null }) {
   const { series, victoryPoints, totalRounds } = summary;
 
   const gridVps = Array.from(
@@ -91,16 +92,21 @@ function SlopeChart({ summary }: { summary: VpRaceSummary }) {
       ))}
 
       {/* Faction paths */}
-      {series.map(s => <FactionPath key={s.factionId} s={s} summary={summary} />)}
+      {series.map(s => <FactionPath key={s.factionId} s={s} summary={summary} scrubRound={scrubRound} />)}
     </svg>
   );
 }
 
-function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpRaceSummary }) {
+function FactionPath({ s, summary, scrubRound }: { s: FactionVpSeries; summary: VpRaceSummary; scrubRound: number | null }) {
   const { victoryPoints, totalRounds } = summary;
-  if (s.points.length < 2) return null;
+  // When scrubRound is set, truncate the series so the line only draws through that round.
+  // The X-axis scale stays anchored to totalRounds — the unfilled portion remains visible.
+  const points = scrubRound === null
+    ? s.points
+    : s.points.filter(p => p.round <= scrubRound);
+  if (points.length < 2) return null;
 
-  const pathD = s.points
+  const pathD = points
     .map((p, i) => {
       const x = xScale(p.round, totalRounds);
       const y = yScale(p.cumulativeVp, victoryPoints);
@@ -110,7 +116,7 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpRaceSummar
 
   const stroke = getFactionBrandColor(s.factionId, s.color);
   const sw = s.isWinner ? 2 : 1;
-  const lastPt = s.points[s.points.length - 1];
+  const lastPt = points[points.length - 1];
 
   return (
     <g>
@@ -119,10 +125,10 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpRaceSummar
         stroke={stroke} strokeWidth={sw}
         strokeLinejoin="round" strokeLinecap="round"
       />
-      {s.points.map((p, i) => {
+      {points.map((p, i) => {
         const cx = xScale(p.round, totalRounds);
         const cy = yScale(p.cumulativeVp, victoryPoints);
-        const isLast = i === s.points.length - 1;
+        const isLast = i === points.length - 1;
         return (
           <circle
             key={i}
@@ -139,7 +145,7 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpRaceSummar
           fontFamily="'Newsreader', Georgia, serif" fontSize={9} fontWeight={700}
           fill={stroke}
         >
-          {s.finalVp}
+          {scrubRound === null ? s.finalVp : lastPt.cumulativeVp}
         </text>
       )}
     </g>
@@ -148,6 +154,7 @@ function FactionPath({ s, summary }: { s: FactionVpSeries; summary: VpRaceSummar
 
 export function VpRaceSection() {
   const { game } = useGame();
+  const { scrubRound } = useRoundFilter();
 
   const composed = useMemo(() => {
     if (game === null) return null;
@@ -180,6 +187,7 @@ export function VpRaceSection() {
           editorial={composed.editorial}
           factions={game.factions}
           gameDurationSeconds={game.durationSeconds}
+          scrubRound={scrubRound}
         />
       )}
     </section>
@@ -191,11 +199,13 @@ function VpRaceContent({
   editorial,
   factions,
   gameDurationSeconds,
+  scrubRound,
 }: {
   summary: VpRaceSummary;
   editorial: VpRaceEditorial;
   factions: { factionId: string; color: string }[];
   gameDurationSeconds: number;
+  scrubRound: number | null;
 }) {
   const factionColorMap = Object.fromEntries(factions.map(f => [f.factionId, f.color]));
 
@@ -246,7 +256,7 @@ function VpRaceContent({
       <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
 
       {/* SVG slope chart */}
-      <SlopeChart summary={summary} />
+      <SlopeChart summary={summary} scrubRound={scrubRound} />
 
       <Rule />
 

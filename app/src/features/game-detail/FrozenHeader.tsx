@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Kicker, FactionChip, Rule, formatKicker, formatGameTitle, FontScaleControls } from '../../shared';
 import { useGame } from './GameContext';
+import { useRoundFilter } from './RoundFilterContext';
 
 function scrollToSection(id: string): void {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -23,8 +23,7 @@ interface FrozenHeaderProps {
 
 export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
   const { game } = useGame();
-  // Display-only stub — wiring scrubRound to filter section content is V1.3 scope
-  const [scrubRound, setScrubRound] = useState<number | null>(null);
+  const { scrubRound, setScrubRound } = useRoundFilter();
 
   if (game === null) return null;
 
@@ -80,6 +79,11 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
                 R{r}
               </button>
             ))}
+          </div>
+        )}
+        {scrubRound !== null && (
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>
+            Showing through round {scrubRound} · click R{scrubRound} again for full game
           </div>
         )}
         <div style={{ marginTop: '8px' }}>

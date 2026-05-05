@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { ParsedGame } from '../../lib/parser/types';
 import { GameContext } from './GameContext';
+import { RoundFilterProvider } from './RoundFilterContext';
 import { FrozenHeader } from './FrozenHeader';
 import { ScrollBody } from './ScrollBody';
 
@@ -96,17 +97,19 @@ export function GameDetailPage() {
 
   return (
     <GameContext.Provider value={{ game: game!, loading: false, error: null }}>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          background: 'var(--paper)',
-        }}
-      >
-        <FrozenHeader activeSection={activeSection} />
-        <ScrollBody onSectionChange={setActiveSection} />
-      </div>
+      <RoundFilterProvider>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            background: 'var(--paper)',
+          }}
+        >
+          <FrozenHeader activeSection={activeSection} />
+          <ScrollBody onSectionChange={setActiveSection} />
+        </div>
+      </RoundFilterProvider>
     </GameContext.Provider>
   );
 }

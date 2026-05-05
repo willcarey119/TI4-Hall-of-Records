@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { GameContext } from './GameContext';
+import { RoundFilterProvider } from './RoundFilterContext';
 import { FrozenHeader } from './FrozenHeader';
 import type { ParsedGame } from '../../lib/parser/types';
 
@@ -56,7 +57,9 @@ function renderHeader(activeSection = 'vp-race') {
   return render(
     <MemoryRouter>
       <GameContext.Provider value={{ game: mockGame, loading: false, error: null }}>
-        <FrozenHeader activeSection={activeSection} />
+        <RoundFilterProvider>
+          <FrozenHeader activeSection={activeSection} />
+        </RoundFilterProvider>
       </GameContext.Provider>
     </MemoryRouter>
   );
@@ -101,7 +104,9 @@ it('returns null when game is null', () => {
   const { container } = render(
     <MemoryRouter>
       <GameContext.Provider value={{ game: null, loading: true, error: null }}>
-        <FrozenHeader activeSection="vp-race" />
+        <RoundFilterProvider>
+          <FrozenHeader activeSection="vp-race" />
+        </RoundFilterProvider>
       </GameContext.Provider>
     </MemoryRouter>
   );
