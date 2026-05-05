@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { loadAllGames } from '../../adapters/firestore';
 import { buildAgendaCrossGame } from '../../lib/aggregator/buildAgendaCrossGame';
 import type { ParsedGame } from '../../lib/parser/types';
-import { Kicker, Rule, FontScaleControls, SectionDesc, Tooltip, SubSectionNav } from '../../shared';
+import { Kicker, Rule, FontScaleControls, SectionDesc, Tooltip, SubSectionNav, LoadingSkeleton, ErrorState } from '../../shared';
 import { FactionVotingPanel } from './FactionVotingPanel';
 import { AgendaCard } from './AgendaCard';
 import { PoliticalBarChart } from './PoliticalBarChart';
@@ -61,10 +61,18 @@ export function AgendaPage() {
   );
 
   if (loading) {
-    return <div style={{ padding: 24, ...monoMicro }}>Loading…</div>;
+    return (
+      <div style={{ height: '100%', overflowY: 'auto' }}>
+        <LoadingSkeleton rows={6} />
+      </div>
+    );
   }
   if (error !== null) {
-    return <div style={{ padding: 24, color: 'var(--accent)', ...monoMicro }}>{error}</div>;
+    return (
+      <div style={{ height: '100%', overflowY: 'auto', padding: 24 }}>
+        <ErrorState message={error} onRetry={() => { window.location.reload(); }} />
+      </div>
+    );
   }
 
   const AGENDA_SECTIONS = [

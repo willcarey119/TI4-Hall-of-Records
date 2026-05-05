@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { FontScaleControls, SubSectionNav } from '../../shared';
+import { FontScaleControls, SubSectionNav, LoadingSkeleton, ErrorState } from '../../shared';
 import { MetaProvider, useMeta } from './MetaContext';
 import { useAuth } from '../../adapters/AuthContext';
 import { FactionSection } from './FactionSection';
@@ -136,18 +136,8 @@ function MetaScrollBody({ onSectionChange, isAuthorized }: { onSectionChange: (i
 
   if (loading) {
     return (
-      <div style={{ overflowY: 'scroll', flex: 1, padding: '32px 16px' }}>
-        <p
-          style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: 'var(--ink-3)',
-          }}
-        >
-          Loading…
-        </p>
+      <div style={{ overflowY: 'scroll', flex: 1 }}>
+        <LoadingSkeleton rows={6} />
       </div>
     );
   }
@@ -155,34 +145,10 @@ function MetaScrollBody({ onSectionChange, isAuthorized }: { onSectionChange: (i
   if (error !== null) {
     return (
       <div style={{ overflowY: 'scroll', flex: 1, padding: '32px 16px' }}>
-        <p
-          style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            color: 'var(--accent)',
-            marginBottom: 8,
-          }}
-        >
-          {error}
-        </p>
-        <button
-          type="button"
-          onClick={() => { window.location.reload(); }}
-          style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            textDecoration: 'underline',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'var(--ink-3)',
-            padding: 0,
-          }}
-        >
-          Refresh
-        </button>
+        <ErrorState
+          message={error}
+          onRetry={() => { window.location.reload(); }}
+        />
       </div>
     );
   }

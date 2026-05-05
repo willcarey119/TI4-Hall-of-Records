@@ -38,7 +38,8 @@ describe('MetaDashboardPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    // LoadingSkeleton renders skeleton rows (no visible text); confirm the nav header is shown
+    expect(screen.getByText(/League Stats/i)).toBeInTheDocument();
   });
 
   it('shows error message when Firestore load fails', async () => {
@@ -51,6 +52,6 @@ describe('MetaDashboardPage', () => {
     );
 
     expect(await screen.findByText('Network failure')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /refresh/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
   });
 });

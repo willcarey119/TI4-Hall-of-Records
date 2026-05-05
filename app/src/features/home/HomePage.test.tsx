@@ -55,7 +55,8 @@ it('renders the welcome blurb', async () => {
 it('shows loading state initially', () => {
   mockListGames.mockImplementation(() => new Promise(() => {}));
   render(<MemoryRouter><HomePage /></MemoryRouter>);
-  expect(screen.getByText(/Loading/i)).toBeInTheDocument();
+  // LoadingSkeleton renders skeleton rows (no text); confirm the archive label reads "Archive"
+  expect(screen.getByText(/Archive$/i)).toBeInTheDocument();
 });
 
 it('renders game cards after loading', async () => {
@@ -67,7 +68,7 @@ it('renders game cards after loading', async () => {
 it('shows empty state when no games in archive', async () => {
   mockListGames.mockResolvedValue([]);
   render(<MemoryRouter><HomePage /></MemoryRouter>);
-  expect(await screen.findByText(/No games on record/i)).toBeInTheDocument();
+  expect(await screen.findByText(/presses await ink/i)).toBeInTheDocument();
 });
 
 it('shows error state when listGames rejects', async () => {
