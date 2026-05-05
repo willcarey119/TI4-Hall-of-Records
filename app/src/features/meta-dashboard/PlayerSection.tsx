@@ -56,51 +56,43 @@ function NameRow({
   );
 }
 
-function PlayerCard({ player }: { player: PlayerStat }) {
+function PlayerCard({ player, isTop }: { player: PlayerStat; isTop: boolean }) {
   const pct = Math.round(player.winRate * 100);
+  const wins = Math.round(player.winRate * player.gamesPlayed);
+  const isInactive = player.gamesPlayed <= 1;
   return (
     <div
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        padding: '6px 0',
-        borderBottom: '1px solid var(--rule)',
+        background: 'var(--paper-2)',
+        border: '1px solid var(--ink-4)',
+        borderLeft: isTop ? '3px solid var(--accent)' : '1px solid var(--ink-4)',
+        padding: '10px 12px',
+        opacity: isInactive ? 0.7 : 1,
       }}
     >
-      <div
-        style={{
-          fontFamily: "'Newsreader', Georgia, serif",
-          fontSize: 'var(--font-body)',
-          fontWeight: 700,
-          color: 'var(--ink)',
-          flex: 1,
-        }}
-      >
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>
+        {player.gamesPlayed} game{player.gamesPlayed !== 1 ? 's' : ''} played
+      </div>
+      <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 18, lineHeight: 1.1, marginBottom: 6 }}>
         {player.canonicalName}
       </div>
-      <div
-        style={{
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 'var(--font-micro)',
-          color: 'var(--ink-2)',
-        }}
-      >
-        {player.gamesPlayed} game{player.gamesPlayed !== 1 ? 's' : ''} · {pct}% win rate
+      <div style={{ display: 'flex', gap: 16 }}>
+        <div>
+          <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 18, lineHeight: 1, color: isTop ? 'var(--accent)' : 'var(--ink)' }}>
+            {pct}%
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>win rate</div>
+        </div>
+        <div>
+          <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 18, lineHeight: 1 }}>
+            {wins}W
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>wins</div>
+        </div>
       </div>
       {player.favoriteFaction !== null && (
-        <div
-          style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            color: 'var(--ink-3)',
-            maxWidth: 120,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Most played: {player.favoriteFaction}
+        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 6 }}>
+          Most played: <span style={{ fontFamily: "'Newsreader', Georgia, serif" }}>{player.favoriteFaction}</span>
         </div>
       )}
     </div>
@@ -174,26 +166,39 @@ export function PlayerSection() {
         )}
       </div>
 
-      {players.length > 0 && (
-        <>
-          <Rule weight="thin" />
-          <div
-            style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 'var(--font-micro)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: 'var(--ink-3)',
-              margin: '8px 0',
-            }}
-          >
-            Player Records · best-effort · {players.length} player{players.length !== 1 ? 's' : ''}
-          </div>
-          {players.map(p => (
-            <PlayerCard key={p.canonicalName} player={p} />
-          ))}
-        </>
-      )}
+      {players.length > 0 && (() => {
+        const sorted = [...players].sort((a, b) => {
+          if (b.gamesPlayed !== a.gamesPlayed) return b.gamesPlayed - a.gamesPlayed;
+          return b.winRate - a.winRate;
+        });
+        const topRate = Math.max(...sorted.filter(p => p.gamesPlayed >= 2).map(p => p.winRate), 0);
+        return (
+          <>
+            <Rule weight="thin" />
+            <div
+              style={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 'var(--font-micro)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: 'var(--ink-3)',
+                margin: '8px 0',
+              }}
+            >
+              Player Records · best-effort · {players.length} player{players.length !== 1 ? 's' : ''}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8 }}>
+              {sorted.map(p => (
+                <PlayerCard
+                  key={p.canonicalName}
+                  player={p}
+                  isTop={p.gamesPlayed >= 2 && p.winRate === topRate && topRate > 0}
+                />
+              ))}
+            </div>
+          </>
+        );
+      })()}
     </section>
   );
 }

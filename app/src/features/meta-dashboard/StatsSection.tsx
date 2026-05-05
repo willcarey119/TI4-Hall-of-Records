@@ -338,69 +338,110 @@ export function StatsSection() {
 
       <Rule />
 
-      {/* Comeback */}
+      {/* Comeback — 2 cards */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px', display: 'flex', alignItems: 'center' }}>
         Comeback / Collapse<Tooltip text="How often the faction leading in VP at the end of Round 3 goes on to win. A low rate means early leads are fragile; a high rate means front-runners rarely collapse." />
       </div>
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-        {gameStats.comingFromBehind.gamesWithRound3Data === 0
-          ? <span style={{ color: 'var(--ink-3)' }}>Requires 3+ rounds of data.</span>
-          : <span>Round 3 leader wins: <strong>{gameStats.comingFromBehind.decidedGames} of {gameStats.comingFromBehind.gamesWithRound3Data}</strong> ({fmtPct(gameStats.comingFromBehind.round3LeaderWinRate)})</span>
-        }
-      </div>
+      {gameStats.comingFromBehind.gamesWithRound3Data === 0 ? (
+        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginBottom: 8 }}>Requires 3+ rounds of data.</div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, maxWidth: 460, marginBottom: 12 }}>
+          <div style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', borderLeft: '3px solid var(--accent)', padding: '10px 12px' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>R3 leader win rate</div>
+            <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--accent)' }}>{fmtPct(gameStats.comingFromBehind.round3LeaderWinRate)}</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>{gameStats.comingFromBehind.decidedGames} of {gameStats.comingFromBehind.gamesWithRound3Data} decided games</div>
+          </div>
+          <div style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: '10px 12px' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>Comebacks recorded</div>
+            <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--ink-3)' }}>{gameStats.comingFromBehind.gamesWithRound3Data - gameStats.comingFromBehind.decidedGames}</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>games where R3 leader lost</div>
+          </div>
+        </div>
+      )}
 
       <Rule />
 
-      {/* Stage II first scorer */}
+      {/* Stage II first scorer — 2 cards */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px', display: 'flex', alignItems: 'center' }}>
         Stage II First Scorer<Tooltip text="Stage II public objectives are worth 2–3 VP and are only revealed after Stage I is exhausted. How often does the first faction to score one go on to win?" />
       </div>
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-        {gameStats.stage2.gamesWithStage2 === 0
-          ? <span style={{ color: 'var(--ink-3)' }}>No Stage II scoring data yet.</span>
-          : <span>First Stage II scorer wins: <strong>{gameStats.stage2.firstStage2ScorerWins} of {gameStats.stage2.gamesWithStage2}</strong> ({fmtPct(gameStats.stage2.firstStage2ScorerWinRate)})</span>
-        }
-      </div>
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>
-        Whether the first faction to crack a Stage II objective tends to close out the game.
-      </div>
-
-      <Rule />
-
-      {/* Objective timing */}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Objective Timing — VP per Round</div>
-      <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 4 }}>
-        Average VP scored per round across all games. Taller bar = higher average scoring that round.
-      </div>
-      <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: 50, marginBottom: 2 }}>
-        {Object.entries(gameStats.objectiveTiming.avgVpPerRound).sort(([a], [b]) => Number(a) - Number(b)).map(([round, vp]) => (
-          <div key={round} style={{ flex: 1, textAlign: 'center', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-            <div style={{ background: 'var(--ink)', width: '100%', height: (vp / maxVpRound) * 40 }} />
-            <div style={{ color: 'var(--ink-3)' }}>R{round}</div>
-            <div>{vp.toFixed(1)}</div>
+      {gameStats.stage2.gamesWithStage2 === 0 ? (
+        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginBottom: 8 }}>No Stage II scoring data yet.</div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, maxWidth: 460, marginBottom: 12 }}>
+          <div style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', borderLeft: '3px solid var(--accent)', padding: '10px 12px' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>First Stage II scorer wins</div>
+            <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--accent)' }}>{fmtPct(gameStats.stage2.firstStage2ScorerWinRate)}</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>{gameStats.stage2.firstStage2ScorerWins} of {gameStats.stage2.gamesWithStage2} games with Stage II</div>
+            <div style={{ background: 'var(--ink-4)', height: 4, marginTop: 6 }}>
+              <div style={{ background: 'var(--accent)', height: 4, width: `${(gameStats.stage2.firstStage2ScorerWinRate ?? 0) * 100}%` }} />
+            </div>
           </div>
-        ))}
-      </div>
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginBottom: 12 }}>avg VP scored</div>
+          <div style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: '10px 12px' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>Stage II scoring</div>
+            <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1 }}>{gameStats.stage2.gamesWithStage2}</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>games reached Stage II</div>
+          </div>
+        </div>
+      )}
 
       <Rule />
 
-      {/* Hero activations */}
+      {/* Objective timing — card per round */}
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Objective Timing — VP per Round</div>
+      <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 6 }}>
+        Average VP scored per round across all games. Higher number = bigger scoring round.
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 6, marginBottom: 12 }}>
+        {Object.entries(gameStats.objectiveTiming.avgVpPerRound).sort(([a], [b]) => Number(a) - Number(b)).map(([round, vp]) => {
+          const isPeak = vp === maxVpRound;
+          return (
+            <div key={round} style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: 8, textAlign: 'center' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)' }}>Round {round}</div>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1, color: isPeak ? 'var(--accent)' : 'var(--ink)' }}>{vp.toFixed(1)}</div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', marginTop: 2 }}>avg VP scored</div>
+              <div style={{ background: 'var(--ink-4)', height: 4, marginTop: 6 }}>
+                <div style={{ background: isPeak ? 'var(--accent)' : 'var(--ink-2)', height: 4, width: `${(vp / maxVpRound) * 100}%` }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <Rule />
+
+      {/* Hero activations — card per hero */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Hero Activations</div>
       {gameStats.heroActivations.length === 0 ? (
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>No hero activation data recorded.</div>
-      ) : gameStats.heroActivations.map(h => (
-        <div key={h.leaderName} style={{ display: 'flex', gap: 6, padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{h.leaderName}</span>
-          <span style={{ marginLeft: 'auto', color: 'var(--ink-3)' }}>
-            {h.avgActivationRound === null ? '—' : `avg round ${h.avgActivationRound.toFixed(1)}`} · {h.gamesActivated} game{h.gamesActivated !== 1 ? 's' : ''}
-          </span>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 6 }}>
+          {gameStats.heroActivations.map(h => {
+            const isInactive = h.gamesActivated === 0;
+            return (
+              <div key={h.leaderName} style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: 8, opacity: isInactive ? 0.5 : 1 }}>
+                <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 12, lineHeight: 1.2, marginBottom: 4 }}>{h.leaderName}</div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <div>
+                    <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 16, lineHeight: 1 }}>{h.gamesActivated}</div>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>games</div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 16, lineHeight: 1 }}>
+                      {h.avgActivationRound === null ? '—' : `R${h.avgActivationRound.toFixed(1)}`}
+                    </div>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>avg round</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      ))}
+      )}
 
       <Rule />
 
-      {/* Relics — unified panel merging activity (gameStats.relics) and performance (relicStats.relics) */}
+      {/* Relics — card per relic */}
       {(() => {
         const perfMap = new Map(
           (relicStats?.relics ?? []).map(r => [r.relic, r])
@@ -410,12 +451,7 @@ export function StatsSection() {
           r => !activityRelics.some(a => a.relic === r.relic)
         );
 
-        type MergedRelic = {
-          relic: string;
-          drawn: number;
-          played: number;
-          grantsVp: boolean;
-        };
+        type MergedRelic = { relic: string; drawn: number; played: number; grantsVp: boolean };
 
         const merged: MergedRelic[] = [
           ...activityRelics.map(a => {
@@ -427,12 +463,7 @@ export function StatsSection() {
               grantsVp: a.grantsVp || (perf?.grantsVp ?? false),
             };
           }),
-          ...perfOnlyRelics.map(p => ({
-            relic: p.relic,
-            drawn: p.gainCount,
-            played: p.playCount,
-            grantsVp: p.grantsVp,
-          })),
+          ...perfOnlyRelics.map(p => ({ relic: p.relic, drawn: p.gainCount, played: p.playCount, grantsVp: p.grantsVp })),
         ];
 
         if (merged.length === 0) return null;
@@ -441,40 +472,85 @@ export function StatsSection() {
           <>
             <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 2px' }}>Relics</div>
             {relicStats !== null && (
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginBottom: 4 }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginBottom: 6 }}>
                 {relicStats.gamesWithRelicVp} of {relicStats.totalGames} games had relic VP
               </div>
             )}
-            {merged.map(r => (
-              <div key={r.relic} style={{ display: 'flex', gap: 6, alignItems: 'baseline', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{r.relic}</span>
-                <span style={{ color: 'var(--ink-3)' }}>Drawn {r.drawn}× · Played {r.played}×</span>
-                {r.grantsVp && <span style={{ color: 'var(--accent)', textTransform: 'uppercase', fontSize: 'var(--font-micro)', letterSpacing: '0.1em' }}>VP</span>}
-              </div>
-            ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 6, marginBottom: 10 }}>
+              {merged.map(r => {
+                const isInactive = r.drawn === 0;
+                return (
+                  <div key={r.relic} style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: 8, opacity: isInactive ? 0.5 : 1 }}>
+                    <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 12, lineHeight: 1.2, marginBottom: 6 }}>{r.relic}</div>
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      <div>
+                        <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 16, lineHeight: 1 }}>{r.drawn}×</div>
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>drawn</div>
+                      </div>
+                      <div>
+                        <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 16, lineHeight: 1, color: r.played > 0 ? 'var(--ink)' : 'var(--ink-3)' }}>{r.played}×</div>
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>played</div>
+                      </div>
+                    </div>
+                    <div style={{ marginTop: 6 }}>
+                      {r.grantsVp ? (
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '1px 5px', border: '1px solid var(--accent)', color: 'var(--accent)', display: 'inline-block' }}>VP</span>
+                      ) : (
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-4)' }}>No VP</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </>
         );
       })()}
 
       <Rule />
 
-      {/* Agenda analysis */}
+      {/* Agenda analysis — card per agenda */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Agenda Analysis · Top 5 by Impact</div>
-      {gameStats.agendas.slice(0, 5).map(a => (
-        <div key={a.agenda} style={{ display: 'flex', gap: 6, padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)', flex: 1 }}>{a.agenda}</span>
-          <span style={{ color: 'var(--ink-3)' }}>Pass {fmtPct(a.passRate)}</span>
-          <span style={{ color: a.netVpSwing >= 0 ? 'var(--accent)' : 'var(--cool)' }}>
-            {a.netVpSwing >= 0 ? '+' : ''}{a.netVpSwing} VP
-          </span>
-        </div>
-      ))}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 6, marginBottom: 10 }}>
+        {gameStats.agendas.slice(0, 5).map(a => {
+          const passPct = a.passRate === null ? null : Math.round(a.passRate * 100);
+          const isElect = a.passRate === null;
+          return (
+            <div key={a.agenda} style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: 8 }}>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 12, lineHeight: 1.2, marginBottom: 6 }}>{a.agenda}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <div>
+                  <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 16, lineHeight: 1 }}>
+                    {isElect ? '—' : `${passPct}%`}
+                  </div>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>
+                    {isElect ? 'elect type' : 'pass rate'}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 16, lineHeight: 1, color: a.netVpSwing > 0 ? 'var(--accent)' : 'var(--ink-3)' }}>
+                    {a.netVpSwing >= 0 ? '+' : ''}{a.netVpSwing} VP
+                  </div>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>net swing</div>
+                </div>
+              </div>
+              {!isElect && (
+                <div style={{ background: 'var(--ink-4)', height: 4, marginTop: 6 }}>
+                  <div style={{ background: (passPct ?? 0) >= 60 ? 'var(--accent)' : 'var(--ink-2)', height: 4, width: `${passPct ?? 0}%` }} />
+                </div>
+              )}
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', marginTop: 5 }}>Resolved {a.timesResolved}×</div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginBottom: 10 }}>
         Elect-type agendas excluded from pass rate.
       </div>
 
       <Rule />
 
+      {/* Speaker Order — 3 cards */}
       {speakerStats !== null && speakerStats.gamesAnalyzed > 0 && (
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
@@ -483,34 +559,30 @@ export function StatsSection() {
           <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 6 }}>
             The Speaker token passes clockwise each round. The speaker acts last in the Strategy Phase but controls agenda tiebreaks.
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-            <div>
-              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-display-md)', lineHeight: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, maxWidth: 580 }}>
+            <div style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', borderLeft: '3px solid var(--accent)', padding: '10px 12px' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>Initial speaker wins</div>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--accent)' }}>
                 {Math.round(speakerStats.initialSpeakerWinRate * 100)}%
               </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 2 }}>
-                initial speaker<br />win rate
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>
+                {speakerStats.initialSpeakerWinCount} of {speakerStats.gamesAnalyzed} games
               </div>
             </div>
-            <div>
-              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-display-md)', lineHeight: 1 }}>
+            <div style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: '10px 12px' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>Avg rounds — winners</div>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1 }}>
                 {speakerStats.avgRoundsAsSpeakerWinner.toFixed(1)}
               </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 2 }}>
-                avg rounds as<br />speaker (winners)
-              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>rounds held speaker token</div>
             </div>
-            <div>
-              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-display-md)', lineHeight: 1 }}>
+            <div style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: '10px 12px' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>Avg rounds — others</div>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--ink-3)' }}>
                 {speakerStats.avgRoundsAsSpeakerNonWinner.toFixed(1)}
               </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 2 }}>
-                avg rounds as<br />speaker (others)
-              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>rounds held speaker token</div>
             </div>
-          </div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginTop: 6 }}>
-            {speakerStats.initialSpeakerWinCount} of {speakerStats.gamesAnalyzed} games won by initial speaker
           </div>
         </div>
       )}

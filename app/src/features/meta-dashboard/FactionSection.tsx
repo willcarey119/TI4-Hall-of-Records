@@ -138,39 +138,67 @@ export function FactionSection() {
 
       <Rule />
 
-      {/* Senate Power Index */}
-      {factionStats.factions.some(f => f.winningVoteRate !== null) && (
-        <>
-          <Rule />
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4, display: 'flex', alignItems: 'center' }}>
-            Senate Power · Voted with Outcome<Tooltip text="Percentage of agenda votes where this faction voted for the outcome that actually resolved. Measures political alignment, not agenda strength." />
-          </div>
-          <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 6 }}>
-            How often each faction cast their votes in favor of whichever side won the agenda — a proxy for political influence and deal-making without directly measuring VP.
-          </div>
-          {/* Column headers */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 50px', gap: 6, alignItems: 'center', padding: '2px 0', borderBottom: '1px solid var(--rule)', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>
-            <span>Faction</span>
-            <span>Alignment</span>
-            <span style={{ textAlign: 'right' }}>Rate</span>
-          </div>
-          {[...factionStats.factions]
-            .filter(f => f.winningVoteRate !== null)
-            .sort((a, b) => (b.winningVoteRate ?? 0) - (a.winningVoteRate ?? 0))
-            .map(f => (
-              <div key={f.factionId} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 50px', gap: 6, alignItems: 'center', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{f.factionId}</span>
-                <div style={{ background: 'var(--ink-4)', height: 4 }}>
-                  <div style={{ background: 'var(--cool)', height: 4, width: `${(f.winningVoteRate ?? 0) * 100}%` }} />
-                </div>
-                <span style={{ textAlign: 'right' }}>{Math.round((f.winningVoteRate ?? 0) * 100)}%</span>
-              </div>
-            ))}
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 4 }}>
-            Share of votes cast that backed the resolved outcome. Soft power without VP.
-          </div>
-        </>
-      )}
+      {/* Senate Power Index — card per faction, ranked */}
+      {factionStats.factions.some(f => f.winningVoteRate !== null) && (() => {
+        const ranked = [...factionStats.factions]
+          .filter(f => f.winningVoteRate !== null)
+          .sort((a, b) => (b.winningVoteRate ?? 0) - (a.winningVoteRate ?? 0));
+        const sftMap = new Map<string, number>();
+        for (const t of factionStats.sftTransfers) {
+          sftMap.set(t.toFaction, (sftMap.get(t.toFaction) ?? 0) + t.count);
+        }
+        const topRate = ranked[0]?.winningVoteRate ?? 0;
+        return (
+          <>
+            <Rule />
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+              Senate Power Index<Tooltip text="Ranked by alignment with resolved agenda outcomes — how often each faction's votes backed the winning side. Soft power that doesn't directly measure VP." />
+            </div>
+            <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 8 }}>
+              Factions ranked by share of votes cast in favor of resolved outcomes. SFT received counts how many times this faction was given a Support for the Throne card.
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8 }}>
+              {ranked.map((f, i) => {
+                const isTop = i === 0;
+                const rate = f.winningVoteRate ?? 0;
+                const sftReceived = sftMap.get(f.factionId) ?? 0;
+                return (
+                  <div
+                    key={f.factionId}
+                    style={{
+                      background: 'var(--paper-2)',
+                      border: '1px solid var(--ink-4)',
+                      borderLeft: isTop ? '3px solid var(--accent)' : '1px solid var(--ink-4)',
+                      padding: '10px 12px',
+                      opacity: rate < topRate * 0.5 ? 0.7 : 1,
+                    }}
+                  >
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>
+                      #{i + 1} Senate Influence
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, margin: '4px 0' }}>
+                      <FactionDot color={getFactionBrandColor(f.factionId, 'var(--ink-4)')} size={8} />
+                      <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 13, lineHeight: 1.1 }}>{f.factionId}</span>
+                    </div>
+                    <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1, color: isTop ? 'var(--accent)' : 'var(--ink)' }}>
+                      {Math.round(rate * 100)}%
+                    </div>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-3)', marginTop: 3 }}>
+                      Vote alignment · {f.gamesPlayed} game{f.gamesPlayed !== 1 ? 's' : ''}
+                    </div>
+                    <div style={{ background: 'var(--ink-4)', height: 4, marginTop: 6 }}>
+                      <div style={{ background: isTop ? 'var(--accent)' : 'var(--ink-2)', height: 4, width: `${rate * 100}%` }} />
+                    </div>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 6 }}>
+                      SFT received: {sftReceived}×
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        );
+      })()}
 
       {/* Support for the Throne */}
       {factionStats.sftTransfers.length > 0 && (

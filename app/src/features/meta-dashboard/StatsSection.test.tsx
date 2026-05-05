@@ -138,17 +138,17 @@ describe('StatsSection · unified Relics panel', () => {
     setupWithRelicStats();
     render(<MemoryRouter><StatsSection /></MemoryRouter>);
 
-    const shardLabel = screen.getByText('Shard of the Throne');
-    const crownLabel = screen.getByText('The Crown of Emphidia');
-    const stellarLabel = screen.getByText('Stellar Converter');
+    // The card structure: card > [name div, stats div, vp/no-vp div].
+    // closest('div') gets the name's immediate wrapper; we need its parent (the card itself).
+    const shardCard = screen.getByText('Shard of the Throne').closest('div')!.parentElement!;
+    const crownCard = screen.getByText('The Crown of Emphidia').closest('div')!.parentElement!;
+    const stellarCard = screen.getByText('Stellar Converter').closest('div')!.parentElement!;
 
-    const shardRow = shardLabel.closest('div')!;
-    const crownRow = crownLabel.closest('div')!;
-    const stellarRow = stellarLabel.closest('div')!;
-
-    expect(within(shardRow).getByText('VP')).toBeInTheDocument();
-    expect(within(crownRow).getByText('VP')).toBeInTheDocument();
-    expect(within(stellarRow).queryByText('VP')).not.toBeInTheDocument();
+    expect(within(shardCard).getByText('VP')).toBeInTheDocument();
+    expect(within(crownCard).getByText('VP')).toBeInTheDocument();
+    expect(within(stellarCard).queryByText('VP')).not.toBeInTheDocument();
+    // Non-VP relics show "No VP" instead
+    expect(within(stellarCard).getByText('No VP')).toBeInTheDocument();
   });
 
   it('merges gameStats.relics and relicStats.relics by relic name without duplicates', () => {

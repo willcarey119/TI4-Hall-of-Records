@@ -71,54 +71,99 @@ export function TechSection() {
 
       <Rule />
 
+      {/* Winner Tech Possession — card per tech */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px', display: 'flex', alignItems: 'center' }}>
-        Winner Possession · Top 10<Tooltip text="Technologies most often held by the winning faction at game end, ranked by frequency. A tech appearing here often correlates with winning — but may simply be popular among strong factions." />
+        Winner Tech Possession · Top 10<Tooltip text="Technologies most often held by the winning faction at game end. ★ = held in 67%+ of winning games where it appeared. Correlation, not causation." />
       </div>
-      {[...techStats.topTechs].sort((a, b) => (b.winnerHeldRate ?? 0) - (a.winnerHeldRate ?? 0)).slice(0, 10).map(t => (
-        <div key={t.tech} style={{ display: 'flex', gap: 6, padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-          <TechPip color={t.color} />
-          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)', flex: 1 }}>{t.tech}</span>
-          <span style={{ color: 'var(--ink-3)' }}>{t.winnerHeldCount} of {techStats.totalWinnerGames} winning games</span>
-          {(t.winnerHeldRate ?? 0) >= 0.67 && (
-            <span style={{ color: 'var(--accent)', textTransform: 'uppercase', fontSize: 'var(--font-micro)', letterSpacing: '0.1em', display: 'inline-flex', alignItems: 'center' }}>
-              ★ trend<Tooltip text="Winner held rate ≥ 67%: this tech appears in the winning faction's inventory in two-thirds or more of games where it was researched." />
-            </span>
-          )}
-        </div>
-      ))}
+      <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 8 }}>
+        Each card shows winner-held %, average research round, and the bar fills relative to the highest winner-hold rate in the top 10.
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8, marginBottom: 12 }}>
+        {[...techStats.topTechs].sort((a, b) => (b.winnerHeldRate ?? 0) - (a.winnerHeldRate ?? 0)).slice(0, 10).map(t => {
+          const heldPct = t.winnerHeldRate === null ? 0 : Math.round(t.winnerHeldRate * 100);
+          const isStar = (t.winnerHeldRate ?? 0) >= 0.67;
+          return (
+            <div
+              key={t.tech}
+              style={{
+                background: 'var(--paper-2)',
+                border: '1px solid var(--ink-4)',
+                borderLeft: isStar ? '3px solid var(--accent)' : '1px solid var(--ink-4)',
+                padding: '10px 12px',
+              }}
+            >
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: isStar ? 'var(--accent)' : 'var(--ink-4)', marginBottom: 2 }}>
+                {isStar ? '★ ' : ''}Held by winner {heldPct}%
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
+                <TechPip color={t.color} size={8} />
+                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 13, lineHeight: 1.1 }}>{t.tech}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <div>
+                  <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 16, lineHeight: 1, color: isStar ? 'var(--accent)' : 'var(--ink)' }}>
+                    {heldPct}%
+                  </div>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>winner held</div>
+                </div>
+                <div>
+                  <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 16, lineHeight: 1 }}>
+                    {t.avgRoundFirstResearched === null ? '—' : `R${t.avgRoundFirstResearched.toFixed(1)}`}
+                  </div>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>avg research</div>
+                </div>
+              </div>
+              <div style={{ background: 'var(--ink-4)', height: 4, marginTop: 6 }}>
+                <div style={{ background: isStar ? 'var(--accent)' : 'var(--ink-2)', height: 4, width: `${heldPct}%` }} />
+              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', marginTop: 5 }}>
+                {t.winnerHeldCount} of {techStats.totalWinnerGames} winning games
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       {techPaths !== null && techPaths.factions.length > 0 && (
         <>
           <Rule />
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
-            Research Openings<Tooltip text="The most common techs each faction researches for their 1st, 2nd, and 3rd picks (in order). Shows faction-specific tech priorities across all games." />
+            Research Openings<Tooltip text="The most common techs each faction researches for their 1st, 2nd, and 3rd picks (excluding starting techs)." />
           </div>
           <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 8 }}>
-            #1 = first tech researched during the game (not counting starting techs). ×N = researched as this pick in N games.
+            One card per faction showing their top 1st / 2nd / 3rd research picks. ×N = number of games this opening was used.
           </div>
-          {techPaths.factions.map(f => (
-            <div key={f.factionId} style={{ marginBottom: 14 }}>
-              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontStyle: 'italic', fontSize: 'var(--font-sm)', marginBottom: 4 }}>
-                {f.factionId} <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)' }}>({f.gamesAnalyzed} games)</span>
-              </div>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                {f.pathByPosition.map(pos => (
-                  <div key={pos.position} style={{ minWidth: 80 }}>
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginBottom: 2 }}>
-                      #{pos.position}
-                    </div>
-                    {pos.topTechs.map(t => (
-                      <div key={t.tech} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-                        <TechPip color={t.color} size={6} />
-                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-                          {t.tech} <span style={{ color: 'var(--ink-4)' }}>×{t.count}</span>
-                        </span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8 }}>
+            {techPaths.factions.map(f => (
+              <div key={f.factionId} style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: '10px 12px' }}>
+                <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 13, lineHeight: 1.2, marginBottom: 6 }}>{f.factionId}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                  {f.pathByPosition.map(pos => (
+                    <div key={pos.position} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', width: 18, flexShrink: 0 }}>
+                        #{pos.position}
+                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+                        {pos.topTechs.length === 0 ? (
+                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-4)' }}>—</span>
+                        ) : pos.topTechs.map(t => (
+                          <div key={t.tech} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <TechPip color={t.color} size={6} />
+                            <span style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 10, color: 'var(--ink-2)' }}>
+                              {t.tech} <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: 'var(--ink-4)', fontSize: 9 }}>×{t.count}</span>
+                            </span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ))}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', marginTop: 6 }}>
+                  {f.gamesAnalyzed} game{f.gamesAnalyzed !== 1 ? 's' : ''} sampled
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </>
       )}
     </section>
