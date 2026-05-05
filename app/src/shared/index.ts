@@ -21,3 +21,4 @@ export { FontScaleControls } from './FontScaleControls';
 export { useScrollSpy } from './hooks/useScrollSpy';
 export { SubSectionNav } from './SubSectionNav';
 export { CommandPalette } from './CommandPalette';
+export { EntityCard } from './EntityCard';
