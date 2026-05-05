@@ -4,6 +4,7 @@ import { buildPlanetSummary, type PlanetSummary, type FactionPlanetInventory } f
 import { buildMecatolTimeline } from '../../lib/planets/buildMecatolTimeline';
 import { deriveRoundBoundaries } from '../../lib/aggregator/deriveRoundBoundaries';
 import { MecatolWidget } from './MecatolWidget';
+import { PlanetControlSlideshow } from './PlanetControlSlideshow';
 import { Label, Rule, FactionDot, SectionDesc } from '../../shared';
 
 function PlanetsContent({ summary }: { summary: PlanetSummary }) {
@@ -58,14 +59,20 @@ function PlanetsContent({ summary }: { summary: PlanetSummary }) {
 
       <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
 
-      {/* Per-faction inventories */}
+      {/* Per-faction territory cards */}
       <Label>Final Control</Label>
-      <div style={{ marginTop: 4 }}>
-        {summary.inventories.map((inv, i, arr) => (
-          <FactionInventory
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gap: 8,
+          marginTop: 6,
+        }}
+      >
+        {summary.inventories.map(inv => (
+          <FactionTerritoryCard
             key={inv.factionId}
             inv={inv}
-            isLast={i === arr.length - 1}
             contestedNames={contestedNames}
           />
         ))}
@@ -74,84 +81,91 @@ function PlanetsContent({ summary }: { summary: PlanetSummary }) {
   );
 }
 
-function FactionInventory({
+function FactionTerritoryCard({
   inv,
-  isLast,
   contestedNames,
 }: {
   inv: FactionPlanetInventory;
-  isLast: boolean;
   contestedNames: Set<string>;
 }) {
   return (
-    <div>
+    <div
+      style={{
+        border: '1px solid var(--rule)',
+        background: 'var(--paper-2)',
+        padding: 10,
+      }}
+    >
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '5px 0 3px',
+          gap: 6,
+          marginBottom: 8,
+          paddingBottom: 6,
+          borderBottom: '1px solid var(--ink-4)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <FactionDot color={inv.color} />
-          <span
-            style={{
-              fontFamily: "'Newsreader', Georgia, serif",
-              fontWeight: 700,
-              fontSize: 'var(--font-sm)',
-            }}
-          >
-            {inv.factionId}
-          </span>
-        </div>
+        <FactionDot color={inv.color} size={8} />
+        <span
+          style={{
+            fontFamily: "'Newsreader', Georgia, serif",
+            fontWeight: 700,
+            fontSize: 12,
+            flex: 1,
+          }}
+        >
+          {inv.factionId}
+        </span>
         <span
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            color: 'var(--ink-3)',
+            fontSize: 11,
+            fontWeight: 700,
+            color: 'var(--ink)',
           }}
         >
-          {inv.totalPlanets} planets
+          {inv.totalPlanets}
+        </span>
+        <span
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 8,
+            textTransform: 'uppercase',
+            letterSpacing: '0.06em',
+            color: 'var(--ink-4)',
+          }}
+        >
+          planet{inv.totalPlanets === 1 ? '' : 's'}
         </span>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '2px 6px',
-          paddingBottom: 4,
-          fontSize: 'var(--font-micro)',
-          color: 'var(--ink-2)',
-        }}
-      >
-        {inv.planets
-          .filter(p => !p.isMecatol)
-          .map(p => (
-            <span
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+        {inv.planets.map(p => {
+          const isContested = contestedNames.has(p.planet);
+          return (
+            <div
               key={p.planet}
               style={{
-                fontFamily: "'Newsreader', Georgia, serif",
-                color: contestedNames.has(p.planet) ? 'var(--accent)' : 'var(--ink-2)',
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 9,
+                padding: '2px 5px',
+                background: 'var(--paper-3)',
+                border: isContested ? '1px solid var(--accent)' : '1px solid var(--ink-4)',
+                color: isContested ? 'var(--accent)' : 'var(--ink-2)',
+                fontWeight: p.isMecatol ? 700 : 400,
+                whiteSpace: 'nowrap',
               }}
             >
               {p.planet}
-              {contestedNames.has(p.planet) && (
-                <span
-                  style={{
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 'var(--font-micro)',
-                    marginLeft: 2,
-                    color: 'var(--accent)',
-                  }}
-                >
-                  &times;{p.changeCount}
+              {isContested && p.changeCount > 1 && (
+                <span style={{ marginLeft: 3, fontSize: 8, opacity: 0.8 }}>
+                  ×{p.changeCount}
                 </span>
               )}
-            </span>
-          ))}
+            </div>
+          );
+        })}
       </div>
-      {!isLast && <Rule />}
     </div>
   );
 }
@@ -181,6 +195,12 @@ export function PlanetsSection() {
       )}
       {summary !== null && (
         <PlanetsContent summary={summary} />
+      )}
+      {game !== null && (
+        <>
+          <Rule weight="double" />
+          <PlanetControlSlideshow game={game} />
+        </>
       )}
     </section>
   );

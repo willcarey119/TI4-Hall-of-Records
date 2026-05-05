@@ -5,6 +5,7 @@ import type { ParsedGame } from '../../lib/parser/types';
 import { Kicker, Rule, FontScaleControls, SectionDesc, Tooltip } from '../../shared';
 import { FactionVotingPanel } from './FactionVotingPanel';
 import { AgendaCard } from './AgendaCard';
+import { PoliticalBarChart } from './PoliticalBarChart';
 
 const monoMicro = {
   fontFamily: "'IBM Plex Mono', monospace",
@@ -113,6 +114,11 @@ export function AgendaPage() {
           tooltip="Total victory points transferred between factions as a direct result of agenda outcomes."
         />
       </div>
+
+      {/* Political bar chart — cross-game vote split per agenda */}
+      <PoliticalBarChart agendas={summary.agendas} />
+
+      <Rule weight="double" />
 
       {/* Faction voting matrix (A4) */}
       <FactionVotingPanel summary={summary} />

@@ -5,6 +5,7 @@ import { Rule, formatDate, formatDuration, FactionDot, SectionDesc, Tooltip } fr
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 import { buildRoundScores } from '../../lib/recap/buildRoundScores';
 import { deriveRoundBoundaries } from '../../lib/aggregator';
+import { FactionSnapshotCards } from './FactionSnapshotCards';
 
 export function RecapSection() {
   const { game } = useGame();
@@ -266,50 +267,8 @@ export function RecapSection() {
 
       <Rule />
 
-      {/* Standings strip */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${standings.length}, 1fr)`,
-          gap: 3,
-        }}
-      >
-        {standings.map(s => (
-          <div
-            key={s.factionId}
-            style={{
-              textAlign: 'center',
-              padding: '4px 2px',
-              background: s.isWinner ? 'var(--paper-2)' : 'transparent',
-              border: s.isWinner ? '1px solid var(--accent)' : '1px solid var(--ink-4)',
-            }}
-          >
-            <FactionDot color={s.color} size={6} style={{ display: 'block', margin: '0 auto 2px' }} />
-            <div
-              style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 'var(--font-micro)',
-                color: 'var(--ink-3)',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {s.factionId.split(' ')[0] ?? s.factionId}
-            </div>
-            <div
-              style={{
-                fontFamily: "'Newsreader', Georgia, serif",
-                fontWeight: 800,
-                fontSize: 'var(--font-sm)',
-                color: s.isWinner ? 'var(--accent)' : 'var(--ink)',
-              }}
-            >
-              {s.finalVp} VP
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Faction snapshot cards (replaces flat standings strip) */}
+      <FactionSnapshotCards game={game} />
 
       {roundScores.length > 0 && (
         <>

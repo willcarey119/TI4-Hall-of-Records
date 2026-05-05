@@ -33,3 +33,5 @@ export { buildTechPaths } from './buildTechPaths';
 export type { FactionTechPath, TechPathSummary, TechPathEntry } from './buildTechPaths';
 export { buildAgendaCrossGame } from './buildAgendaCrossGame';
 export type { AgendaCrossGameSummary, AgendaCrossGameStat, AgendaAppearance, AgendaFactionVotingSummary, FactionAgendaVote } from './buildAgendaCrossGame';
+export { buildTerritoryByRound } from './buildTerritoryByRound';
+export type { RoundTerritory, FactionRoundTerritory } from './buildTerritoryByRound';

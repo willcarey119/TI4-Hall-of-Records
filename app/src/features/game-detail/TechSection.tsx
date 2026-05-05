@@ -22,11 +22,6 @@ export function TechSection() {
 
   if (game === null || summary === null) return null;
 
-  const factionColorMap: Record<string, string> = {};
-  for (const f of game.factions) {
-    factionColorMap[f.factionId] = f.color;
-  }
-
   return (
     <section
       id="tech"
@@ -156,63 +151,190 @@ export function TechSection() {
 
       <Rule />
 
-      {/* Research Order */}
-      <Label>Research Order</Label>
+      {/* Research Order — faction cards */}
+      <Label>Research Order · By Faction</Label>
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
           fontSize: 'var(--font-micro)',
           color: 'var(--ink-4)',
           letterSpacing: '0.04em',
-          marginBottom: 4,
+          marginBottom: 6,
         }}
       >
-        Active researches only · starting techs excluded
+        Sequential research order per faction · starting techs shown dimmed at bottom
       </div>
       <div
         style={{
-          borderLeft: '2px solid var(--cool)',
-          paddingLeft: 8,
-          marginBottom: 8,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gap: 8,
         }}
       >
-        {summary.timeline.length === 0 ? (
-          <div
-            style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 'var(--font-micro)',
-              color: 'var(--ink-3)',
-              padding: '4px 0',
-            }}
-          >
-            No technologies researched.
-          </div>
-        ) : (
-          summary.timeline.map((entry, i) => (
-            <div
-              key={i}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '28px 1fr 8px',
-                gap: 4,
-                alignItems: 'center',
-                padding: '2px 0',
-                borderBottom: '1px dotted var(--ink-4)',
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 'var(--font-micro)',
-              }}
-            >
-              <span style={{ color: 'var(--ink-3)' }}>
-                {entry.round === 0 ? '—' : `R${entry.round}`}
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>
-                <FactionDot color={factionColorMap[entry.factionId] ?? '#aaa'} />
-                {entry.tech}
-              </span>
-              <TechPip color={entry.color} />
-            </div>
-          ))
-        )}
+        {summary.inventories
+          .filter(inv => inv.techs.length > 0)
+          .map(inv => {
+            const faction = game.factions.find(f => f.factionId === inv.factionId);
+            if (faction === undefined) return null;
+            const researched = inv.techs
+              .filter(t => t.origin === 'research')
+              .map((t, i) => {
+                const ev = summary.timeline.find(
+                  e => e.factionId === inv.factionId && e.tech === t.tech,
+                );
+                return { tech: t.tech, color: t.color, round: ev?.round ?? 0, seq: i + 1 };
+              });
+            const starting = inv.techs.filter(t => t.origin === 'starting');
+            return (
+              <div
+                key={inv.factionId}
+                style={{
+                  border: '1px solid var(--rule)',
+                  background: 'var(--paper-2)',
+                  padding: 10,
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    marginBottom: 8,
+                    paddingBottom: 6,
+                    borderBottom: '1px solid var(--ink-4)',
+                  }}
+                >
+                  <FactionDot color={faction.color} size={8} />
+                  <span
+                    style={{
+                      fontFamily: "'Newsreader', Georgia, serif",
+                      fontWeight: 700,
+                      fontSize: 12,
+                      flex: 1,
+                    }}
+                  >
+                    {faction.factionId}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'IBM Plex Mono', monospace",
+                      fontSize: 9,
+                      color: 'var(--ink-3)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {researched.length} researched
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {researched.map(t => (
+                    <div
+                      key={t.seq}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 5,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: "'IBM Plex Mono', monospace",
+                          fontSize: 9,
+                          color: 'var(--ink-4)',
+                          width: 12,
+                          textAlign: 'right',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {t.seq}
+                      </span>
+                      <TechPip color={t.color} size={6} />
+                      <span
+                        style={{
+                          fontFamily: "'IBM Plex Sans', sans-serif",
+                          fontSize: 10,
+                          color: 'var(--ink-2)',
+                          flex: 1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {t.tech}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: "'IBM Plex Mono', monospace",
+                          fontSize: 9,
+                          color: 'var(--ink-4)',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {t.round === 0 ? '—' : `R${t.round}`}
+                      </span>
+                    </div>
+                  ))}
+                  {starting.length > 0 && (
+                    <>
+                      <div
+                        style={{
+                          fontFamily: "'IBM Plex Mono', monospace",
+                          fontSize: 8,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.1em',
+                          color: 'var(--ink-4)',
+                          padding: '4px 0 2px',
+                          borderTop: '1px solid var(--ink-4)',
+                          marginTop: 3,
+                        }}
+                      >
+                        Starting Techs
+                      </div>
+                      {starting.map(t => (
+                        <div
+                          key={t.tech}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 5,
+                            opacity: 0.5,
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontFamily: "'IBM Plex Mono', monospace",
+                              fontSize: 9,
+                              color: 'var(--ink-4)',
+                              width: 12,
+                              textAlign: 'right',
+                              flexShrink: 0,
+                            }}
+                          >
+                            —
+                          </span>
+                          <TechPip color={t.color} size={6} />
+                          <span
+                            style={{
+                              fontFamily: "'IBM Plex Sans', sans-serif",
+                              fontSize: 10,
+                              color: 'var(--ink-2)',
+                              flex: 1,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              fontStyle: 'italic',
+                            }}
+                          >
+                            {t.tech}
+                          </span>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
       </div>
     </section>
   );
