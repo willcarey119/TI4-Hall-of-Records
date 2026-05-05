@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 
 interface TooltipProps {
   text: string;
@@ -6,6 +6,24 @@ interface TooltipProps {
 
 export function Tooltip({ text }: TooltipProps) {
   const [visible, setVisible] = useState(false);
+  const [offsetX, setOffsetX] = useState(0);
+  const bubbleRef = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    if (!visible || bubbleRef.current === null) {
+      setOffsetX(0);
+      return;
+    }
+    const rect = bubbleRef.current.getBoundingClientRect();
+    const pad = 8;
+    if (rect.right > window.innerWidth - pad) {
+      setOffsetX(-(rect.right - (window.innerWidth - pad)));
+    } else if (rect.left < pad) {
+      setOffsetX(pad - rect.left);
+    } else {
+      setOffsetX(0);
+    }
+  }, [visible]);
 
   return (
     <span
@@ -40,12 +58,13 @@ export function Tooltip({ text }: TooltipProps) {
       </span>
       {visible && (
         <span
+          ref={bubbleRef}
           role="tooltip"
           style={{
             position: 'absolute',
             bottom: 'calc(100% + 6px)',
             left: '50%',
-            transform: 'translateX(-50%)',
+            transform: `translateX(calc(-50% + ${offsetX}px))`,
             background: 'var(--paper)',
             border: '1px solid var(--rule)',
             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
