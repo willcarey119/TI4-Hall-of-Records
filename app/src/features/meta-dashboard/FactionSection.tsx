@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMeta } from './MetaContext';
-import { Rule, FactionDot, SectionDesc, Tooltip, EntityCard, LeaderboardPodium } from '../../shared';
+import { Rule, FactionDot, SectionDesc, Tooltip, EntityCard, LeaderboardPodium, FilterBar } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 
 type ViewMode = 'table' | 'cards';
@@ -90,19 +90,25 @@ export function FactionSection() {
       })()}
 
       {/* View / sort toggles */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-        <span style={{ color: 'var(--ink-3)' }}>View</span>
-        <button type="button" onClick={() => { setView('table'); }} style={{ background: view === 'table' ? 'var(--ink)' : 'transparent', color: view === 'table' ? 'var(--paper)' : 'var(--ink)', border: '1px solid var(--ink)', padding: '2px 6px', cursor: 'pointer' }}>Table</button>
-        <button type="button" onClick={() => { setView('cards'); }} style={{ background: view === 'cards' ? 'var(--ink)' : 'transparent', color: view === 'cards' ? 'var(--paper)' : 'var(--ink)', border: '1px solid var(--ink)', padding: '2px 6px', cursor: 'pointer' }}>Cards</button>
-        {view === 'table' && (
-          <>
-            <span style={{ marginLeft: 12, color: 'var(--ink-3)' }}>Sort</span>
-            <button type="button" onClick={() => { setSort('winRate'); }}     style={{ background: 'transparent', color: sort === 'winRate' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Win%</button>
-            <button type="button" onClick={() => { setSort('gamesPlayed'); }} style={{ background: 'transparent', color: sort === 'gamesPlayed' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Pick</button>
-            <button type="button" onClick={() => { setSort('avgFinalVp'); }}  style={{ background: 'transparent', color: sort === 'avgFinalVp' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Avg VP</button>
-          </>
-        )}
-      </div>
+      <FilterBar
+        segments={[
+          { label: 'Cards', value: 'cards' },
+          { label: 'Table', value: 'table' },
+        ]}
+        activeSegment={view}
+        onSegmentChange={(v) => { setView(v as ViewMode); }}
+        dropdownLabel="Season"
+        dropdownOptions={[{ label: 'All Games', value: 'all' }]}
+        dropdownValue="all"
+      />
+      {view === 'table' && (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 16px', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: '1px solid var(--rule)' }}>
+          <span style={{ color: 'var(--ink-3)' }}>Sort</span>
+          <button type="button" onClick={() => { setSort('winRate'); }}     style={{ background: 'transparent', color: sort === 'winRate' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Win%</button>
+          <button type="button" onClick={() => { setSort('gamesPlayed'); }} style={{ background: 'transparent', color: sort === 'gamesPlayed' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Pick</button>
+          <button type="button" onClick={() => { setSort('avgFinalVp'); }}  style={{ background: 'transparent', color: sort === 'avgFinalVp' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Avg VP</button>
+        </div>
+      )}
 
       {view === 'table' ? (
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
