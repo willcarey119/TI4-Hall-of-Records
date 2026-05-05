@@ -25,3 +25,4 @@ export { EntityCard } from './EntityCard';
 export { StatCard } from './StatCard';
 export { LeaderboardPodium } from './LeaderboardPodium';
 export { DivergingComparison, MultiEntityComparison } from './ComparisonBlock';
+export { MultiLineChart, SmallMultiples } from './TrendCard';
