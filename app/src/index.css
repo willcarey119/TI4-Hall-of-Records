@@ -14,16 +14,27 @@
   --ink-4:   oklch(0.72 0.01 60);    /* dividers, disabled */
   --accent:  oklch(0.45 0.12 25);    /* faded vermillion — "stop press" */
   --font-scale: 1;
-  --font-micro:      calc(11px * var(--font-scale));
-  --font-sm:         calc(13px * var(--font-scale));
-  --font-body:       calc(15px * var(--font-scale));
-  --font-subhead:    calc(17px * var(--font-scale));
-  --font-display-sm: calc(22px * var(--font-scale));
-  --font-display-md: calc(28px * var(--font-scale));
-  --font-display-lg: calc(32px * var(--font-scale));
+  --font-micro:      calc(14px * var(--font-scale, 1));   /* was 11px — floor raised to 14px */
+  --font-sm:         calc(16px * var(--font-scale, 1));   /* was 13px */
+  --font-body:       calc(18px * var(--font-scale, 1));   /* was 15px */
+  --font-subhead:    calc(20px * var(--font-scale, 1));   /* was 17px */
+  --font-display-sm: calc(26px * var(--font-scale, 1));   /* was 22px */
+  --font-display-md: calc(32px * var(--font-scale, 1));   /* was 28px */
+  --font-display-lg: calc(38px * var(--font-scale, 1));   /* was 32px */
   --cool:    oklch(0.45 0.08 240);   /* faded ink-blue — secondary accent */
   --gold:    oklch(0.64 0.13 75);    /* tech color: Cybernetic (yellow) */
   --moss:    oklch(0.52 0.09 145);   /* tech color: Biotic (green) — lighter than red/blue for separation */
+}
+
+/* Use on cards that have leftover space: type grows to fill before padding shrinks */
+.card-fill {
+  container-type: inline-size;
+}
+.card-fill .fill-label {
+  font-size: clamp(var(--font-micro), 2.5cqi, var(--font-sm));
+}
+.card-fill .fill-value {
+  font-size: clamp(var(--font-display-sm), 8cqi, var(--font-display-lg));
 }
 
 body {
