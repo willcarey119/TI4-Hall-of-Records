@@ -1,4 +1,3 @@
-import React from 'react';
 import { FactionDot } from './FactionDot';
 
 interface Category { label: string; color: string; value: number; }

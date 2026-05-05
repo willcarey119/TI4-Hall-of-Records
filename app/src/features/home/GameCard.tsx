@@ -48,15 +48,18 @@ export function GameCard({ game, variant = 'row', selected, onToggle }: GameCard
           <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-display-sm)', color: 'var(--ink-3)' }}>–{game.finalScores[runnerUp?.factionId ?? ''] ?? '—'}</span>
         </div>
         <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' as const }}>
-          {game.factions.map(f => (
-            <FactionChip
-              key={f.factionId}
-              factionId={f.factionId}
-              color={f.color}
-              score={game.finalScores[f.factionId]}
-              winner={f.factionId === game.winner}
-            />
-          ))}
+          {game.factions.map(f => {
+            const fScore = game.finalScores[f.factionId];
+            return (
+              <FactionChip
+                key={f.factionId}
+                factionId={f.factionId}
+                color={f.color}
+                winner={f.factionId === game.winner}
+                {...(fScore !== undefined ? { score: fScore } : {})}
+              />
+            );
+          })}
         </div>
       </button>
     );
@@ -104,15 +107,18 @@ export function GameCard({ game, variant = 'row', selected, onToggle }: GameCard
           {winnerFaction?.factionId ?? '—'} takes the throne
         </div>
         <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' as const }}>
-          {game.factions.map(f => (
-            <FactionChip
-              key={f.factionId}
-              factionId={f.factionId}
-              color={f.color}
-              score={game.finalScores[f.factionId]}
-              winner={f.factionId === game.winner}
-            />
-          ))}
+          {game.factions.map(f => {
+            const fScore = game.finalScores[f.factionId];
+            return (
+              <FactionChip
+                key={f.factionId}
+                factionId={f.factionId}
+                color={f.color}
+                winner={f.factionId === game.winner}
+                {...(fScore !== undefined ? { score: fScore } : {})}
+              />
+            );
+          })}
         </div>
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 6 }}>{dateStr}</div>
       </button>

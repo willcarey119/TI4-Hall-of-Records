@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface Props { message: string; detail?: string; onRetry?: () => void; }
 
 export function ErrorState({ message, detail, onRetry }: Props) {

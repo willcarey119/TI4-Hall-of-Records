@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TI4 Hall of Records — Wireframe Kit</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,800;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Caveat:wght@500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="wf-tokens.css" />
+
+<style>
+  html, body { margin: 0; padding: 0; background: var(--paper-3); }
+
+  /* Cover sheet sits ABOVE the canvas — the canvas is panned so we let it
+     scroll naturally underneath. The cover is a normal block; canvas takes
+     a fixed viewport height after it. */
+  .cover {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 64px 56px 40px;
+    color: var(--ink);
+    font-family: var(--sans);
+  }
+  .cover .masthead {
+    display: flex; align-items: baseline; justify-content: space-between;
+    border-top: 4px double var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 10px 0 12px;
+  }
+  .cover .masthead .left,
+  .cover .masthead .right {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 0.14em;
+  }
+  .cover h1 {
+    font-family: var(--serif);
+    font-weight: 800;
+    font-size: 76px;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin: 28px 0 8px;
+  }
+  .cover .deck {
+    font-family: var(--serif); font-style: italic;
+    font-size: 22px; line-height: 1.35;
+    color: var(--ink-2);
+    max-width: 880px;
+    margin: 0 0 32px;
+  }
+  .cover .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+  }
+  .cover .meta-grid > div {
+    padding: 12px 16px 12px 0;
+    border-right: 1px solid var(--ink-5);
+  }
+  .cover .meta-grid > div:last-child { border-right: none; }
+  .cover .meta-grid .lbl {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px;
+  }
+  .cover .meta-grid .val {
+    font-family: var(--serif); font-weight: 600; font-size: 16px;
+  }
+  .cover .meta-grid .val small {
+    display: block;
+    font-family: var(--sans); font-weight: 400; font-size: 12px;
+    color: var(--ink-3); margin-top: 2px;
+  }
+
+  .cover .reading {
+    display: grid; grid-template-columns: 1.6fr 1fr; gap: 32px;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--ink-5);
+  }
+  .cover .reading h2 {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 10px;
+    border-bottom: 1px solid var(--ink); padding-bottom: 4px;
+  }
+  .cover .reading p {
+    font-family: var(--serif); font-size: 14px; line-height: 1.55;
+    margin: 0 0 10px;
+    color: var(--ink-2);
+  }
+  .cover .toc { font-family: var(--mono); font-size: 11px; line-height: 1.9; }
+  .cover .toc a { color: var(--ink); text-decoration: none; display: flex; gap: 8px; border-bottom: 1px dotted var(--ink-5); padding: 2px 0;}
+  .cover .toc a:hover { background: var(--paper-2); }
+  .cover .toc .num { color: var(--ink-3); width: 24px; }
+  .cover .toc .ttl { flex: 1; }
+  .cover .toc .ct { color: var(--ink-3); }
+
+  .cover .system {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--ink-5);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .cover .system h3 {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 8px;
+  }
+  .cover .system p {
+    font-family: var(--serif); font-size: 13px; line-height: 1.55;
+    margin: 0; color: var(--ink-2);
+  }
+
+  .cover .scroll-hint {
+    margin-top: 36px;
+    text-align: center;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+    letter-spacing: 0.2em; text-transform: uppercase;
+    border-top: 1px solid var(--ink); padding-top: 14px;
+  }
+
+  /* Canvas wrapper occupies viewport-height beneath the cover */
+  .canvas-host {
+    height: 100vh;
+    border-top: 4px double var(--ink);
+    background: var(--paper-2);
+    position: relative;
+  }
+  .canvas-host .ribbon {
+    position: absolute; top: 12px; left: 16px; z-index: 5;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-3);
+    background: var(--paper); padding: 4px 8px; border: 1px solid var(--ink-4);
+    pointer-events: none;
+  }
+
+  /* Wireframe artboard pages — newsprint inside each artboard */
+  .wf-artboard {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+
+<header class="cover">
+
+  <div class="masthead">
+    <span class="left">TI4 Hall of Records · Design Office</span>
+    <span class="right">No. 001 · UI/UX Refactor · May 2026</span>
+  </div>
+
+  <h1>The Element Kit</h1>
+  <p class="deck">
+    Lo-fi greybox wireframes for a unified, dynamic, FiveThirtyEight-meets-newsprint
+    front end. Built element-first so any page can be composed from the same
+    primitives — and rebuilt later without losing the system.
+  </p>
+
+  <div class="meta-grid">
+    <div>
+      <div class="lbl">Author</div>
+      <div class="val">Design <small>for Will Carey</small></div>
+    </div>
+    <div>
+      <div class="lbl">Source</div>
+      <div class="val">github.com/willcarey119<small>TI4-Hall-of-Records · master</small></div>
+    </div>
+    <div>
+      <div class="lbl">Tone</div>
+      <div class="val">Almanac <small>BGG-playful, 538-credible</small></div>
+    </div>
+    <div>
+      <div class="lbl">Fidelity</div>
+      <div class="val">Lo-fi greybox <small>3+ variants per element</small></div>
+    </div>
+  </div>
+
+  <div class="reading">
+    <div>
+      <h2>How to read this</h2>
+      <p>
+        Each section below is one <em>element</em> of the product — not a page. We
+        give 3 to 6 variants, each with a "When to use" and a "Watch out for"
+        annotation. Drag the canvas to pan, scroll to zoom, click any artboard to
+        open it fullscreen.
+      </p>
+      <p>
+        Variants are intentionally interoperable: the chip from §02 is the same
+        chip used in §05's match cards. Pick a variant per element and the
+        composed pages stay coherent.
+      </p>
+      <p>
+        The current Hall of Records is solid in structure — Home / Games / League /
+        Agenda — but every surface mixes too many type sizes and hierarchy is fuzzy.
+        This kit picks one editorial spine (newspaper broadsheet) and rationalises
+        every primitive against it.
+      </p>
+    </div>
+
+    <div>
+      <h2>Sections</h2>
+      <nav class="toc">
+        <a href="#sec-01"><span class="num">01</span><span class="ttl">Page chrome — header, nav, breadcrumb</span><span class="ct">4×</span></a>
+        <a href="#sec-02"><span class="num">02</span><span class="ttl">Faction / entity card</span><span class="ct">4×</span></a>
+        <a href="#sec-03"><span class="num">03</span><span class="ttl">Stat card — single metric</span><span class="ct">6×</span></a>
+        <a href="#sec-04"><span class="num">04</span><span class="ttl">Leaderboard row & table</span><span class="ct">4×</span></a>
+        <a href="#sec-05"><span class="num">05</span><span class="ttl">Match / game result card</span><span class="ct">6×</span></a>
+        <a href="#sec-06"><span class="num">06</span><span class="ttl">Comparison block — A vs B</span><span class="ct">4×</span></a>
+        <a href="#sec-07"><span class="num">07</span><span class="ttl">Trend & sparkline cards</span><span class="ct">3×</span></a>
+        <a href="#sec-08"><span class="num">08</span><span class="ttl">Distribution & histogram cards</span><span class="ct">3×</span></a>
+        <a href="#sec-09"><span class="num">09</span><span class="ttl">Categorical breakdown</span><span class="ct">3×</span></a>
+        <a href="#sec-10"><span class="num">10</span><span class="ttl">Filter & control bar</span><span class="ct">3×</span></a>
+        <a href="#sec-11"><span class="num">11</span><span class="ttl">Empty · loading · error</span><span class="ct">3×</span></a>
+        <a href="#sec-12"><span class="num">12</span><span class="ttl">Mobile variants</span><span class="ct">3×</span></a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="system">
+    <div>
+      <h3>Type system</h3>
+      <p>
+        Newsreader (display, body), IBM Plex Sans (UI), IBM Plex Mono (labels +
+        tabular numerics). One scale per role. No more competing headings.
+      </p>
+    </div>
+    <div>
+      <h3>Color</h3>
+      <p>
+        Warm-paper neutrals (oklch 0.97–0.18, chroma ≤0.016). One accent —
+        vermillion (oklch 0.45 / 0.12 / 25) — reserved for "the answer". Faction
+        color stays in the data layer; the chrome stays editorial.
+      </p>
+    </div>
+    <div>
+      <h3>Composition</h3>
+      <p>
+        Every card is a <strong>kicker · headline · deck · body · rule</strong>
+        unit. Newspaper bones. The hierarchy is the design — not the borders, not
+        the shadows. Cards have neither.
+      </p>
+    </div>
+  </div>
+
+  <div class="scroll-hint">↓ Wireframe canvas — drag to pan · scroll to zoom</div>
+</header>
+
+<main class="canvas-host" id="canvas-host">
+  <span class="ribbon">Canvas — drag · scroll · click to focus</span>
+  <div id="root" style="height: 100%;"></div>
+</main>
+
+<!-- Speaker notes intentionally omitted; this is a kit, not a deck -->
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="wf-primitives.jsx"></script>
+<script type="text/babel" src="wf-section-01-chrome.jsx"></script>
+<script type="text/babel" src="wf-section-02-entity.jsx"></script>
+<script type="text/babel" src="wf-section-03-statcards.jsx"></script>
+<script type="text/babel" src="wf-section-04-leaderboard.jsx"></script>
+<script type="text/babel" src="wf-section-05-matches.jsx"></script>
+<script type="text/babel" src="wf-section-06-comparison.jsx"></script>
+<script type="text/babel" src="wf-section-07-trends.jsx"></script>
+<script type="text/babel" src="wf-section-09-rest.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+const {
+  DesignCanvas, DCSection, DCArtboard,
+  PageChromeSection, FactionEntitySection, StatCardSection,
+  LeaderboardSection, MatchResultSection, ComparisonSection,
+  TrendDistSection, BreakdownSection, FilterEmptySection,
+} = window;
+
+// DCSection only walks DIRECT DCArtboard children, so we cannot wrap them in
+// a helper component — must use DCArtboard inline.
+
+const board = (id, label, h, body) => (
+  <DCArtboard id={id} label={label} width={1500} height={h}>
+    <div className="wf-artboard" data-screen-label={`${id} ${label}`}>
+      {body}
+    </div>
+  </DCArtboard>
+);
+
+function App() {
+  return (
+    <DesignCanvas storageKey="ti4-hor-wf-kit-v2" minZoom={0.15} maxZoom={1.5}>
+
+      <DCSection id="01-chrome" title="01 · Page Chrome" subtitle="Mastheads, navigation, breadcrumbs — the editorial frame around every page.">
+        {board('01', 'Page chrome variants', 1900, <PageChromeSection />)}
+      </DCSection>
+
+      <DCSection id="02-entity" title="02 · Faction / Entity Card" subtitle="The reusable unit for any faction, player, or season profile.">
+        {board('02', 'Entity card variants', 1500, <FactionEntitySection />)}
+      </DCSection>
+
+      <DCSection id="03-stat" title="03 · Stat Card — single metric" subtitle="One number, one direction-of-travel. The atomic unit of a stats site.">
+        {board('03', 'Stat card variants', 1100, <StatCardSection />)}
+      </DCSection>
+
+      <DCSection id="04-leaderboard" title="04 · Leaderboard — row & table" subtitle="Three densities of the same data: podium, sortable table, BR-dense ledger.">
+        {board('04', 'Leaderboard variants', 1450, <LeaderboardSection />)}
+      </DCSection>
+
+      <DCSection id="05-match" title="05 · Match / Game Result Card" subtitle="The home page's bread and butter. Six narrative-vs-density tradeoffs.">
+        {board('05', 'Match card variants', 1100, <MatchResultSection />)}
+      </DCSection>
+
+      <DCSection id="06-compare" title="06 · Comparison Block — A vs B" subtitle="Head-to-head: factions, players, seasons.">
+        {board('06', 'Comparison variants', 1300, <ComparisonSection />)}
+      </DCSection>
+
+      <DCSection id="07-trend" title="07–08 · Trend & Distribution" subtitle="Time series and shape-of-data cards.">
+        {board('07', 'Trend & distribution', 1500, <TrendDistSection />)}
+      </DCSection>
+
+      <DCSection id="09-breakdown" title="09 · Categorical Breakdown" subtitle="Composition: VP source mix, faction prevalence, tech mix.">
+        {board('09', 'Breakdown variants', 900, <BreakdownSection />)}
+      </DCSection>
+
+      <DCSection id="10-states" title="10–11 · Filters & States" subtitle="Filter bars and the un-fun moments — empty, loading, error.">
+        {board('10', 'Filters + states', 1500, <FilterEmptySection />)}
+      </DCSection>
+
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+</body>
+</html>

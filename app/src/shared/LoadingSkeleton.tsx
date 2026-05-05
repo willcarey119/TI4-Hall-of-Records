@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function LoadingSkeleton({ rows = 3 }: { rows?: number }) {
   return (
     <div style={{ padding: '12px 16px' }}>

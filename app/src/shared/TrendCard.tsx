@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface Series { label: string; color: string; values: number[]; }
 
 export function MultiLineChart({ title, series, height = 110, yMax }: {

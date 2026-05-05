@@ -1,4 +1,3 @@
-import React from 'react';
 import { FactionDot } from './FactionDot';
 
 interface PodiumEntry {

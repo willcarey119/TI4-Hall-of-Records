@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface Segment { label: string; value: string; }
 
 interface Props {

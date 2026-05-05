@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function EmptyState() {
   return (
     <div style={{ padding: '32px 16px', textAlign: 'center' as const, borderTop: '1px solid var(--rule)' }}>
