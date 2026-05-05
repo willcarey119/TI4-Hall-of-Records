@@ -88,6 +88,15 @@ export interface Stage2Stat {
   firstStage2ScorerWinRate: number | null;
 }
 
+export interface ThresholdSegment {
+  vpThreshold: number;
+  gameCount: number;
+  avgWinningVp: number | null;
+  avgDurationSeconds: number;
+  avgPlayers: number;
+  mecatol: MecatolStat;
+}
+
 export interface GameStatsSummary {
   totalGames: number;
   avgDurationSeconds: number;
@@ -103,6 +112,7 @@ export interface GameStatsSummary {
   objectiveTiming: ObjectiveTimingStat;
   vpDiversity: VpDiversityStat;
   stage2: Stage2Stat;
+  byThreshold: ThresholdSegment[];
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -529,6 +539,36 @@ function buildStage2(games: ParsedGame[]): Stage2Stat {
   };
 }
 
+function buildByThreshold(
+  games: ParsedGame[],
+  roundBoundariesByGame: Map<string, RoundBoundary[]>,
+): ThresholdSegment[] {
+  const grouped = new Map<number, ParsedGame[]>();
+  for (const game of games) {
+    const arr = grouped.get(game.vpThreshold) ?? [];
+    arr.push(game);
+    grouped.set(game.vpThreshold, arr);
+  }
+
+  return [...grouped.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([vpThreshold, group]) => {
+      const winningVps = group
+        .filter(g => g.winner !== null)
+        .map(g => g.finalScores[g.winner!] ?? 0);
+      return {
+        vpThreshold,
+        gameCount: group.length,
+        avgWinningVp: winningVps.length > 0
+          ? winningVps.reduce((s, n) => s + n, 0) / winningVps.length
+          : null,
+        avgDurationSeconds: group.reduce((s, g) => s + g.durationSeconds, 0) / group.length,
+        avgPlayers: group.reduce((s, g) => s + g.factions.length, 0) / group.length,
+        mecatol: buildMecatol(group, roundBoundariesByGame),
+      };
+    });
+}
+
 // ── Main export ───────────────────────────────────────────────────────────────
 
 export function buildGameStats(
@@ -560,6 +600,7 @@ export function buildGameStats(
         avgLoserHHI: null,
       },
       stage2: { gamesWithStage2: 0, firstStage2ScorerWins: 0, firstStage2ScorerWinRate: null },
+      byThreshold: [],
     };
   }
 
@@ -589,5 +630,6 @@ export function buildGameStats(
     objectiveTiming: buildObjectiveTiming(games, roundBoundariesByGame),
     vpDiversity: buildVpDiversity(games),
     stage2: buildStage2(games),
+    byThreshold: buildByThreshold(games, roundBoundariesByGame),
   };
 }

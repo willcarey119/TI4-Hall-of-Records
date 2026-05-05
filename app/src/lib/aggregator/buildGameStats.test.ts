@@ -283,3 +283,43 @@ describe('buildVpSources — objective stage split', () => {
     expect(result.vpSources.find(s => s.source === 'score_objective')).toBeUndefined();
   });
 });
+
+describe('buildGameStats — byThreshold segmentation', () => {
+  it('returns one segment per distinct vpThreshold, sorted ascending', () => {
+    const games = [
+      makeGame('g1', { vpThreshold: 10, durationSeconds: 3600 }),
+      makeGame('g2', { vpThreshold: 12, durationSeconds: 4800 }),
+      makeGame('g3', { vpThreshold: 10, durationSeconds: 4200 }),
+    ];
+    const result = buildGameStats(games, new Map());
+    expect(result.byThreshold.map(s => s.vpThreshold)).toEqual([10, 12]);
+  });
+
+  it('counts games per segment correctly', () => {
+    const games = [
+      makeGame('g1', { vpThreshold: 10, durationSeconds: 3600 }),
+      makeGame('g2', { vpThreshold: 10, durationSeconds: 4200 }),
+      makeGame('g3', { vpThreshold: 12, durationSeconds: 4800 }),
+    ];
+    const result = buildGameStats(games, new Map());
+    const tenPt = result.byThreshold.find(s => s.vpThreshold === 10)!;
+    const twelvePt = result.byThreshold.find(s => s.vpThreshold === 12)!;
+    expect(tenPt.gameCount).toBe(2);
+    expect(twelvePt.gameCount).toBe(1);
+  });
+
+  it('computes avgWinningVp per segment', () => {
+    const games = [
+      makeGame('g1', { vpThreshold: 10, finalScores: { Sol: 10, Hacan: 5 }, winner: 'Sol' }),
+      makeGame('g2', { vpThreshold: 12, finalScores: { Sol: 12, Hacan: 8 }, winner: 'Sol' }),
+    ];
+    const result = buildGameStats(games, new Map());
+    const tenPt = result.byThreshold.find(s => s.vpThreshold === 10)!;
+    expect(tenPt.avgWinningVp).toBe(10);
+  });
+
+  it('returns empty byThreshold for empty games', () => {
+    const result = buildGameStats([], new Map());
+    expect(result.byThreshold).toEqual([]);
+  });
+});
