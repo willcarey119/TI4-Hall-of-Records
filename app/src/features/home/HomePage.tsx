@@ -215,10 +215,11 @@ export function HomePage() {
 
         {!loading && error === null && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {games.map((game) => (
+            {games.map((game, idx) => (
               <GameCard
                 key={game.gameId}
                 game={game}
+                variant={!selectMode && idx === 0 ? 'storyline' : 'row'}
                 {...(selectMode
                   ? { selected: selected.has(game.gameId), onToggle: () => { toggleSelect(game.gameId); } }
                   : {})}
