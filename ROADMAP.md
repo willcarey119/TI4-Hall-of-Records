@@ -4,7 +4,7 @@ Phased delivery plan. Each phase has a goal, a set of deliverables, the test sur
 
 > **Current position (2026-05-05):** **V1.2 wireframe kit shipped.** Editorial newspaper-aesthetic redesign live.
 > App is live at https://ti4-hall-of-records-da562.web.app (Firebase project: `ti4-hall-of-records-da562`).
-> 786 tests passing. Next: V1.2+ backlog (see below).
+> 786 tests passing. Next: **V1.3a — wire up what's built**, starting with round scrubber filtering.
 > See `CLAUDE.md` for the full status table and working conventions.
 
 The Master Guidance Document defines four phases (Ingestion → Single-Game Replay → Meta-Dashboard → Polish). This roadmap **prepends a Phase 0** for project scaffolding, which is currently missing, and breaks each phase into concrete TDD-sized tickets.
@@ -451,18 +451,46 @@ Improvements identified in Step 3, plus any cross-cutting legibility work. Examp
 
 ---
 
-## V1.2+ — Future Backlog
+## V1.3 — Wire-up, Player Attribution & Polish (next)
 
-Items confirmed out of scope for V1.1. When the user raises one of these during V1.1 work, log it here rather than implementing it.
+Sequenced into three sub-phases. Each sub-phase is independently shippable.
 
-- **Player attribution** — opt-in first-name tagging of factions across games; best-effort win rates and favorite factions by player name
-- **CSV / data export** — download parsed game data for external analysis
-- **New meta views** — any analytics view beyond what shipped in V1.0 or is scoped in V1.1 Agenda
-- **Game comparison** — side-by-side comparison of two specific games
-- **Notifications / sharing** — shareable game recap links, social card generation
-- **Additional game files** — if new TI Assistant exports become available; parser may need extension for new action types
-- **Lighthouse / performance audit** — formal Core Web Vitals pass
-- **Discordant Stars / Thunder's Edge content audit** — confirm all DS/TE faction IDs, objectives, and techs are in our dictionaries
+### V1.3a — Wire up what's built (quick wins)
+
+Components shipped in V1.2 that are exported but not yet consumed by any page. Each item is small (~1 session).
+
+1. **Round scrubber filtering** — `FrozenHeader` already renders the R1…RN strip. Wire `scrubRound` into a `RoundContext` so game-detail sections (Timeline, Dashboard, Planets, Tech) clip their content to events ≤ scrubRound. Null = no filter (default).
+2. **Game Comparison route** — new `/compare/:gameA/:gameB` route using the already-built `DivergingComparison` (head-to-head metrics: VP, agendas won, planets held, techs researched) and `MultiLineChart` (overlaid VP race). Picker UI in home/meta to pick the two games.
+3. **TrendCard / DistributionCard / CategoryBreakdown placement** — find natural homes in existing meta/agenda sections:
+   - `BarHistogram` → Stats section "Game length distribution" + "Final-VP distribution"
+   - `HeatmapGrid` → Strategy section "Faction × Strategy card pick rate"
+   - `Treemap` / `StackedRowBreakdown` → Stats section "Wins by faction" prevalence view
+   - `MultiLineChart` → Scoring Pace section as the hero chart
+
+### V1.3b — Medium features
+
+4. **Player Attribution** — opt-in first-name tagging. Faction objects in each game get a `playerName` field (already parsed from the wrapped `top.data.factions`). Add a per-game UI to confirm/edit attributions, plus a new `/players` route with per-player win rates, favorite factions, head-to-head records. Uses `EntityCard variant="player"` (already built).
+5. **Sharing / social cards** — `/share/:gameId` route with Open Graph meta tags. Server-side rendered card image (winner faction + VP score) for Discord/social embeds.
+
+### V1.3c — Content & polish
+
+6. **Discordant Stars / Thunder's Edge content audit** — needs a separate spec at `docs/superpowers/specs/2026-05-XX-ds-te-audit.md`. Two-step:
+   - Discovery: walk every JSON in `app/game-data/`, emit unique faction IDs, tech names, objective names not present in our dictionaries
+   - Audit: compare against published DS/TE content, fill gaps, write parser tests for any newly recognized actions
+   This is data-correctness work, not UI — own phase.
+7. **CSV export** — single button per game-detail page → downloads CSV of round-by-round VP per faction. Plus a "all games" export from the Home/Meta route. Uses native `Blob` + `URL.createObjectURL`, no library.
+8. **Lighthouse / Core Web Vitals audit** — run Lighthouse on home, meta, game-detail, and agenda routes. Fix anything below 90 on Performance / Accessibility / Best Practices / SEO. Likely includes lazy-loading the Newsreader font, code-splitting heavy chart sections, and adding `loading="lazy"` to images.
+
+---
+
+## V1.2+ — Backlog beyond V1.3
+
+Items confirmed out of scope for V1.3. When raised during V1.3 work, log here.
+
+- **Notifications / live alerts** — push notifications when a new game is uploaded
+- **Additional game files** — if new TI Assistant exports surface action types our parser doesn't recognize, the parser may need extension
+- **Multi-pod / multi-tenant** — currently single-playgroup; cross-playgroup analytics out of scope
+- **Mobile-first redesign** — wireframes §12 (mobile variants A/B/C) — full responsive pass after V1.3 lands
 
 ---
 
