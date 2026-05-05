@@ -23,6 +23,7 @@ interface FrozenHeaderProps {
 
 export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
   const { game } = useGame();
+  // Display-only stub — wiring scrubRound to filter section content is V1.3 scope
   const [scrubRound, setScrubRound] = useState<number | null>(null);
 
   if (game === null) return null;
