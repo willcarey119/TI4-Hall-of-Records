@@ -19,3 +19,5 @@ export {
 export { useFontScale } from './useFontScale';
 export { FontScaleControls } from './FontScaleControls';
 export { useScrollSpy } from './hooks/useScrollSpy';
+export { SubSectionNav } from './SubSectionNav';
+export { CommandPalette } from './CommandPalette';

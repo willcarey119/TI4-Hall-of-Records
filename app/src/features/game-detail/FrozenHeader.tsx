@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Kicker, FactionChip, Rule, formatKicker, formatGameTitle, FontScaleControls } from '../../shared';
 import { useGame } from './GameContext';
@@ -22,8 +23,13 @@ interface FrozenHeaderProps {
 
 export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
   const { game } = useGame();
+  const [scrubRound, setScrubRound] = useState<number | null>(null);
 
   if (game === null) return null;
+
+  const totalRounds = game.phaseSnapshots.length > 0
+    ? Math.max(...game.phaseSnapshots.map(s => s.round))
+    : 0;
 
   return (
     <div
@@ -53,6 +59,28 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
             ))}
           </div>
         </div>
+        {totalRounds > 0 && (
+          <div style={{ display: 'flex', gap: 2, padding: '4px 0', flexWrap: 'wrap' }}>
+            {Array.from({ length: totalRounds }, (_, i) => i + 1).map(r => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => { setScrubRound(r === scrubRound ? null : r); }}
+                style={{
+                  padding: '2px 8px',
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 'var(--font-micro)',
+                  background: scrubRound === r ? 'var(--ink)' : 'var(--paper-2)',
+                  color: scrubRound === r ? 'var(--paper)' : 'var(--ink-3)',
+                  border: '1px solid var(--rule)',
+                  cursor: 'pointer',
+                }}
+              >
+                R{r}
+              </button>
+            ))}
+          </div>
+        )}
         <div style={{ marginTop: '8px' }}>
           <Rule weight="double" />
         </div>

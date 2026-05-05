@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Rule, FontScaleControls } from '../../shared';
+import { FontScaleControls, SubSectionNav } from '../../shared';
 import { MetaProvider, useMeta } from './MetaContext';
 import { useAuth } from '../../adapters/AuthContext';
 import { FactionSection } from './FactionSection';
@@ -37,38 +37,26 @@ function MetaFrozenHeader({ activeSection, isAuthorized }: { activeSection: stri
         zIndex: 10,
       }}
     >
-      {/* Masthead */}
-      <div style={{ padding: '0 16px 8px' }}>
-        <Rule weight="double" />
-        <div style={{ paddingTop: '8px' }}>
-          <div
-            style={{
-              fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: 'var(--font-display-sm)',
-              fontWeight: 700,
-              color: 'var(--ink)',
-              lineHeight: 1.1,
-            }}
-          >
-            LEAGUE STATS
-          </div>
-          <div
-            style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 'var(--font-micro)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: 'var(--ink-3)',
-              marginTop: '4px',
-            }}
-          >
-            Twilight Imperium IV · All Games
-          </div>
-        </div>
-        <div style={{ marginTop: '8px' }}>
-          <Rule weight="double" />
-        </div>
-      </div>
+      {/* Compact masthead */}
+      <header style={{
+        borderTop: '3px double var(--rule)',
+        borderBottom: '1px solid var(--rule)',
+        padding: '6px 16px',
+        display: 'flex', alignItems: 'center', gap: 16,
+      }}>
+        <span style={{
+          fontFamily: "'Newsreader', Georgia, serif",
+          fontWeight: 800, fontStyle: 'italic',
+          fontSize: 'var(--font-display-sm)',
+        }}>HoR</span>
+        <span style={{
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 'var(--font-micro)',
+          textTransform: 'uppercase' as const,
+          letterSpacing: '0.1em',
+          color: 'var(--ink-3)',
+        }}>League Stats</span>
+      </header>
 
       {/* Nav bar */}
       <nav style={{ display: 'flex', overflowX: 'auto', padding: '0 12px' }}>
@@ -199,8 +187,11 @@ function MetaScrollBody({ onSectionChange, isAuthorized }: { onSectionChange: (i
     );
   }
 
+  const visibleSections = (isAuthorized ? ARCHIVIST_SECTIONS : PUBLIC_SECTIONS).map(s => ({ id: s.id, label: s.label }));
+
   return (
     <div style={{ overflowY: 'scroll', flex: 1 }}>
+      <SubSectionNav sections={visibleSections} />
       <FactionSection />
       <StrategyCardSection />
       <TechSection />
