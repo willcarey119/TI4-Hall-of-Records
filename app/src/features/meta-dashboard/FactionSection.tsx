@@ -142,21 +142,19 @@ export function FactionSection() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
           {sorted.map(f => (
-            <div key={f.factionId}>
-              <EntityCard
-                variant="newsprint"
-                factionId={f.factionId}
-                color={getFactionBrandColor(f.factionId, 'var(--ink-4)')}
-                gamesPlayed={f.gamesPlayed}
-                wins={Math.round(f.winRate * f.gamesPlayed)}
-                avgVp={f.avgFinalVp}
-                winner={f.winRate === topWinRate && f.winRate > 0}
-              />
-              <div style={{ marginTop: 4 }}>
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginBottom: 2 }}>Avg VP / Round</div>
-                <Sparkline values={f.avgVpPerRound} />
-              </div>
-            </div>
+            <EntityCard
+              key={f.factionId}
+              variant="newsprint"
+              factionId={f.factionId}
+              color={getFactionBrandColor(f.factionId, 'var(--ink-4)')}
+              gamesPlayed={f.gamesPlayed}
+              wins={Math.round(f.winRate * f.gamesPlayed)}
+              avgVp={f.avgFinalVp}
+              winner={f.winRate === topWinRate && f.winRate > 0}
+            >
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginBottom: 2 }}>Avg VP / Round</div>
+              <Sparkline values={f.avgVpPerRound} />
+            </EntityCard>
           ))}
         </div>
       )}

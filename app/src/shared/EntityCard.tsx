@@ -13,9 +13,10 @@ interface Props {
   winner?: boolean;
   playerName?: string;
   onClick?: () => void;
+  children?: React.ReactNode;
 }
 
-export function EntityCard({ variant, factionId, color, gamesPlayed, wins, avgVp, winner, playerName, onClick }: Props) {
+export function EntityCard({ variant, factionId, color, gamesPlayed, wins, avgVp, winner, playerName, onClick, children }: Props) {
   const winRate = gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 0;
 
   if (variant === 'newsprint') {
@@ -29,16 +30,21 @@ export function EntityCard({ variant, factionId, color, gamesPlayed, wins, avgVp
           The Throne
         </div>
         <div style={{ borderTop: '1px solid var(--rule)', margin: '4px 0' }} />
-        <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontStyle: 'italic', fontSize: 'var(--font-display-md)', color: 'var(--ink)', lineHeight: 1.1 }}>
+        <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontStyle: 'italic', fontSize: 'var(--font-display-sm)', color: 'var(--ink)', lineHeight: 1.05, wordBreak: 'break-word' as const }}>
           {factionId}
         </div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 6 }}>
           <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-display-sm)', color: 'var(--accent)' }}>{winRate}%</span>
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase' as const }}>win rate</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-2)', textTransform: 'uppercase' as const }}>win rate</span>
         </div>
         <div style={{ marginTop: 4 }}>
-          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>{gamesPlayed} GP · {wins} W · {avgVp.toFixed(1)} avg VP</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-2)' }}>{gamesPlayed} GP · {wins} W · {avgVp.toFixed(1)} avg VP</span>
         </div>
+        {children !== undefined && (
+          <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px solid var(--rule)' }}>
+            {children}
+          </div>
+        )}
       </div>
     );
   }
