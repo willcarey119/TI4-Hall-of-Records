@@ -24,3 +24,4 @@ export { CommandPalette } from './CommandPalette';
 export { EntityCard } from './EntityCard';
 export { StatCard } from './StatCard';
 export { LeaderboardPodium } from './LeaderboardPodium';
+export { DivergingComparison, MultiEntityComparison } from './ComparisonBlock';
