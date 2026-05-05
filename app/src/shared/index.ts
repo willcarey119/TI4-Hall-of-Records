@@ -27,3 +27,8 @@ export { LeaderboardPodium } from './LeaderboardPodium';
 export { DivergingComparison, MultiEntityComparison } from './ComparisonBlock';
 export { MultiLineChart, SmallMultiples } from './TrendCard';
 export { BarHistogram, HeatmapGrid } from './DistributionCard';
+export { StackedRowBreakdown, Treemap } from './CategoryBreakdown';
+export { FilterBar } from './FilterBar';
+export { EmptyState } from './EmptyState';
+export { LoadingSkeleton } from './LoadingSkeleton';
+export { ErrorState } from './ErrorState';
