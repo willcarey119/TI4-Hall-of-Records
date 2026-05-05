@@ -1,9 +1,15 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { StatsSection } from './StatsSection';
+import {
+  StatsSection,
+  buildGameLengthHistogram,
+  buildFinalVpHistogram,
+  buildWinsByFaction,
+} from './StatsSection';
 import type { MetaState } from './MetaContext';
 import type { RelicStatsSummary } from '../../lib/aggregator';
+import type { ParsedGame } from '../../lib/parser/types';
 
 // Mock useMeta so we can inject a deterministic state for the relic
 // performance panel (the only thing this test exercises).
@@ -177,5 +183,88 @@ describe('StatsSection · unified Relics panel', () => {
     expect(screen.getAllByText('Shard of the Throne')).toHaveLength(1);
     expect(screen.getAllByText('Stellar Converter')).toHaveLength(1);
     expect(screen.getAllByText('The Crown of Emphidia')).toHaveLength(1);
+  });
+});
+
+function makeGame(overrides: Partial<ParsedGame>): ParsedGame {
+  return {
+    gameId: 'g',
+    playedAt: 0,
+    durationSeconds: 0,
+    factions: [],
+    options: {},
+    vpThreshold: 10,
+    initialSpeaker: '',
+    phaseSnapshots: [],
+    vpEvents: [],
+    planetEvents: [],
+    techEvents: [],
+    agendaResolutions: [],
+    strategyCardEvents: [],
+    actionCardEvents: [],
+    componentEvents: [],
+    relicEvents: [],
+    leaderEvents: [],
+    objectiveReveals: [],
+    speakerEvents: [],
+    attachmentEvents: [],
+    allianceEvents: [],
+    promissoryNoteEvents: [],
+    expeditionEvents: [],
+    secondaryEvents: [],
+    actionEvents: [],
+    finalScores: {},
+    winner: null,
+    timers: { factionTimers: {} } as ParsedGame['timers'],
+    warnings: [],
+    ...overrides,
+  };
+}
+
+describe('StatsSection · builders', () => {
+  it('buildGameLengthHistogram returns empty for no games', () => {
+    expect(buildGameLengthHistogram([])).toEqual({ buckets: [], medianIdx: 0 });
+  });
+
+  it('buildGameLengthHistogram bins games by max round', () => {
+    const games = [
+      makeGame({ phaseSnapshots: [{ round: 6, phase: 'a', speaker: '', strategyCards: {} }] }),
+      makeGame({ phaseSnapshots: [{ round: 8, phase: 'a', speaker: '', strategyCards: {} }] }),
+      makeGame({ phaseSnapshots: [{ round: 8, phase: 'a', speaker: '', strategyCards: {} }] }),
+    ];
+    const { buckets } = buildGameLengthHistogram(games);
+    expect(buckets.length).toBeGreaterThan(0);
+    const total = buckets.reduce((s, b) => s + b.count, 0);
+    expect(total).toBe(3);
+  });
+
+  it('buildFinalVpHistogram bins all faction final scores', () => {
+    const games = [
+      makeGame({ finalScores: { A: 10, B: 8, C: 4 } }),
+      makeGame({ finalScores: { A: 9, B: 6 } }),
+    ];
+    const { buckets } = buildFinalVpHistogram(games);
+    const total = buckets.reduce((s, b) => s + b.count, 0);
+    expect(total).toBe(5);
+    // 10+ bucket should have exactly 1
+    const tenPlus = buckets.find(b => b.label === '10+');
+    expect(tenPlus?.count).toBe(1);
+  });
+
+  it('buildFinalVpHistogram empty for no games', () => {
+    expect(buildFinalVpHistogram([]).buckets).toEqual([]);
+  });
+
+  it('buildWinsByFaction counts winners and sorts desc', () => {
+    const games = [
+      makeGame({ winner: 'Sol' }),
+      makeGame({ winner: 'Sol' }),
+      makeGame({ winner: 'Hacan' }),
+      makeGame({ winner: null }),
+    ];
+    const wins = buildWinsByFaction(games);
+    expect(wins).toHaveLength(2);
+    expect(wins[0]).toMatchObject({ label: 'Sol', value: 2 });
+    expect(wins[1]).toMatchObject({ label: 'Hacan', value: 1 });
   });
 });

@@ -1,6 +1,68 @@
 import React from 'react';
 import { useMeta } from './MetaContext';
-import { Rule, formatDuration, SectionDesc, Tooltip, StatCard, Kicker } from '../../shared';
+import { Rule, formatDuration, SectionDesc, Tooltip, StatCard, Kicker, BarHistogram, Treemap } from '../../shared';
+import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
+import type { ParsedGame } from '../../lib/parser/types';
+
+interface Bucket { label: string; count: number; }
+
+export function buildGameLengthHistogram(games: ParsedGame[]): { buckets: Bucket[]; medianIdx: number } {
+  if (games.length === 0) return { buckets: [], medianIdx: 0 };
+  const lengths = games
+    .map(g => g.phaseSnapshots.reduce((m, s) => Math.max(m, s.round), 0))
+    .filter(n => n > 0)
+    .sort((a, b) => a - b);
+  if (lengths.length === 0) return { buckets: [], medianIdx: 0 };
+  const minRound = Math.max(1, lengths[0] ?? 1);
+  const maxRound = Math.max(minRound, lengths[lengths.length - 1] ?? minRound);
+  // Build per-round buckets from min..max-1, then "max+" if maxRound>=10 else use last as exact.
+  const cap = Math.min(maxRound, 10);
+  const buckets: Bucket[] = [];
+  for (let r = minRound; r < cap; r++) {
+    buckets.push({ label: String(r), count: lengths.filter(l => l === r).length });
+  }
+  // Last bucket: cap and beyond
+  buckets.push({ label: maxRound > cap ? `${cap}+` : String(cap), count: lengths.filter(l => l >= cap).length });
+  // Median bucket
+  const median = lengths[Math.floor(lengths.length / 2)] ?? minRound;
+  let medianIdx = buckets.findIndex(b => b.label === String(median));
+  if (medianIdx === -1) medianIdx = buckets.length - 1; // fell into the cap+ bucket
+  return { buckets, medianIdx };
+}
+
+export function buildFinalVpHistogram(games: ParsedGame[]): { buckets: Bucket[]; medianIdx: number } {
+  const all: number[] = [];
+  for (const g of games) {
+    for (const v of Object.values(g.finalScores)) all.push(v);
+  }
+  if (all.length === 0) return { buckets: [], medianIdx: 0 };
+  const ranges: Array<{ label: string; test: (v: number) => boolean }> = [
+    { label: '0–4', test: v => v <= 4 },
+    { label: '5–6', test: v => v >= 5 && v <= 6 },
+    { label: '7–8', test: v => v >= 7 && v <= 8 },
+    { label: '9',   test: v => v === 9 },
+    { label: '10+', test: v => v >= 10 },
+  ];
+  const buckets: Bucket[] = ranges.map(r => ({ label: r.label, count: all.filter(r.test).length }));
+  const sorted = [...all].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
+  const medianIdx = ranges.findIndex(r => r.test(median));
+  return { buckets, medianIdx: medianIdx === -1 ? 0 : medianIdx };
+}
+
+export function buildWinsByFaction(games: ParsedGame[]): Array<{ label: string; color: string; value: number }> {
+  const wins = new Map<string, number>();
+  for (const g of games) {
+    if (g.winner !== null) wins.set(g.winner, (wins.get(g.winner) ?? 0) + 1);
+  }
+  return [...wins.entries()]
+    .map(([factionId, value]) => ({
+      label: factionId,
+      color: getFactionBrandColor(factionId, 'var(--ink-3)'),
+      value,
+    }))
+    .sort((a, b) => b.value - a.value);
+}
 
 const SOURCE_LABEL: Record<string, string> = {
   score_objective_stage1: 'Obj · Stage I',
@@ -15,7 +77,7 @@ function fmtPct(p: number | null): string {
 }
 
 export function StatsSection() {
-  const { gameStats, speakerStats, relicStats } = useMeta();
+  const { gameStats, speakerStats, relicStats, games } = useMeta();
   if (gameStats === null) {
     return <section id="stats" data-section="stats" style={{ padding: '14px 16px', borderBottom: '1px solid var(--rule)' }} />;
   }
@@ -56,6 +118,34 @@ export function StatsSection() {
           <Tooltip text="Mean number of factions per game. TI4 supports 3–8 players." />
         </div>
       </div>
+
+      {/* Distribution charts (V1.3a) */}
+      {games.length > 0 && (() => {
+        const lengthHist = buildGameLengthHistogram(games);
+        const vpHist = buildFinalVpHistogram(games);
+        const wins = buildWinsByFaction(games);
+        return (
+          <div style={{ marginBottom: 12 }}>
+            <Kicker text="Game Pace">Game length & final VP distribution</Kicker>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 8, marginTop: 6 }}>
+              {lengthHist.buckets.length > 0 && (
+                <BarHistogram label="Game length (rounds)" buckets={lengthHist.buckets} medianIdx={lengthHist.medianIdx} />
+              )}
+              {vpHist.buckets.length > 0 && (
+                <BarHistogram label="Final VP per faction" buckets={vpHist.buckets} medianIdx={vpHist.medianIdx} />
+              )}
+            </div>
+            {wins.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                <Kicker text="Distribution">Wins by faction</Kicker>
+                <div style={{ marginTop: 6 }}>
+                  <Treemap title={`Wins by faction (${wins.length} factions)`} categories={wins} />
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* VP Threshold segmentation table */}
       {gameStats.byThreshold.length > 0 && (() => {
