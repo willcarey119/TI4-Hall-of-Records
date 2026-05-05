@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMeta } from './MetaContext';
-import { Rule, FactionDot, SectionDesc, Tooltip, EntityCard } from '../../shared';
+import { Rule, FactionDot, SectionDesc, Tooltip, EntityCard, LeaderboardPodium } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 
 type ViewMode = 'table' | 'cards';
@@ -73,6 +73,21 @@ export function FactionSection() {
       <SectionDesc>
         Win rates, average scores, and performance history for each faction played across all recorded sessions. Toggle between cards (visual) and table (sortable) views to compare factions.
       </SectionDesc>
+
+      {/* Top-3 podium strip */}
+      {(() => {
+        const top3 = [...factionStats.factions]
+          .sort((a, b) => b.winRate - a.winRate)
+          .slice(0, 3)
+          .map(f => ({
+            factionId: f.factionId,
+            color: getFactionBrandColor(f.factionId, 'var(--ink-4)'),
+            wins: Math.round(f.winRate * f.gamesPlayed),
+            gamesPlayed: f.gamesPlayed,
+            avgVp: f.avgFinalVp,
+          }));
+        return top3.length >= 3 ? <LeaderboardPodium top3={top3} /> : null;
+      })()}
 
       {/* View / sort toggles */}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
