@@ -222,6 +222,7 @@ export interface ParsedGame {
   // Setup
   factions: FactionSetup[];
   options: Record<string, unknown>;
+  vpThreshold: number;
   initialSpeaker: string;
   phaseSnapshots: PhaseSnapshot[];
   // Event arrays — all sorted ascending by timestamp

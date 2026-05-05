@@ -240,6 +240,7 @@ export function parseGame(raw: unknown): ParsedGame {
     durationSeconds: timers.game,
     factions,
     options: rawOptions,
+    vpThreshold,
     initialSpeaker,
     phaseSnapshots: finalState.phaseSnapshots,
     vpEvents: adjustedVpEvents,
