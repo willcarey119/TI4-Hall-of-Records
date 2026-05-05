@@ -65,52 +65,84 @@ export function StrategyCardSection() {
 
       <Rule />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 8 }}>
-        {/* Most Picked by Round */}
-        <div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
-            Most Picked · By Round<Tooltip text="Top 3 most-drafted strategy cards for each game round. Shows which cards players prioritize depending on what round they're currently planning for." />
-          </div>
+      {/* Most Picked by Round — card grid */}
+      <div style={{ marginTop: 8 }}>
+        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+          Most Picked · By Round<Tooltip text="Top 3 most-drafted strategy cards for each game round. Shows which cards players prioritize depending on what round they're planning for." />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 6 }}>
           {roundsAsc.map(r => {
             const cardsInRound = [...strategyCardStats.cards]
               .filter(c => (c.pickCountByRound[r] ?? 0) > 0)
               .sort((a, b) => (b.pickCountByRound[r] ?? 0) - (a.pickCountByRound[r] ?? 0))
               .slice(0, 3);
+            const maxPicks = cardsInRound[0] ? (cardsInRound[0].pickCountByRound[r] ?? 0) : 1;
             return (
-              <div key={r} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '3px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-                <span style={{ width: 32, color: 'var(--ink-3)' }}>R{r}</span>
-                {cardsInRound.map(c => (
-                  <span key={c.card} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, border: '1px solid var(--ink-4)', padding: '1px 6px' }}>
-                    <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{c.card}</span>
-                    <span style={{ color: 'var(--ink-3)' }}>{c.pickCountByRound[r] ?? 0}×</span>
-                  </span>
-                ))}
+              <div key={r} style={{ border: '1px solid var(--ink-4)', padding: 8, background: 'var(--paper-2)' }}>
+                <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 700, color: 'var(--ink-3)', lineHeight: 1, marginBottom: 6 }}>R{r}</div>
+                {cardsInRound.map((c, idx) => {
+                  const picks = c.pickCountByRound[r] ?? 0;
+                  const barPct = maxPicks > 0 ? (picks / maxPicks) * 100 : 0;
+                  const barColor = idx === 0 ? 'var(--accent)' : idx === 1 ? 'var(--ink-2)' : 'var(--ink-3)';
+                  return (
+                    <div key={c.card} style={{ marginBottom: 4 }}>
+                      <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-sm)', fontWeight: 700 }}>{c.card}</div>
+                      <div style={{ background: 'var(--ink-4)', height: 3, marginTop: 2 }}>
+                        <div style={{ background: barColor, height: 3, width: `${barPct}%` }} />
+                      </div>
+                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)' }}>{picks}×</div>
+                    </div>
+                  );
+                })}
               </div>
             );
           })}
         </div>
+      </div>
 
-        {/* Draft Position */}
-        <div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
-            Draft Position · Most Contested<Tooltip text="Cards ranked by how early (low pick position) they're consistently grabbed. A low average position means players fight for it every round — signaling a highly valued primary or secondary ability." />
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', marginBottom: 4 }}>
-            {strategyCardStats.mostContested.map((card, i) => {
-              const stat = strategyCardStats.cards.find(c => c.card === card);
-              return (
-                <span key={card} style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
-                  <span style={{ color: 'var(--ink-3)' }}>{i + 1}.</span>
-                  <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{card}</span>
-                  <span style={{ color: 'var(--ink-3)' }}>(avg {fmtPos(stat?.avgPickPosition ?? null)})</span>
-                </span>
-              );
-            })}
-          </div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
-            Lower = grabbed earlier in strategy phase.
-          </div>
+      {/* Draft Position · Most Contested — 8-card grid */}
+      <div style={{ marginTop: 16 }}>
+        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+          Draft Position · Most Contested<Tooltip text="Cards ranked by how early (low pick position) they're consistently grabbed. A low average position means players fight for it every round." />
         </div>
+        <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 8, fontStyle: 'italic' }}>
+          Lower average position = grabbed earlier each round. Bar = pick frequency vs. most-picked card.
+        </p>
+        {(() => {
+          const ranked = [...strategyCardStats.cards]
+            .filter(c => c.avgPickPosition !== null)
+            .sort((a, b) => (a.avgPickPosition ?? 99) - (b.avgPickPosition ?? 99));
+          const maxPicks = Math.max(1, ...ranked.map(c => c.totalPicks));
+          return (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+              {ranked.map((c, i) => {
+                const isTop = i < 2;
+                const isLast = i === ranked.length - 1;
+                const barPct = (c.totalPicks / maxPicks) * 100;
+                const posColor = i === 0 ? 'var(--accent)' : isLast ? 'var(--ink-3)' : 'var(--ink)';
+                const barColor = i === 0 ? 'var(--accent)' : isLast ? 'var(--ink-3)' : 'var(--ink-2)';
+                return (
+                  <div key={c.card} style={{ border: `1px solid ${isTop ? 'var(--ink-3)' : 'var(--ink-4)'}`, padding: 8, background: 'var(--paper-2)' }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      #{i + 1}{i === 0 ? ' most contested' : isLast ? ' least' : ''}
+                    </div>
+                    <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-body)', fontWeight: 700, margin: '2px 0' }}>{c.card}</div>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>Avg pick position</div>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-subhead)', fontWeight: 700, lineHeight: 1, color: posColor }}>
+                      {fmtPos(c.avgPickPosition)}
+                    </div>
+                    <div style={{ marginTop: 4, background: 'var(--ink-4)', height: 3 }}>
+                      <div style={{ background: barColor, height: 3, width: `${barPct}%` }} />
+                    </div>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', marginTop: 2 }}>
+                      {c.totalPicks} pick{c.totalPicks !== 1 ? 's' : ''}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
       </div>
     </section>
   );
