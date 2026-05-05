@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ParsedGameSummary } from '../../adapters/firestore';
 import { useAuth } from '../../adapters/AuthContext';
-import { Rule, Label } from '../../shared';
+import { Rule, Label, LoadingSkeleton, ErrorState, EmptyState } from '../../shared';
 import { GameCard } from './GameCard';
 
 const monoSm: React.CSSProperties = {
@@ -197,28 +197,24 @@ export function HomePage() {
           </div>
         )}
 
-        {loading && (
-          <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)' }}>
-            Loading…
-          </p>
-        )}
+        {loading && <LoadingSkeleton rows={4} />}
 
         {!loading && error !== null && (
-          <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--accent)' }}>{error}</p>
+          <ErrorState
+            message={error}
+            onRetry={fetchGames}
+          />
         )}
 
-        {!loading && error === null && games.length === 0 && (
-          <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
-            No games on record yet.
-          </p>
-        )}
+        {!loading && error === null && games.length === 0 && <EmptyState />}
 
         {!loading && error === null && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {games.map((game) => (
+            {games.map((game, idx) => (
               <GameCard
                 key={game.gameId}
                 game={game}
+                variant={!selectMode && idx === 0 ? 'storyline' : 'row'}
                 {...(selectMode
                   ? { selected: selected.has(game.gameId), onToggle: () => { toggleSelect(game.gameId); } }
                   : {})}

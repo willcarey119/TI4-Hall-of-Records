@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMeta } from './MetaContext';
-import { Rule, FactionDot, SectionDesc, Tooltip } from '../../shared';
+import { Rule, FactionDot, SectionDesc, Tooltip, EntityCard, LeaderboardPodium, FilterBar } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 
 type ViewMode = 'table' | 'cards';
@@ -74,64 +74,87 @@ export function FactionSection() {
         Win rates, average scores, and performance history for each faction played across all recorded sessions. Toggle between cards (visual) and table (sortable) views to compare factions.
       </SectionDesc>
 
+      {/* Top-3 podium strip */}
+      {(() => {
+        const top3 = [...factionStats.factions]
+          .sort((a, b) => b.winRate - a.winRate)
+          .slice(0, 3)
+          .map(f => ({
+            factionId: f.factionId,
+            color: getFactionBrandColor(f.factionId, 'var(--ink-4)'),
+            wins: Math.round(f.winRate * f.gamesPlayed),
+            gamesPlayed: f.gamesPlayed,
+            avgVp: f.avgFinalVp,
+          }));
+        return top3.length >= 3 ? <LeaderboardPodium top3={top3} /> : null;
+      })()}
+
       {/* View / sort toggles */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-        <span style={{ color: 'var(--ink-3)' }}>View</span>
-        <button type="button" onClick={() => { setView('table'); }} style={{ background: view === 'table' ? 'var(--ink)' : 'transparent', color: view === 'table' ? 'var(--paper)' : 'var(--ink)', border: '1px solid var(--ink)', padding: '2px 6px', cursor: 'pointer' }}>Table</button>
-        <button type="button" onClick={() => { setView('cards'); }} style={{ background: view === 'cards' ? 'var(--ink)' : 'transparent', color: view === 'cards' ? 'var(--paper)' : 'var(--ink)', border: '1px solid var(--ink)', padding: '2px 6px', cursor: 'pointer' }}>Cards</button>
-        {view === 'table' && (
-          <>
-            <span style={{ marginLeft: 12, color: 'var(--ink-3)' }}>Sort</span>
-            <button type="button" onClick={() => { setSort('winRate'); }}     style={{ background: 'transparent', color: sort === 'winRate' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Win%</button>
-            <button type="button" onClick={() => { setSort('gamesPlayed'); }} style={{ background: 'transparent', color: sort === 'gamesPlayed' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Pick</button>
-            <button type="button" onClick={() => { setSort('avgFinalVp'); }}  style={{ background: 'transparent', color: sort === 'avgFinalVp' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Avg VP</button>
-          </>
-        )}
-      </div>
+      <FilterBar
+        segments={[
+          { label: 'Cards', value: 'cards' },
+          { label: 'Table', value: 'table' },
+        ]}
+        activeSegment={view}
+        onSegmentChange={(v) => { setView(v as ViewMode); }}
+        dropdownLabel="Season"
+        dropdownOptions={[{ label: 'All Games', value: 'all' }]}
+        dropdownValue="all"
+      />
+      {view === 'table' && (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 16px', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: '1px solid var(--rule)' }}>
+          <span style={{ color: 'var(--ink-3)' }}>Sort</span>
+          <button type="button" onClick={() => { setSort('winRate'); }}     style={{ background: 'transparent', color: sort === 'winRate' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Win%</button>
+          <button type="button" onClick={() => { setSort('gamesPlayed'); }} style={{ background: 'transparent', color: sort === 'gamesPlayed' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Pick</button>
+          <button type="button" onClick={() => { setSort('avgFinalVp'); }}  style={{ background: 'transparent', color: sort === 'avgFinalVp' ? 'var(--accent)' : 'var(--ink-3)', border: 'none', cursor: 'pointer' }}>Avg VP</button>
+        </div>
+      )}
 
       {view === 'table' ? (
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-          {/* Column headers */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 72px 72px 64px 80px', gap: 8, padding: '3px 0', borderBottom: '1px solid var(--rule)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          {/* Column headers — matches EntityCard tabular grid: 24px dot · 1fr name · 40px GP · 40px W · 52px Win% */}
+          <div style={{ display: 'grid', gridTemplateColumns: '24px 1fr 40px 40px 52px', gap: 8, padding: '3px 8px', borderBottom: '1px solid var(--rule)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <span />
             <span>Faction</span>
-            <span style={{ display: 'flex', alignItems: 'center' }}>Picks<Tooltip text="Number of games this faction has appeared in vs. total games on record." /></span>
-            <span style={{ display: 'flex', alignItems: 'center' }}>Win%<Tooltip text="Wins divided by games played as this faction. Small sample sizes make this highly variable — treat with caution." /></span>
-            <span style={{ display: 'flex', alignItems: 'center' }}>Avg VP<Tooltip text="Mean final victory point total across all appearances for this faction." /></span>
-            <span style={{ display: 'flex', alignItems: 'center' }}>By Round<Tooltip text="Sparkline: average VP accumulated by end of each round. Taller bars = more scoring in that round on average." /></span>
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+              GP<Tooltip text="Number of games this faction has appeared in." />
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+              W<Tooltip text="Number of wins for this faction." />
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+              Win%<Tooltip text="Wins divided by games played as this faction. Small sample sizes make this highly variable — treat with caution." />
+            </span>
           </div>
           {sorted.map(f => (
-            <div key={f.factionId} style={{ display: 'grid', gridTemplateColumns: '1fr 72px 72px 64px 80px', gap: 8, padding: '3px 0', borderBottom: '1px dotted var(--ink-4)' }}>
-              <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)', fontWeight: 700 }}>
-                {f.factionId} <span style={{ fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase' }}>{f.expansion}</span>
-              </span>
-              <span style={{ color: 'var(--ink-3)' }}>{f.gamesPlayed}/{factionStats.totalGames}</span>
-              <span>{Math.round(f.winRate * 100)}%</span>
-              <span>{f.avgFinalVp.toFixed(1)}</span>
-              <Sparkline values={f.avgVpPerRound} />
-            </div>
+            <EntityCard
+              key={f.factionId}
+              variant="tabular"
+              factionId={f.factionId}
+              color={getFactionBrandColor(f.factionId, 'var(--ink-4)')}
+              gamesPlayed={f.gamesPlayed}
+              wins={Math.round(f.winRate * f.gamesPlayed)}
+              avgVp={f.avgFinalVp}
+              winner={f.winRate === topWinRate && f.winRate > 0}
+            />
           ))}
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
           {sorted.map(f => (
-            <div key={f.factionId} style={{ border: f.winRate === topWinRate && f.winRate > 0 ? '2px solid var(--rule)' : '1px solid var(--ink-4)', padding: 8, background: 'var(--paper-2)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-                <FactionDot color={getFactionBrandColor(f.factionId, 'var(--ink-4)')} size={8} />
-                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 'var(--font-micro)' }}>{f.factionId}</span>
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', marginBottom: 2 }}>{f.expansion}</div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 4, marginBottom: 1 }}>Win Rate</div>
-              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-display-sm)', fontWeight: 800, color: f.winRate === topWinRate && f.winRate > 0 ? 'var(--accent)' : 'var(--ink)', lineHeight: 1.1 }}>
-                {Math.round(f.winRate * 100)}%
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
-                {f.gamesPlayed} game{f.gamesPlayed !== 1 ? 's' : ''} · {f.avgFinalVp.toFixed(1)} avg final VP
-              </div>
-              <div style={{ marginTop: 6 }}>
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginBottom: 2 }}>Avg VP / Round</div>
-                <Sparkline values={f.avgVpPerRound} />
-              </div>
-            </div>
+            <EntityCard
+              key={f.factionId}
+              variant="newsprint"
+              factionId={f.factionId}
+              color={getFactionBrandColor(f.factionId, 'var(--ink-4)')}
+              gamesPlayed={f.gamesPlayed}
+              wins={Math.round(f.winRate * f.gamesPlayed)}
+              avgVp={f.avgFinalVp}
+              winner={f.winRate === topWinRate && f.winRate > 0}
+            >
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginBottom: 2 }}>Avg VP / Round</div>
+              <Sparkline values={f.avgVpPerRound} />
+            </EntityCard>
           ))}
         </div>
       )}

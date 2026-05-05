@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
-import { Rule, FontScaleControls } from '../../shared';
+import { FontScaleControls, SubSectionNav, LoadingSkeleton, ErrorState } from '../../shared';
 import { MetaProvider, useMeta } from './MetaContext';
 import { useAuth } from '../../adapters/AuthContext';
 import { FactionSection } from './FactionSection';
@@ -22,12 +21,7 @@ const ARCHIVIST_SECTIONS = [
   { id: 'players', label: 'Players' },
 ] as const;
 
-function scrollToSection(id: string): void {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-}
-
-function MetaFrozenHeader({ activeSection, isAuthorized }: { activeSection: string; isAuthorized: boolean }) {
-  const sections = isAuthorized ? ARCHIVIST_SECTIONS : PUBLIC_SECTIONS;
+function MetaFrozenHeader() {
   return (
     <div
       style={{
@@ -37,129 +31,40 @@ function MetaFrozenHeader({ activeSection, isAuthorized }: { activeSection: stri
         zIndex: 10,
       }}
     >
-      {/* Masthead */}
-      <div style={{ padding: '0 16px 8px' }}>
-        <Rule weight="double" />
-        <div style={{ paddingTop: '8px' }}>
-          <div
-            style={{
-              fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: 'var(--font-display-sm)',
-              fontWeight: 700,
-              color: 'var(--ink)',
-              lineHeight: 1.1,
-            }}
-          >
-            LEAGUE STATS
-          </div>
-          <div
-            style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 'var(--font-micro)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: 'var(--ink-3)',
-              marginTop: '4px',
-            }}
-          >
-            Twilight Imperium IV · All Games
-          </div>
-        </div>
-        <div style={{ marginTop: '8px' }}>
-          <Rule weight="double" />
-        </div>
-      </div>
-
-      {/* Nav bar */}
-      <nav style={{ display: 'flex', overflowX: 'auto', padding: '0 12px' }}>
-        {sections.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => { scrollToSection(id); }}
-            style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 'var(--font-micro)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              padding: '7px 12px',
-              border: 'none',
-              background: 'none',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              color: activeSection === id ? 'var(--ink)' : 'var(--ink-3)',
-              borderBottom:
-                activeSection === id
-                  ? '2px solid var(--ink)'
-                  : '2px solid transparent',
-              fontWeight: activeSection === id ? 600 : 400,
-            }}
-          >
-            {label}
-          </button>
-        ))}
-        <FontScaleControls />
-      </nav>
+      {/* Compact masthead */}
+      <header style={{
+        borderTop: '3px double var(--rule)',
+        borderBottom: '1px solid var(--rule)',
+        padding: '6px 16px',
+        display: 'flex', alignItems: 'center', gap: 16,
+      }}>
+        <span style={{
+          fontFamily: "'Newsreader', Georgia, serif",
+          fontWeight: 800, fontStyle: 'italic',
+          fontSize: 'var(--font-display-sm)',
+        }}>HoR</span>
+        <span style={{
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 'var(--font-micro)',
+          textTransform: 'uppercase' as const,
+          letterSpacing: '0.1em',
+          color: 'var(--ink-2)',
+        }}>League Stats</span>
+        <span style={{ marginLeft: 'auto' }}>
+          <FontScaleControls />
+        </span>
+      </header>
     </div>
   );
 }
 
-function MetaScrollBody({ onSectionChange, isAuthorized }: { onSectionChange: (id: string) => void; isAuthorized: boolean }) {
+function MetaScrollBody({ isAuthorized }: { isAuthorized: boolean }) {
   const { loading, error } = useMeta();
-  const callbackRef = useRef(onSectionChange);
-  const sectionIds = (isAuthorized ? ARCHIVIST_SECTIONS : PUBLIC_SECTIONS).map(s => s.id);
-
-  useEffect(() => {
-    callbackRef.current = onSectionChange;
-  });
-
-  useEffect(() => {
-    // Skip observer setup until sections are actually rendered
-    if (loading || error !== null) return;
-
-    const observers: IntersectionObserver[] = [];
-
-    sectionIds.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el === null) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const sectionId =
-                (entry.target as HTMLElement).dataset['section'] ?? id;
-              callbackRef.current(sectionId);
-            }
-          });
-        },
-        { threshold: 0.4 }
-      );
-
-      observer.observe(el);
-      observers.push(observer);
-    });
-
-    return () => {
-      observers.forEach((o) => { o.disconnect(); });
-    };
-  }, [loading, error, isAuthorized]);
 
   if (loading) {
     return (
-      <div style={{ overflowY: 'scroll', flex: 1, padding: '32px 16px' }}>
-        <p
-          style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: 'var(--ink-3)',
-          }}
-        >
-          Loading…
-        </p>
+      <div style={{ overflowY: 'scroll', flex: 1 }}>
+        <LoadingSkeleton rows={6} />
       </div>
     );
   }
@@ -167,40 +72,19 @@ function MetaScrollBody({ onSectionChange, isAuthorized }: { onSectionChange: (i
   if (error !== null) {
     return (
       <div style={{ overflowY: 'scroll', flex: 1, padding: '32px 16px' }}>
-        <p
-          style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            color: 'var(--accent)',
-            marginBottom: 8,
-          }}
-        >
-          {error}
-        </p>
-        <button
-          type="button"
-          onClick={() => { window.location.reload(); }}
-          style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 'var(--font-micro)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            textDecoration: 'underline',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'var(--ink-3)',
-            padding: 0,
-          }}
-        >
-          Refresh
-        </button>
+        <ErrorState
+          message={error}
+          onRetry={() => { window.location.reload(); }}
+        />
       </div>
     );
   }
 
+  const visibleSections = (isAuthorized ? ARCHIVIST_SECTIONS : PUBLIC_SECTIONS).map(s => ({ id: s.id, label: s.label }));
+
   return (
     <div style={{ overflowY: 'scroll', flex: 1 }}>
+      <SubSectionNav sections={visibleSections} />
       <FactionSection />
       <StrategyCardSection />
       <TechSection />
@@ -212,7 +96,6 @@ function MetaScrollBody({ onSectionChange, isAuthorized }: { onSectionChange: (i
 }
 
 export function MetaDashboardPage() {
-  const [activeSection, setActiveSection] = useState<string>('factions');
   const { isAuthorized } = useAuth();
 
   return (
@@ -225,8 +108,8 @@ export function MetaDashboardPage() {
           background: 'var(--paper)',
         }}
       >
-        <MetaFrozenHeader activeSection={activeSection} isAuthorized={isAuthorized} />
-        <MetaScrollBody onSectionChange={setActiveSection} isAuthorized={isAuthorized} />
+        <MetaFrozenHeader />
+        <MetaScrollBody isAuthorized={isAuthorized} />
       </div>
     </MetaProvider>
   );

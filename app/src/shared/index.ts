@@ -19,3 +19,16 @@ export {
 export { useFontScale } from './useFontScale';
 export { FontScaleControls } from './FontScaleControls';
 export { useScrollSpy } from './hooks/useScrollSpy';
+export { SubSectionNav } from './SubSectionNav';
+export { CommandPalette } from './CommandPalette';
+export { EntityCard } from './EntityCard';
+export { StatCard } from './StatCard';
+export { LeaderboardPodium } from './LeaderboardPodium';
+export { DivergingComparison, MultiEntityComparison } from './ComparisonBlock';
+export { MultiLineChart, SmallMultiples } from './TrendCard';
+export { BarHistogram, HeatmapGrid } from './DistributionCard';
+export { StackedRowBreakdown, Treemap } from './CategoryBreakdown';
+export { FilterBar } from './FilterBar';
+export { EmptyState } from './EmptyState';
+export { LoadingSkeleton } from './LoadingSkeleton';
+export { ErrorState } from './ErrorState';
