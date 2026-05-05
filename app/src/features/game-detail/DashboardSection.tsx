@@ -194,6 +194,21 @@ export function DashboardSection() {
             Per-faction snapshot of this game: objectives scored, technologies researched, and planet holdings at game end. Starting techs are shown in grey; techs acquired during play are in full color.
           </SectionDesc>
 
+          {/* Tech pip key */}
+          <div style={{ display: 'flex', gap: 12, marginBottom: 6, flexWrap: 'wrap', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
+            {([
+              { color: 'blue',   label: 'Propulsion' },
+              { color: 'red',    label: 'Warfare' },
+              { color: 'yellow', label: 'Cybernetic' },
+              { color: 'green',  label: 'Biotic' },
+            ] as const).map(({ color, label }) => (
+              <span key={color} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <TechPip color={color} size={6} />
+                {label}
+              </span>
+            ))}
+          </div>
+
           <hr style={{ border: 'none', borderTop: '3px double var(--rule)', margin: '6px 0' }} />
 
           {/* Faction cards */}

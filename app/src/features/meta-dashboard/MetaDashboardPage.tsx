@@ -22,8 +22,6 @@ const ARCHIVIST_SECTIONS = [
   { id: 'players', label: 'Players' },
 ] as const;
 
-type MetaSectionId = typeof ARCHIVIST_SECTIONS[number]['id'];
-
 function scrollToSection(id: string): void {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 }

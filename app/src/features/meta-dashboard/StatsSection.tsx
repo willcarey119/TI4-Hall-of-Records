@@ -1,5 +1,5 @@
 import { useMeta } from './MetaContext';
-import { Rule, formatDuration, SectionDesc } from '../../shared';
+import { Rule, formatDuration, SectionDesc, Tooltip } from '../../shared';
 
 const SOURCE_LABEL: Record<string, string> = {
   score_objective: 'OBJ', custodians: 'CUST', imperial_point: 'IMP', support_for_throne: 'SFT (Support for the Throne)',
@@ -36,13 +36,15 @@ export function StatsSection() {
       {/* Headline grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
         {[
-          { label: 'Total games',    value: String(gameStats.totalGames) },
-          { label: 'Avg duration',   value: formatDuration(Math.round(gameStats.avgDurationSeconds)) },
-          { label: 'Avg winning VP', value: gameStats.avgWinningVp === null ? '—' : gameStats.avgWinningVp.toFixed(1) },
-          { label: 'Avg players',    value: gameStats.avgPlayersPerGame.toFixed(1) },
+          { label: 'Total games',    value: String(gameStats.totalGames),    tip: 'Count of complete game sessions with valid parsed data in this archive.' },
+          { label: 'Avg duration',   value: formatDuration(Math.round(gameStats.avgDurationSeconds)), tip: 'Mean wall-clock time per game from session start to final score, as recorded by TI Assistant.' },
+          { label: 'Avg winning VP', value: gameStats.avgWinningVp === null ? '—' : gameStats.avgWinningVp.toFixed(1), tip: 'Mean final victory point total of the winning faction across all games.' },
+          { label: 'Avg players',    value: gameStats.avgPlayersPerGame.toFixed(1), tip: 'Mean number of factions per game. TI4 supports 3–8 players.' },
         ].map(cell => (
           <div key={cell.label} style={{ background: 'var(--paper-2)', padding: 8, border: '1px solid var(--ink-4)' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)' }}>{cell.label}</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', display: 'flex', alignItems: 'center' }}>
+              {cell.label}<Tooltip text={cell.tip} />
+            </div>
             <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800 }}>{cell.value}</div>
           </div>
         ))}
@@ -50,16 +52,37 @@ export function StatsSection() {
 
       {/* Mecatol Rex */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4 }}>Mecatol Rex</div>
+      <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 8 }}>
+        The galaxy's central planet. Capturing it claims the Custodians token — one point, awarded once per game. Holding it at round end grants influence over the agenda phase. Contested aggressively — and frequently traded.
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
-        <div><span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800 }}>{fmtPct(gameStats.mecatol.firstClaimerWinRate)}</span><div style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)' }}>FIRST CLAIMER WINS</div></div>
-        <div><span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800 }}>{gameStats.mecatol.avgFirstClaimRound === null ? '—' : `Rnd ${gameStats.mecatol.avgFirstClaimRound.toFixed(1)}`}</span><div style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)' }}>AVG FIRST CLAIM</div></div>
-        <div><span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800 }}>{gameStats.mecatol.avgTurnover.toFixed(1)}×</span><div style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)' }}>AVG TURNOVERS / GAME</div></div>
+        <div>
+          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800 }}>{fmtPct(gameStats.mecatol.firstClaimerWinRate)}</span>
+          <div style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)', display: 'flex', alignItems: 'center' }}>
+            FIRST CLAIMER WINS<Tooltip text="How often the faction that first captures Mecatol Rex goes on to win the game." />
+          </div>
+        </div>
+        <div>
+          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800 }}>{gameStats.mecatol.avgFirstClaimRound === null ? '—' : `Rnd ${gameStats.mecatol.avgFirstClaimRound.toFixed(1)}`}</span>
+          <div style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)', display: 'flex', alignItems: 'center' }}>
+            AVG FIRST CLAIM<Tooltip text="Average round number when Mecatol Rex is first captured across all games." />
+          </div>
+        </div>
+        <div>
+          <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-subhead)', fontWeight: 800 }}>{gameStats.mecatol.avgTurnover.toFixed(1)}×</span>
+          <div style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)', display: 'flex', alignItems: 'center' }}>
+            AVG TURNOVERS / GAME<Tooltip text="Average number of times Mecatol Rex changes hands per game. A turnover occurs any time control switches to a different faction." />
+          </div>
+        </div>
       </div>
 
       <Rule />
 
       {/* Action types */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Action Type Breakdown</div>
+      <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 6 }}>
+        On each turn, a player takes one action. <strong style={{ color: 'var(--ink-2)' }}>Tactical</strong> — activate a system (move fleets, take combat). <strong style={{ color: 'var(--ink-2)' }}>Component</strong> — use a faction ability, technology, or action card. <strong style={{ color: 'var(--ink-2)' }}>Pass</strong> — end your turns for the round.
+      </div>
       {(() => {
         const { tacticalPct, componentPct, passPct } = gameStats.actionTypes;
         if (tacticalPct === null || componentPct === null || passPct === null) {
@@ -102,6 +125,17 @@ export function StatsSection() {
 
       {/* VP source breakdown */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>VP Source Breakdown</div>
+      <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.7, marginBottom: 6 }}>
+        <strong style={{ color: 'var(--ink-2)' }}>OBJ</strong> — Score Objective (public or secret) &nbsp;·&nbsp;
+        <strong style={{ color: 'var(--ink-2)' }}>CUST</strong> — Custodians (Mecatol VP token) &nbsp;·&nbsp;
+        <strong style={{ color: 'var(--ink-2)' }}>IMP</strong> — Imperial strategy card point &nbsp;·&nbsp;
+        <strong style={{ color: 'var(--ink-2)' }}>SFT</strong> — Support for the Throne (faction political deal) &nbsp;·&nbsp;
+        <strong style={{ color: 'var(--ink-2)' }}>RELIC</strong> — Relic fragment reward &nbsp;·&nbsp;
+        <strong style={{ color: 'var(--ink-2)' }}>AGD</strong> — Agenda outcome &nbsp;·&nbsp;
+        <strong style={{ color: 'var(--ink-2)' }}>RIDER</strong> — Agenda rider bet &nbsp;·&nbsp;
+        <strong style={{ color: 'var(--ink-2)' }}>LGND</strong> — Legendary planet ability &nbsp;·&nbsp;
+        <strong style={{ color: 'var(--ink-2)' }}>MAN</strong> — Manually recorded
+      </div>
       {gameStats.vpSources.map(src => {
         const pct = Math.round(src.sharePct * 100);
         const sparse = src.totalPoints === 0;
@@ -128,7 +162,9 @@ export function StatsSection() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
           <div>
-            <div style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)', textTransform: 'uppercase' }}>Avg Distinct Sources</div>
+            <div style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)', textTransform: 'uppercase', display: 'flex', alignItems: 'center' }}>
+              Avg Distinct Sources<Tooltip text="Mean number of different VP categories (OBJ, CUST, SFT, etc.) a faction scored from. Higher = more balanced; winners tend to score from more categories than losers." />
+            </div>
             <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-body)', fontWeight: 800 }}>
               <span style={{ color: 'var(--accent)' }}>{(gameStats.vpDiversity.avgWinnerDistinctSources ?? 0).toFixed(1)}</span>
               <span style={{ color: 'var(--ink-3)' }}> winners · </span>
@@ -137,7 +173,9 @@ export function StatsSection() {
             </div>
           </div>
           <div>
-            <div style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)', textTransform: 'uppercase' }}>Concentration (HHI)</div>
+            <div style={{ color: 'var(--ink-3)', fontSize: 'var(--font-micro)', textTransform: 'uppercase', display: 'flex', alignItems: 'center' }}>
+              Concentration (HHI)<Tooltip text="Herfindahl-Hirschman Index: measures how concentrated a faction's VP sources are. Lower HHI = points spread across many categories. Higher HHI = relied on one engine. Winners typically show lower HHI than losers." />
+            </div>
             <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-body)', fontWeight: 800 }}>
               <span style={{ color: 'var(--accent)' }}>{(gameStats.vpDiversity.avgWinnerHHI ?? 0).toFixed(2)}</span>
               <span style={{ color: 'var(--ink-3)' }}> winners · </span>
@@ -154,7 +192,9 @@ export function StatsSection() {
       <Rule />
 
       {/* Comeback */}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Comeback / Collapse</div>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px', display: 'flex', alignItems: 'center' }}>
+        Comeback / Collapse<Tooltip text="How often the faction leading in VP at the end of Round 3 goes on to win. A low rate means early leads are fragile; a high rate means front-runners rarely collapse." />
+      </div>
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
         {gameStats.comingFromBehind.gamesWithRound3Data === 0
           ? <span style={{ color: 'var(--ink-3)' }}>Requires 3+ rounds of data.</span>
@@ -165,7 +205,9 @@ export function StatsSection() {
       <Rule />
 
       {/* Stage II first scorer */}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Stage II First Scorer</div>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px', display: 'flex', alignItems: 'center' }}>
+        Stage II First Scorer<Tooltip text="Stage II public objectives are worth 2–3 VP and are only revealed after Stage I is exhausted. How often does the first faction to score one go on to win?" />
+      </div>
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
         {gameStats.stage2.gamesWithStage2 === 0
           ? <span style={{ color: 'var(--ink-3)' }}>No Stage II scoring data yet.</span>
@@ -180,7 +222,10 @@ export function StatsSection() {
 
       {/* Objective timing */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>Objective Timing — VP per Round</div>
-      <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: 50, marginBottom: 12 }}>
+      <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 4 }}>
+        Average VP scored per round across all games. Taller bar = higher average scoring that round.
+      </div>
+      <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: 50, marginBottom: 2 }}>
         {Object.entries(gameStats.objectiveTiming.avgVpPerRound).sort(([a], [b]) => Number(a) - Number(b)).map(([round, vp]) => (
           <div key={round} style={{ flex: 1, textAlign: 'center', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
             <div style={{ background: 'var(--ink)', width: '100%', height: (vp / maxVpRound) * 40 }} />
@@ -189,6 +234,7 @@ export function StatsSection() {
           </div>
         ))}
       </div>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginBottom: 12 }}>avg VP scored</div>
 
       <Rule />
 
@@ -200,7 +246,7 @@ export function StatsSection() {
         <div key={h.leaderName} style={{ display: 'flex', gap: 6, padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
           <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)' }}>{h.leaderName}</span>
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)' }}>
-            {h.avgActivationRound === null ? '—' : `Rnd ${h.avgActivationRound.toFixed(1)} avg`} · {h.gamesActivated} games
+            {h.avgActivationRound === null ? '—' : `avg round ${h.avgActivationRound.toFixed(1)}`} · {h.gamesActivated} game{h.gamesActivated !== 1 ? 's' : ''}
           </span>
         </div>
       ))}
@@ -284,8 +330,11 @@ export function StatsSection() {
 
       {speakerStats !== null && speakerStats.gamesAnalyzed > 0 && (
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 6 }}>
-            Speaker Order
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+            Speaker Order<Tooltip text="The speaker acts last in strategy card selection but first during the action phase, and controls agenda tiebreaks. Being the initial speaker (Round 1) may confer a structural advantage." />
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 6 }}>
+            The Speaker token passes clockwise each round. The speaker acts last in the Strategy Phase but controls agenda tiebreaks.
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
             <div>

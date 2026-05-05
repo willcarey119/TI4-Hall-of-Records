@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useGame } from './GameContext';
 import { buildRecapSummary } from '../../lib/recap/buildRecapSummary';
-import { Rule, formatDate, formatDuration, FactionDot, SectionDesc } from '../../shared';
+import { Rule, formatDate, formatDuration, FactionDot, SectionDesc, Tooltip } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 import { buildRoundScores } from '../../lib/recap/buildRoundScores';
 import { deriveRoundBoundaries } from '../../lib/aggregator';
@@ -219,9 +219,11 @@ export function RecapSection() {
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
               marginBottom: 2,
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
-            Margin
+            Margin<Tooltip text="Victory point gap between the winner and the second-place faction at game end." />
           </div>
           <div
             style={{
@@ -243,9 +245,11 @@ export function RecapSection() {
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
               marginBottom: 2,
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
-            Length
+            Length<Tooltip text="Wall-clock time from session start to final score, as recorded by TI Assistant's built-in timer." />
           </div>
           <div
             style={{
@@ -301,7 +305,7 @@ export function RecapSection() {
                 color: s.isWinner ? 'var(--accent)' : 'var(--ink)',
               }}
             >
-              {s.finalVp}
+              {s.finalVp} VP
             </div>
           </div>
         ))}
@@ -314,7 +318,9 @@ export function RecapSection() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left', color: 'var(--ink-3)', fontWeight: 'normal', paddingRight: 8, whiteSpace: 'nowrap' }}>Rd</th>
+                  <th style={{ textAlign: 'left', color: 'var(--ink-3)', fontWeight: 'normal', paddingRight: 8, whiteSpace: 'nowrap' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>Rd<Tooltip text="VP scored by each faction per round. Numbers are cumulative — each cell shows total points at end of that round." /></span>
+                  </th>
                   {standings.map(s => (
                     <th key={s.factionId} style={{ textAlign: 'center', color: 'var(--ink-3)', fontWeight: 'normal', paddingBottom: 2 }}>
                       <FactionDot color={s.color} size={5} />

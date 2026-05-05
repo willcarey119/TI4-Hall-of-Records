@@ -19,11 +19,14 @@ export function MecatolWidget({ timeline, factions }: Props) {
           color: 'var(--ink-3)',
           borderBottom: '1px solid var(--rule)',
           paddingBottom: 3,
-          marginBottom: 6,
+          marginBottom: 4,
         }}
       >
         Mecatol Rex · Control by Round
       </div>
+      <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, margin: '0 0 8px' }}>
+        The galaxy's central planet and seat of the Galactic Council. Capturing it claims the Custodians token — one victory point, awarded once per game. Highlighted columns = control changed hands that round. Final owner is outlined in red.
+      </p>
 
       {!timeline.claimedInGame ? (
         <p

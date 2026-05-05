@@ -1,5 +1,5 @@
 import { useMeta } from './MetaContext';
-import { Rule, SectionDesc } from '../../shared';
+import { Rule, SectionDesc, Tooltip } from '../../shared';
 
 const HIGH_FOLLOW = 0.8;
 
@@ -39,8 +39,11 @@ export function StrategyCardSection() {
       </SectionDesc>
 
       {/* Secondary follow rate */}
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 6 }}>
-        Secondary Follow Rate · All Rounds
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+        Secondary Follow Rate · All Rounds<Tooltip text="How often players other than the card holder used the secondary ability when this card was activated. Measured per activation opportunity. High rates (shown in red) indicate a secondary everyone wants to use." />
+      </div>
+      <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 6 }}>
+        Each card's percentage shown below its name. Pick count is total times drafted across all games. Red = 80%+ follow rate.
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 12 }}>
         {[...strategyCardStats.cards].sort((a, b) => (b.secondaryFollowRate ?? -1) - (a.secondaryFollowRate ?? -1)).map(c => {
@@ -48,6 +51,7 @@ export function StrategyCardSection() {
           return (
             <div key={c.card} style={{ border: '1px solid var(--ink-4)', padding: 6, background: 'var(--paper-2)' }}>
               <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 'var(--font-micro)' }}>{c.card}</div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginTop: 4, marginBottom: 1 }}>Follow Rate</div>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-body)', color: isHigh ? 'var(--accent)' : 'var(--ink)' }}>
                 {fmtPct(c.secondaryFollowRate)}
               </div>
@@ -64,8 +68,8 @@ export function StrategyCardSection() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 8 }}>
         {/* Most Picked by Round */}
         <div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4 }}>
-            Most Picked · By Round
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+            Most Picked · By Round<Tooltip text="Top 3 most-drafted strategy cards for each game round. Shows which cards players prioritize depending on what round they're currently planning for." />
           </div>
           {roundsAsc.map(r => {
             const cardsInRound = [...strategyCardStats.cards]
@@ -88,8 +92,8 @@ export function StrategyCardSection() {
 
         {/* Draft Position */}
         <div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4 }}>
-            Draft Position · Most Contested
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+            Draft Position · Most Contested<Tooltip text="Cards ranked by how early (low pick position) they're consistently grabbed. A low average position means players fight for it every round — signaling a highly valued primary or secondary ability." />
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', marginBottom: 4 }}>
             {strategyCardStats.mostContested.map((card, i) => {

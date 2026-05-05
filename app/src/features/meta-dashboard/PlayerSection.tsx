@@ -86,7 +86,7 @@ function PlayerCard({ player }: { player: PlayerStat }) {
           color: 'var(--ink-2)',
         }}
       >
-        {player.gamesPlayed}g · {pct}% W
+        {player.gamesPlayed} game{player.gamesPlayed !== 1 ? 's' : ''} · {pct}% win rate
       </div>
       {player.favoriteFaction !== null && (
         <div
@@ -100,7 +100,7 @@ function PlayerCard({ player }: { player: PlayerStat }) {
             whiteSpace: 'nowrap',
           }}
         >
-          fav: {player.favoriteFaction}
+          Most played: {player.favoriteFaction}
         </div>
       )}
     </div>

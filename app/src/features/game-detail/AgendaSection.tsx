@@ -67,6 +67,10 @@ export function AgendaSection() {
         Political agendas voted on during this game's Galactic Senate phases. Each entry shows how factions voted, what passed or failed, and any VP gained or lost as a result.
       </SectionDesc>
 
+      <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-2)', lineHeight: 1.55, margin: '0 0 10px' }}>
+        <strong>LAW</strong> — permanently modifies the rules of the galaxy if it passes. <strong>DIR</strong> — directive; a one-time effect regardless of outcome. <strong>Elect</strong> agendas name a specific winner (a faction, planet, or player) rather than resolving for/against. <em>For</em> = voted in favor of passage or the named outcome. <em>Against</em> = voted to block it.
+      </p>
+
       <Rule weight="double" />
 
       {summary.entries.length === 0 ? (
@@ -155,6 +159,9 @@ export function AgendaSection() {
         <>
           <Rule />
           <Label>Net Beneficiaries (VP)</Label>
+          <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, margin: '2px 0 6px' }}>
+            Net VP delta per faction from all agenda outcomes combined this game. Positive = net gain from agenda results; negative = net loss.
+          </p>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 3 }}>
             {summary.netBeneficiaries.map(({ factionId, vpDelta }) => (
               <span

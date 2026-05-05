@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useMeta } from './MetaContext';
-import { Rule, TechPip, TECH_COLOR_VAR, SectionDesc } from '../../shared';
+import { Rule, TechPip, TECH_COLOR_VAR, SectionDesc, Tooltip } from '../../shared';
 import type { TechColor } from '../../lib/parser/techs';
 
 const COLOR_LABEL: Record<TechColor | 'all', string> = {
@@ -47,6 +47,14 @@ export function TechSection() {
         ))}
       </div>
 
+      {/* Column headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: '8px 1fr 50px 80px 60px', gap: 6, alignItems: 'center', padding: '3px 0', borderBottom: '1px solid var(--rule)', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        <span />
+        <span>Tech</span>
+        <span style={{ display: 'flex', alignItems: 'center' }}>Avg Rnd<Tooltip text="Average round number when this tech was first researched across all games where it appeared." /></span>
+        <span style={{ display: 'flex', alignItems: 'center' }}>Frequency<Tooltip text="Bar width = research count relative to the most-researched tech in this view. Wider = researched more often." /></span>
+        <span style={{ display: 'flex', alignItems: 'center' }}>Won%<Tooltip text="Percentage of winning games where the winner held this tech at game end. Red = 50%+. Does not imply causation." /></span>
+      </div>
       {visibleTechs.map(t => (
         <div key={t.tech} style={{ display: 'grid', gridTemplateColumns: '8px 1fr 50px 80px 60px', gap: 6, alignItems: 'center', padding: '3px 0', borderBottom: '1px dotted var(--ink-4)', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
           <TechPip color={t.color} />
@@ -56,15 +64,15 @@ export function TechSection() {
             <div style={{ background: TECH_COLOR_VAR[t.color], height: 4, width: `${(t.researchCount / maxCount) * 100}%` }} />
           </div>
           <span style={{ color: (t.winnerHeldRate ?? 0) >= 0.5 ? 'var(--accent)' : 'var(--ink-3)' }}>
-            Won: {t.winnerHeldRate === null ? '—' : `${Math.round(t.winnerHeldRate * 100)}%`}
+            {t.winnerHeldRate === null ? '—' : `${Math.round(t.winnerHeldRate * 100)}%`}
           </span>
         </div>
       ))}
 
       <Rule />
 
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px' }}>
-        Winner Possession · Top 10
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', margin: '8px 0 4px', display: 'flex', alignItems: 'center' }}>
+        Winner Possession · Top 10<Tooltip text="Technologies most often held by the winning faction at game end, ranked by frequency. A tech appearing here often correlates with winning — but may simply be popular among strong factions." />
       </div>
       {[...techStats.topTechs].sort((a, b) => (b.winnerHeldRate ?? 0) - (a.winnerHeldRate ?? 0)).slice(0, 10).map(t => (
         <div key={t.tech} style={{ display: 'flex', gap: 6, padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
@@ -72,15 +80,20 @@ export function TechSection() {
           <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)', flex: 1 }}>{t.tech}</span>
           <span style={{ color: 'var(--ink-3)' }}>{t.winnerHeldCount} of {techStats.totalWinnerGames} winning games</span>
           {(t.winnerHeldRate ?? 0) >= 0.67 && (
-            <span style={{ color: 'var(--accent)', textTransform: 'uppercase', fontSize: 'var(--font-micro)', letterSpacing: '0.1em' }}>★ trend</span>
+            <span style={{ color: 'var(--accent)', textTransform: 'uppercase', fontSize: 'var(--font-micro)', letterSpacing: '0.1em', display: 'inline-flex', alignItems: 'center' }}>
+              ★ trend<Tooltip text="Winner held rate ≥ 67%: this tech appears in the winning faction's inventory in two-thirds or more of games where it was researched." />
+            </span>
           )}
         </div>
       ))}
       {techPaths !== null && techPaths.factions.length > 0 && (
         <>
           <Rule />
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 8 }}>
-            Research Openings
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+            Research Openings<Tooltip text="The most common techs each faction researches for their 1st, 2nd, and 3rd picks (in order). Shows faction-specific tech priorities across all games." />
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 8 }}>
+            #1 = first tech researched during the game (not counting starting techs). ×N = researched as this pick in N games.
           </div>
           {techPaths.factions.map(f => (
             <div key={f.factionId} style={{ marginBottom: 14 }}>

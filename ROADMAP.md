@@ -348,6 +348,23 @@ Improvements identified in Step 3, plus any cross-cutting legibility work. Examp
 
 ---
 
+## V1.2 Addendum — Guidance & Explainer Pass ✅ COMPLETE (2026-05-04)
+
+**Goal:** Comprehensive in-app guidance so no stat, chart, or section is opaque to a new or returning player.
+
+**What was done:**
+- Upgraded `Tooltip` component from HTML `title` attribute to a proper CSS hover popover (styled, max-width 260px, shows above the `?` icon)
+- Added `Tooltip` to every labeled stat box or metric across all sections: StatsSection (headline grid, Mecatol Rex, VP diversity / HHI, Comeback, Stage II, Speaker Order), FactionSection (table column headers, Senate Power, Support for the Throne), StrategyCardSection (follow rate, Most Picked, Draft Position), meta TechSection (column headers, Winner Possession, ★ trend, Research Openings), RecapSection (Margin, Length, round-scores table)
+- Added sub-section prose blurbs for: Mecatol Rex (StatsSection + MecatolWidget), action types, VP source abbreviation key, Speaker Order, Senate Power, Support for the Throne, Research Openings
+- Added AgendaSection: LAW / DIR / Elect definitions paragraph + Net Beneficiaries description
+- Added DashboardSection: visual tech pip key legend (Propulsion / Warfare / Cybernetic / Biotic)
+- Expanded HomePage welcome blurb to describe all three routes (game detail, League Stats, Senate Almanac)
+- All existing `SectionDesc` components already in place across all 13 sections — no content changes needed there
+
+**Scope:** UI/UX text additions only. No logic changes. All existing tests pass unchanged.
+
+---
+
 ## V1.2+ — Future Backlog
 
 Items confirmed out of scope for V1.1. When the user raises one of these during V1.1 work, log it here rather than implementing it.

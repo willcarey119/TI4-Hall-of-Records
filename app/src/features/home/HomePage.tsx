@@ -92,6 +92,7 @@ export function HomePage() {
       : `Archive — ${games.length} game${games.length !== 1 ? 's' : ''}`;
 
   return (
+    <div style={{ height: '100%', overflowY: 'auto' }}>
     <main style={{ maxWidth: '680px', margin: '0 auto', padding: '32px 16px 64px' }}>
 
       {/* Welcome blurb — visible to all visitors */}
@@ -106,7 +107,7 @@ export function HomePage() {
           }}
         >
           This is the Hall of Records for a private Twilight Imperium IV playgroup.
-          Every session played by this group is parsed from{' '}
+          Every session is parsed from{' '}
           <a
             href="https://ti-assistant.com"
             target="_blank"
@@ -116,14 +117,18 @@ export function HomePage() {
             TI Assistant
           </a>{' '}
           exports and stored here for replay analysis and cross-game statistics.
-          Select a game below to explore its full detail — or visit{' '}
-          <a
-            href="/meta"
-            style={{ color: 'var(--accent)', textDecoration: 'none' }}
-          >
+          Click any game below to explore its full detail — VP trajectory, timeline of events,
+          faction dossiers, planet control, tech research, and agenda votes.
+          Visit{' '}
+          <a href="/meta" style={{ color: 'var(--accent)', textDecoration: 'none' }}>
             League Stats
           </a>{' '}
-          for aggregate faction, strategy, and tech data across all recorded sessions.
+          for aggregate faction, strategy card, and tech data across all sessions.
+          Visit{' '}
+          <a href="/agenda" style={{ color: 'var(--accent)', textDecoration: 'none' }}>
+            Senate Almanac
+          </a>{' '}
+          for cross-game agenda analytics — pass rates, faction voting patterns, and VP impact of each law.
         </p>
       </section>
 
@@ -223,5 +228,6 @@ export function HomePage() {
         )}
       </section>
     </main>
+    </div>
   );
 }

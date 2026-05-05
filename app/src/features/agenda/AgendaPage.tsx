@@ -67,6 +67,7 @@ export function AgendaPage() {
   }
 
   return (
+    <div style={{ height: '100%', overflowY: 'auto' }}>
     <div style={{ maxWidth: 720, margin: '0 auto', padding: '16px 16px 48px' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '3px double var(--rule)', paddingBottom: 8, marginBottom: 12 }}>
@@ -125,6 +126,7 @@ export function AgendaPage() {
           {i < summary.agendas.length - 1 && <Rule />}
         </div>
       ))}
+    </div>
     </div>
   );
 }

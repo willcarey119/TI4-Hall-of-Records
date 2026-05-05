@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMeta } from './MetaContext';
-import { Rule, FactionDot, SectionDesc } from '../../shared';
+import { Rule, FactionDot, SectionDesc, Tooltip } from '../../shared';
 import { getFactionBrandColor } from '../../lib/factions/factionBrandColors';
 
 type ViewMode = 'table' | 'cards';
@@ -91,6 +91,14 @@ export function FactionSection() {
 
       {view === 'table' ? (
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)' }}>
+          {/* Column headers */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 72px 72px 64px 80px', gap: 8, padding: '3px 0', borderBottom: '1px solid var(--rule)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <span>Faction</span>
+            <span style={{ display: 'flex', alignItems: 'center' }}>Picks<Tooltip text="Number of games this faction has appeared in vs. total games on record." /></span>
+            <span style={{ display: 'flex', alignItems: 'center' }}>Win%<Tooltip text="Wins divided by games played as this faction. Small sample sizes make this highly variable — treat with caution." /></span>
+            <span style={{ display: 'flex', alignItems: 'center' }}>Avg VP<Tooltip text="Mean final victory point total across all appearances for this faction." /></span>
+            <span style={{ display: 'flex', alignItems: 'center' }}>By Round<Tooltip text="Sparkline: average VP accumulated by end of each round. Taller bars = more scoring in that round on average." /></span>
+          </div>
           {sorted.map(f => (
             <div key={f.factionId} style={{ display: 'grid', gridTemplateColumns: '1fr 72px 72px 64px 80px', gap: 8, padding: '3px 0', borderBottom: '1px dotted var(--ink-4)' }}>
               <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-micro)', fontWeight: 700 }}>
@@ -112,13 +120,17 @@ export function FactionSection() {
                 <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 'var(--font-micro)' }}>{f.factionId}</span>
               </div>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', marginBottom: 2 }}>{f.expansion}</div>
-              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-display-sm)', fontWeight: 800, color: f.winRate === topWinRate && f.winRate > 0 ? 'var(--accent)' : 'var(--ink)' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 4, marginBottom: 1 }}>Win Rate</div>
+              <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-display-sm)', fontWeight: 800, color: f.winRate === topWinRate && f.winRate > 0 ? 'var(--accent)' : 'var(--ink)', lineHeight: 1.1 }}>
                 {Math.round(f.winRate * 100)}%
               </div>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
-                {f.gamesPlayed} game{f.gamesPlayed !== 1 ? 's' : ''} · {f.avgFinalVp.toFixed(1)} avg VP
+                {f.gamesPlayed} game{f.gamesPlayed !== 1 ? 's' : ''} · {f.avgFinalVp.toFixed(1)} avg final VP
               </div>
-              <div style={{ marginTop: 4 }}><Sparkline values={f.avgVpPerRound} /></div>
+              <div style={{ marginTop: 6 }}>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginBottom: 2 }}>Avg VP / Round</div>
+                <Sparkline values={f.avgVpPerRound} />
+              </div>
             </div>
           ))}
         </div>
@@ -130,8 +142,17 @@ export function FactionSection() {
       {factionStats.factions.some(f => f.winningVoteRate !== null) && (
         <>
           <Rule />
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4 }}>
-            Senate Power · Voted with Outcome
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+            Senate Power · Voted with Outcome<Tooltip text="Percentage of agenda votes where this faction voted for the outcome that actually resolved. Measures political alignment, not agenda strength." />
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 6 }}>
+            How often each faction cast their votes in favor of whichever side won the agenda — a proxy for political influence and deal-making without directly measuring VP.
+          </div>
+          {/* Column headers */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 50px', gap: 6, alignItems: 'center', padding: '2px 0', borderBottom: '1px solid var(--rule)', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>
+            <span>Faction</span>
+            <span>Alignment</span>
+            <span style={{ textAlign: 'right' }}>Rate</span>
           </div>
           {[...factionStats.factions]
             .filter(f => f.winningVoteRate !== null)
@@ -155,8 +176,11 @@ export function FactionSection() {
       {factionStats.sftTransfers.length > 0 && (
         <>
           <Rule />
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4 }}>
-            Support for the Throne
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginTop: 8, marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+            Support for the Throne<Tooltip text="A political deal: one faction gives their flagship's system card to another, granting that faction 1 VP. The giver gains nothing directly — it's a concession in exchange for a favor or to block someone else from winning." />
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 6 }}>
+            Faction-to-faction VP transfers where the giver cedes their flagship card as a political concession. Arrow shows direction of the VP transfer.
           </div>
           {factionStats.sftTransfers.map((t, i) => (
             <div key={i} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', padding: '2px 0' }}>
