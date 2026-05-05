@@ -1,8 +1,12 @@
+import React from 'react';
 import { useMeta } from './MetaContext';
 import { Rule, formatDuration, SectionDesc, Tooltip } from '../../shared';
 
 const SOURCE_LABEL: Record<string, string> = {
-  score_objective: 'OBJ', custodians: 'CUST', imperial_point: 'IMP', support_for_throne: 'SFT (Support for the Throne)',
+  score_objective_stage1: 'Obj · Stage I',
+  score_objective_stage2: 'Obj · Stage II',
+  score_objective_secret: 'Obj · Secret',
+  custodians: 'CUST', imperial_point: 'IMP', support_for_throne: 'SFT',
   relic: 'RELIC', agenda: 'AGD', rider: 'RIDER', legendary_planet: 'LGND', manual: 'MAN',
 };
 
@@ -49,6 +53,87 @@ export function StatsSection() {
           </div>
         ))}
       </div>
+
+      {/* VP Threshold segmentation table */}
+      {gameStats.byThreshold.length > 0 && (() => {
+        const mostGames = Math.max(...gameStats.byThreshold.map(s => s.gameCount));
+        const threshCols = gameStats.byThreshold.map(s => ({
+          label: `${s.vpThreshold} pt`,
+          segment: s,
+          isMost: s.gameCount === mostGames,
+        }));
+        const totalCols = 1 + threshCols.length;
+        const gridCols = `110px repeat(${totalCols}, 1fr)`;
+        const cellStyle = (highlight?: boolean): React.CSSProperties => ({
+          padding: '5px 6px',
+          background: highlight ? 'var(--paper-2)' : 'var(--paper)',
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 'var(--font-micro)',
+        });
+        const valStyle: React.CSSProperties = {
+          fontFamily: "'Newsreader', Georgia, serif",
+          fontWeight: 800,
+          fontSize: 15,
+          textAlign: 'center',
+          display: 'block',
+        };
+        const rows: Array<{ label: string; all: string; byThresh: string[] }> = [
+          {
+            label: 'Avg Win VP',
+            all: gameStats.avgWinningVp === null ? '—' : gameStats.avgWinningVp.toFixed(1),
+            byThresh: threshCols.map(c => c.segment.avgWinningVp === null ? '—' : c.segment.avgWinningVp.toFixed(1)),
+          },
+          {
+            label: 'Avg Duration',
+            all: formatDuration(Math.round(gameStats.avgDurationSeconds)),
+            byThresh: threshCols.map(c => formatDuration(Math.round(c.segment.avgDurationSeconds))),
+          },
+          {
+            label: '1st Claimer Win%',
+            all: gameStats.mecatol.firstClaimerWinRate === null ? '—' : `${Math.round(gameStats.mecatol.firstClaimerWinRate * 100)}%`,
+            byThresh: threshCols.map(c => c.segment.mecatol.firstClaimerWinRate === null ? '—' : `${Math.round(c.segment.mecatol.firstClaimerWinRate * 100)}%`),
+          },
+          {
+            label: 'Avg Players',
+            all: gameStats.avgPlayersPerGame.toFixed(1),
+            byThresh: threshCols.map(c => c.segment.avgPlayers.toFixed(1)),
+          },
+        ];
+        return (
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4 }}>
+              Key Stats · By Victory Point Threshold
+            </div>
+            <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 6, fontStyle: 'italic' }}>
+              One column per VP goal played in this dataset. ★ = most games at that threshold.
+            </p>
+            <div style={{ border: '1px solid var(--rule)', overflow: 'hidden' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '1px', background: 'var(--rule)' }}>
+                <div style={{ ...cellStyle(), background: 'var(--paper-2)' }} />
+                <div style={{ ...cellStyle(), background: 'var(--paper-2)', textAlign: 'center', color: 'var(--ink-3)', fontSize: 9, textTransform: 'uppercase' as const }}>
+                  All<br /><span style={{ color: 'var(--ink-4)' }}>{gameStats.totalGames} games</span>
+                </div>
+                {threshCols.map(c => (
+                  <div key={c.label} style={{ ...cellStyle(c.isMost), textAlign: 'center', color: c.isMost ? 'var(--ink-2)' : 'var(--ink-3)', fontSize: 9, textTransform: 'uppercase' as const }}>
+                    {c.segment.vpThreshold} pt {c.isMost ? '★' : ''}<br /><span style={{ color: 'var(--ink-4)' }}>{c.segment.gameCount} game{c.segment.gameCount !== 1 ? 's' : ''}</span>
+                  </div>
+                ))}
+              </div>
+              {rows.map(row => (
+                <div key={row.label} style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '1px', background: 'var(--rule)' }}>
+                  <div style={{ ...cellStyle(), color: 'var(--ink-3)', fontSize: 9, textTransform: 'uppercase' as const }}>{row.label}</div>
+                  <div style={cellStyle()}><span style={valStyle}>{row.all}</span></div>
+                  {threshCols.map((c, i) => (
+                    <div key={c.label} style={cellStyle(c.isMost)}>
+                      <span style={{ ...valStyle, color: c.isMost ? 'var(--ink-2)' : 'var(--ink)' }}>{row.byThresh[i]}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Mecatol Rex */}
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginBottom: 4 }}>Mecatol Rex</div>
@@ -136,22 +221,36 @@ export function StatsSection() {
         <strong style={{ color: 'var(--ink-2)' }}>LGND</strong> — Legendary planet ability &nbsp;·&nbsp;
         <strong style={{ color: 'var(--ink-2)' }}>MAN</strong> — Manually recorded
       </div>
-      {gameStats.vpSources.map(src => {
-        const pct = Math.round(src.sharePct * 100);
-        const sparse = src.totalPoints === 0;
-        return (
-          <div key={src.source} style={{ display: 'grid', gridTemplateColumns: '60px 1fr 80px', gap: 6, alignItems: 'center', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', opacity: sparse ? 0.6 : 1 }}>
-            <span>{SOURCE_LABEL[src.source] ?? src.source}</span>
-            <div style={{ background: 'var(--ink-4)', height: 4 }}>
-              <div style={{ background: 'var(--accent)', height: 4, width: `${src.sharePct * 100}%` }} />
+      {(() => {
+        const OBJ_SOURCES = ['score_objective_stage1', 'score_objective_stage2', 'score_objective_secret'];
+        const objRows = gameStats.vpSources.filter(s => OBJ_SOURCES.includes(s.source));
+        const otherRows = gameStats.vpSources.filter(s => !OBJ_SOURCES.includes(s.source));
+        const renderRow = (src: typeof gameStats.vpSources[number]) => {
+          const pct = Math.round(src.sharePct * 100);
+          const sparse = src.totalPoints === 0;
+          return (
+            <div key={src.source} style={{ display: 'grid', gridTemplateColumns: '96px 1fr 80px', gap: 6, alignItems: 'center', padding: '2px 0', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', opacity: sparse ? 0.6 : 1 }}>
+              <span>{SOURCE_LABEL[src.source] ?? src.source}</span>
+              <div style={{ background: 'var(--ink-4)', height: 4 }}>
+                <div style={{ background: 'var(--accent)', height: 4, width: `${src.sharePct * 100}%` }} />
+              </div>
+              <span style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                <span style={{ color: 'var(--ink-3)' }}>{src.totalPoints} VP · </span>
+                <span>{pct}%</span>
+              </span>
             </div>
-            <span style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-              <span style={{ color: 'var(--ink-3)' }}>{src.totalPoints} VP · </span>
-              <span>{pct}%</span>
-            </span>
-          </div>
+          );
+        };
+        return (
+          <>
+            {objRows.map(renderRow)}
+            {objRows.length > 0 && otherRows.length > 0 && (
+              <hr style={{ border: 'none', borderTop: '1px dashed var(--ink-4)', margin: '4px 0' }} />
+            )}
+            {otherRows.map(renderRow)}
+          </>
         );
-      })}
+      })()}
 
       <Rule />
 

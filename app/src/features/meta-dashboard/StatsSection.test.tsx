@@ -67,6 +67,8 @@ function makeGameStatsStub(): MetaState['gameStats'] {
     stage2: {
       gamesWithStage2: 0, firstStage2ScorerWins: 0, firstStage2ScorerWinRate: null,
     },
+    byThreshold: [],
+    imperialMecatol: { totalActivations: 0, scoredVp: 0, contestedAway: 0, noMecatol: 0 },
     objectiveTiming: { avgVpPerRound: {} },
     heroActivations: [],
     relics: [],
@@ -78,7 +80,7 @@ describe('StatsSection · VP Source Breakdown', () => {
   it('shows raw VP count alongside percent for each source (B4: rider/SFT 0% transparency)', () => {
     const gameStats = makeGameStatsStub();
     (gameStats as unknown as { vpSources: Array<{ source: string; totalPoints: number; sharePct: number }> }).vpSources = [
-      { source: 'score_objective', totalPoints: 330, sharePct: 0.844 },
+      { source: 'score_objective_stage1', totalPoints: 330, sharePct: 0.844 },
       { source: 'support_for_throne', totalPoints: 33, sharePct: 0.084 },
       { source: 'rider', totalPoints: 1, sharePct: 0.003 },
     ];
