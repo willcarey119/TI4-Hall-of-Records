@@ -1,4 +1,4 @@
-import type { ParsedGame, VpSource, PlayerActionType } from '../parser/types';
+import type { ParsedGame, VpSource, PlayerActionType, PlanetEvent } from '../parser/types';
 import { getObjectivePoints } from '../parser/objectives';
 import { relicGrantsVp } from '../parser/relicVpRules';
 import { assignRound, type RoundBoundary } from './deriveRoundBoundaries';
@@ -82,6 +82,13 @@ export interface VpDiversityStat {
   avgLoserHHI: number | null;
 }
 
+export interface ImperialMecatolStats {
+  totalActivations: number;
+  scoredVp: number;
+  contestedAway: number;
+  noMecatol: number;
+}
+
 export interface Stage2Stat {
   gamesWithStage2: number;
   firstStage2ScorerWins: number;
@@ -113,6 +120,7 @@ export interface GameStatsSummary {
   vpDiversity: VpDiversityStat;
   stage2: Stage2Stat;
   byThreshold: ThresholdSegment[];
+  imperialMecatol: ImperialMecatolStats;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -539,6 +547,49 @@ function buildStage2(games: ParsedGame[]): Stage2Stat {
   };
 }
 
+function mecatolOwnerAt(planetEvents: PlanetEvent[], timestamp: number): string | null {
+  const relevant = planetEvents
+    .filter(e => e.planet === 'Mecatol Rex' && e.timestamp <= timestamp)
+    .sort((a, b) => b.timestamp - a.timestamp);
+  const latest = relevant[0];
+  if (latest === undefined) return null;
+  return latest.type === 'claim' ? latest.faction : null;
+}
+
+function buildImperialMecatol(games: ParsedGame[]): ImperialMecatolStats {
+  let totalActivations = 0;
+  let scoredVp = 0;
+  let contestedAway = 0;
+  let noMecatol = 0;
+
+  for (const game of games) {
+    const imperialPicks = new Map<string, number>();
+    for (const ev of game.strategyCardEvents) {
+      if (ev.card === 'Imperial' && ev.type === 'pick') {
+        imperialPicks.set(ev.faction, ev.timestamp);
+      }
+    }
+
+    for (const ev of game.strategyCardEvents) {
+      if (ev.card !== 'Imperial' || ev.type !== 'play_primary') continue;
+      totalActivations++;
+
+      const ownerAtPlay = mecatolOwnerAt(game.planetEvents, ev.timestamp);
+      if (ownerAtPlay === ev.faction) { scoredVp++; continue; }
+
+      const pickTs = imperialPicks.get(ev.faction);
+      if (pickTs !== undefined) {
+        const ownerAtPick = mecatolOwnerAt(game.planetEvents, pickTs);
+        if (ownerAtPick === ev.faction) { contestedAway++; continue; }
+      }
+
+      noMecatol++;
+    }
+  }
+
+  return { totalActivations, scoredVp, contestedAway, noMecatol };
+}
+
 function buildByThreshold(
   games: ParsedGame[],
   roundBoundariesByGame: Map<string, RoundBoundary[]>,
@@ -601,6 +652,7 @@ export function buildGameStats(
       },
       stage2: { gamesWithStage2: 0, firstStage2ScorerWins: 0, firstStage2ScorerWinRate: null },
       byThreshold: [],
+      imperialMecatol: { totalActivations: 0, scoredVp: 0, contestedAway: 0, noMecatol: 0 },
     };
   }
 
@@ -631,5 +683,6 @@ export function buildGameStats(
     vpDiversity: buildVpDiversity(games),
     stage2: buildStage2(games),
     byThreshold: buildByThreshold(games, roundBoundariesByGame),
+    imperialMecatol: buildImperialMecatol(games),
   };
 }

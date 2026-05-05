@@ -323,3 +323,72 @@ describe('buildGameStats — byThreshold segmentation', () => {
     expect(result.byThreshold).toEqual([]);
   });
 });
+
+describe('buildGameStats — Imperial/Mecatol correlation', () => {
+  function makeImperialGame(opts: {
+    pickTimestamp: number;
+    playTimestamp: number;
+    mecatolClaims: Array<{ faction: string; timestamp: number; type: 'claim' | 'unclaim' }>;
+    imperialFaction: string;
+  }): ParsedGame {
+    const { pickTimestamp, playTimestamp, mecatolClaims, imperialFaction } = opts;
+    return makeGame('g1', {
+      planetEvents: mecatolClaims.map(c => ({
+        faction: c.faction, planet: 'Mecatol Rex', prevOwner: null,
+        timestamp: c.timestamp, type: c.type,
+      })),
+      strategyCardEvents: [
+        { faction: imperialFaction, card: 'Imperial', timestamp: pickTimestamp, type: 'pick' },
+        { faction: imperialFaction, card: 'Imperial', timestamp: playTimestamp, type: 'play_primary' },
+      ],
+    });
+  }
+
+  it('counts scoredVp when faction owned Mecatol at play time', () => {
+    const game = makeImperialGame({
+      imperialFaction: 'Argent Flight',
+      pickTimestamp: 100,
+      playTimestamp: 300,
+      mecatolClaims: [{ faction: 'Argent Flight', timestamp: 50, type: 'claim' }],
+    });
+    const result = buildGameStats([game], new Map());
+    expect(result.imperialMecatol.totalActivations).toBe(1);
+    expect(result.imperialMecatol.scoredVp).toBe(1);
+    expect(result.imperialMecatol.contestedAway).toBe(0);
+    expect(result.imperialMecatol.noMecatol).toBe(0);
+  });
+
+  it('counts contestedAway when faction owned Mecatol at pick but lost it before play', () => {
+    const game = makeImperialGame({
+      imperialFaction: 'Argent Flight',
+      pickTimestamp: 100,
+      playTimestamp: 300,
+      mecatolClaims: [
+        { faction: 'Argent Flight', timestamp: 50, type: 'claim' },    // owned at pick
+        { faction: 'Argent Flight', timestamp: 150, type: 'unclaim' }, // lost it
+        { faction: 'Naalu', timestamp: 200, type: 'claim' },           // taken by someone else
+      ],
+    });
+    const result = buildGameStats([game], new Map());
+    expect(result.imperialMecatol.contestedAway).toBe(1);
+    expect(result.imperialMecatol.scoredVp).toBe(0);
+  });
+
+  it('counts noMecatol when faction never held Mecatol that round', () => {
+    const game = makeImperialGame({
+      imperialFaction: 'Argent Flight',
+      pickTimestamp: 100,
+      playTimestamp: 300,
+      mecatolClaims: [{ faction: 'Naalu', timestamp: 50, type: 'claim' }],
+    });
+    const result = buildGameStats([game], new Map());
+    expect(result.imperialMecatol.noMecatol).toBe(1);
+    expect(result.imperialMecatol.scoredVp).toBe(0);
+    expect(result.imperialMecatol.contestedAway).toBe(0);
+  });
+
+  it('returns zeros for a game with no Imperial activations', () => {
+    const result = buildGameStats([makeGame('g1', {})], new Map());
+    expect(result.imperialMecatol.totalActivations).toBe(0);
+  });
+});
