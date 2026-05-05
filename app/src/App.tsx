@@ -19,6 +19,9 @@ const AgendaPage = lazy(() =>
 const NotFoundPage = lazy(() =>
   import('./features/not-found').then(m => ({ default: m.NotFoundPage }))
 );
+const ComparePage = lazy(() =>
+  import('./features/compare').then(m => ({ default: m.ComparePage }))
+);
 
 const loadingStyle: React.CSSProperties = {
   fontFamily: "'IBM Plex Mono', monospace",
@@ -50,6 +53,7 @@ export default function App() {
                   <Route path="/games/:gameId" element={<GameDetailPage />} />
                   <Route path="/meta" element={<MetaDashboardPage />} />
                   <Route path="/agenda" element={<AgendaPage />} />
+                  <Route path="/compare/:gameA/:gameB" element={<ComparePage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </Suspense>

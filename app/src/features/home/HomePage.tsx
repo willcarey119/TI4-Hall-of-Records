@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ParsedGameSummary } from '../../adapters/firestore';
 import { useAuth } from '../../adapters/AuthContext';
-import { Rule, Label, LoadingSkeleton, ErrorState, EmptyState } from '../../shared';
+import { Rule, Label, Kicker, LoadingSkeleton, ErrorState, EmptyState } from '../../shared';
 import { GameCard } from './GameCard';
+import { CompareLauncher } from '../compare';
 
 const monoSm: React.CSSProperties = {
   fontFamily: "'IBM Plex Mono', monospace",
@@ -133,6 +134,16 @@ export function HomePage() {
       </section>
 
       <Rule weight="thick" />
+
+      {/* Compare launcher — only when at least 2 games exist */}
+      {!loading && error === null && games.length >= 2 && (
+        <section style={{ marginTop: '24px' }}>
+          <Kicker text="Compare">Two games, side by side</Kicker>
+          <div style={{ marginTop: '8px' }}>
+            <CompareLauncher games={games} />
+          </div>
+        </section>
+      )}
 
       {/* Archive section */}
       <section style={{ marginTop: '24px' }}>
