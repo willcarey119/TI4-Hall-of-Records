@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import { Kicker, FactionChip, Rule, formatKicker, formatGameTitle, FontScaleControls } from '../../shared';
 import { useGame } from './GameContext';
 import { useRoundFilter } from './RoundFilterContext';
+import { deriveRoundBoundaries } from '../../lib/aggregator';
+import { buildGameCsv } from '../../lib/csv/buildGameCsv';
+import { downloadCsv } from '../../lib/csv/downloadCsv';
 
 function scrollToSection(id: string): void {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -144,6 +147,31 @@ export function FrozenHeader({ activeSection }: FrozenHeaderProps) {
           </button>
         ))}
         <FontScaleControls />
+        <button
+          type="button"
+          onClick={() => {
+            const bounds = deriveRoundBoundaries(game.strategyCardEvents, game.factions.length);
+            const date = new Date(game.playedAt).toISOString().slice(0, 10);
+            downloadCsv(`${date}-${game.gameId.slice(0, 8)}.csv`, buildGameCsv(game, bounds));
+          }}
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 'var(--font-micro)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            padding: '7px 10px',
+            border: 'none',
+            background: 'none',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            color: 'var(--ink-4)',
+            borderBottom: '2px solid transparent',
+          }}
+          title="Download round-by-round VP as CSV"
+        >
+          ↓ CSV
+        </button>
       </nav>
     </div>
   );

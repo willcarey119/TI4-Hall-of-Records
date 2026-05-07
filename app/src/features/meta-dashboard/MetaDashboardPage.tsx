@@ -1,5 +1,7 @@
 import { FontScaleControls, SubSectionNav, LoadingSkeleton, ErrorState } from '../../shared';
 import { MetaProvider, useMeta } from './MetaContext';
+import { buildAllGamesCsv } from '../../lib/csv/buildAllGamesCsv';
+import { downloadCsv } from '../../lib/csv/downloadCsv';
 import { useAuth } from '../../adapters/AuthContext';
 import { FactionSection } from './FactionSection';
 import { StrategyCardSection } from './StrategyCardSection';
@@ -20,6 +22,34 @@ const ARCHIVIST_SECTIONS = [
   ...PUBLIC_SECTIONS,
   { id: 'players', label: 'Players' },
 ] as const;
+
+function MetaCsvButton() {
+  const { games } = useMeta();
+  if (games.length === 0) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const date = new Date().toISOString().slice(0, 10);
+        downloadCsv(`ti4-all-games-${date}.csv`, buildAllGamesCsv(games));
+      }}
+      style={{
+        fontFamily: "'IBM Plex Mono', monospace",
+        fontSize: 'var(--font-micro)',
+        textTransform: 'uppercase' as const,
+        letterSpacing: '0.08em',
+        padding: '4px 8px',
+        border: '1px solid var(--rule)',
+        background: 'none',
+        cursor: 'pointer',
+        color: 'var(--ink-4)',
+      }}
+      title="Download all games as CSV"
+    >
+      ↓ CSV
+    </button>
+  );
+}
 
 function MetaFrozenHeader() {
   return (
@@ -50,7 +80,8 @@ function MetaFrozenHeader() {
           letterSpacing: '0.1em',
           color: 'var(--ink-2)',
         }}>League Stats</span>
-        <span style={{ marginLeft: 'auto' }}>
+        <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <MetaCsvButton />
           <FontScaleControls />
         </span>
       </header>
