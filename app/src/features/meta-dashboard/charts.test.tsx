@@ -63,23 +63,22 @@ describe('buildFactionStrategyHeatmap', () => {
     expect(out.colLabels).toHaveLength(8);
     expect(out.colLabels).toContain('Imperial');
     expect(out.rowLabels).toEqual(['Hacan', 'Sol']);
-    expect(out.values).toHaveLength(2);
+    expect(out.ranks).toHaveLength(2);
   });
 
-  it('normalizes values to 0..1', () => {
+  it('ranks are integers in range 1..8', () => {
     const game = makeGame({
       factions: [fac('Sol')],
       strategyCardEvents: [pick('Sol', 'Imperial', 1)],
     });
     const out = buildFactionStrategyHeatmap([game]);
-    const flat = out.values.flat();
-    for (const v of flat) {
-      expect(v).toBeGreaterThanOrEqual(0);
-      expect(v).toBeLessThanOrEqual(1);
+    for (const v of out.ranks.flat()) {
+      expect(v).toBeGreaterThanOrEqual(1);
+      expect(v).toBeLessThanOrEqual(8);
     }
   });
 
-  it('gives intensity 1.0 to the most-picked card and lower to others', () => {
+  it('gives rank 1 to the most-picked card and higher rank to others', () => {
     const game = makeGame({
       factions: [fac('Sol')],
       strategyCardEvents: [
@@ -92,8 +91,8 @@ describe('buildFactionStrategyHeatmap', () => {
     const solIdx = out.rowLabels.indexOf('Sol');
     const impIdx = out.colLabels.indexOf('Imperial');
     const tradeIdx = out.colLabels.indexOf('Trade');
-    expect(out.values[solIdx]?.[impIdx]).toBe(1);
-    expect(out.values[solIdx]?.[tradeIdx]).toBeLessThan(1);
+    expect(out.ranks[solIdx]?.[impIdx]).toBe(1);
+    expect(out.ranks[solIdx]?.[tradeIdx]).toBeGreaterThan(1);
   });
 
   it('includes rank tooltips with pick counts', () => {

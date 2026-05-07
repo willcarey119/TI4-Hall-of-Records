@@ -28,22 +28,31 @@ describe('BarHistogram', () => {
 
 describe('HeatmapGrid', () => {
   it('renders row and column labels', () => {
-    render(<HeatmapGrid rowLabels={['Barony', 'Naaz']} colLabels={['R1', 'R2', 'R3']} values={[[0.1, 0.5, 0.9], [0.3, 0.7, 0.2]]} />);
+    render(<HeatmapGrid rowLabels={['Barony', 'Naaz']} colLabels={['R1', 'R2', 'R3']} ranks={[[1, 2, 3], [2, 1, 3]]} />);
     expect(screen.getByText('Barony')).toBeInTheDocument();
     expect(screen.getByText('R2')).toBeInTheDocument();
   });
 
-  it('renders correct number of heatmap cells', () => {
-    const { container } = render(
-      <HeatmapGrid rowLabels={['A', 'B']} colLabels={['X', 'Y', 'Z']} values={[[0.1, 0.5, 0.9], [0.3, 0.7, 0.2]]} />
+  it('renders inline rank numbers in cells', () => {
+    render(
+      <HeatmapGrid rowLabels={['A']} colLabels={['X', 'Y']} ranks={[[1, 2]]} />
     );
-    // 2 rows × 3 cols = 6 data cells + 8 legend gradient steps = 14 oklch elements
+    // rank numbers 1 and 2 should appear as visible text in cells
+    expect(screen.getAllByText('1').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('2').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders correct number of colored cells', () => {
+    const { container } = render(
+      <HeatmapGrid rowLabels={['A', 'B']} colLabels={['X', 'Y', 'Z']} ranks={[[1, 2, 3], [2, 3, 1]]} />
+    );
+    // 2 rows × 3 cols = 6 data cells + 8 legend swatches = 14 oklch elements
     const cells = container.querySelectorAll('[style*="oklch"]');
     expect(cells.length).toBe(14);
   });
 
   it('renders all row labels', () => {
-    render(<HeatmapGrid rowLabels={['Barony', 'Naaz', 'Sol']} colLabels={['R1']} values={[[0.5], [0.3], [0.9]]} />);
+    render(<HeatmapGrid rowLabels={['Barony', 'Naaz', 'Sol']} colLabels={['R1']} ranks={[[1], [2], [3]]} />);
     expect(screen.getByText('Barony')).toBeInTheDocument();
     expect(screen.getByText('Naaz')).toBeInTheDocument();
     expect(screen.getByText('Sol')).toBeInTheDocument();

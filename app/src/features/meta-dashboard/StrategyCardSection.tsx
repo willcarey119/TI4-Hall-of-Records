@@ -10,7 +10,7 @@ const STRATEGY_CARDS = [
 export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
   rowLabels: string[];
   colLabels: string[];
-  values: number[][];
+  ranks: number[][];
   tooltips: string[][];
 } {
   const gamesPlayed = new Map<string, number>();
@@ -28,9 +28,8 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
     }
   }
   const rowLabels = [...gamesPlayed.keys()].sort();
-  const N = STRATEGY_CARDS.length; // 8
 
-  const values: number[][] = [];
+  const ranks: number[][] = [];
   const tooltips: string[][] = [];
 
   for (const fid of rowLabels) {
@@ -38,18 +37,17 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
     const m = picks.get(fid);
     const counts = STRATEGY_CARDS.map(card => m?.get(card) ?? 0);
 
-    // Rank cards by pick count descending (1 = most picked). Ties share the same rank.
+    // Rank descending: #1 = most picked. Ties share the same rank.
     const sorted = [...counts].sort((a, b) => b - a);
-    const ranks = counts.map(c => sorted.indexOf(c) + 1); // indexOf gives 0-based position of first occurrence
+    const rowRanks = counts.map(c => sorted.indexOf(c) + 1);
 
-    // intensity: rank 1 → 1.0, rank N → 0.0
-    values.push(ranks.map(rank => (N - rank) / (N - 1)));
-    tooltips.push(ranks.map((rank, ci) =>
+    ranks.push(rowRanks);
+    tooltips.push(rowRanks.map((rank, ci) =>
       `${fid} – ${STRATEGY_CARDS[ci]}: #${rank} pick (${counts[ci]}/${gp} games)`
     ));
   }
 
-  return { rowLabels, colLabels: [...STRATEGY_CARDS], values, tooltips };
+  return { rowLabels, colLabels: [...STRATEGY_CARDS], ranks, tooltips };
 }
 
 const HIGH_FOLLOW = 0.8;
