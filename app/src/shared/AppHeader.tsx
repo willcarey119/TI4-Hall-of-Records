@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../adapters/AuthContext';
-import { Rule, FontScaleControls } from './index';
+import { Rule, FontScaleControls, CommandPalette } from './index';
 import { UploadPage } from '../features/upload/UploadPage';
 
 const NAV_ITEMS = [
@@ -163,6 +163,8 @@ export function AppHeader({ onGameSaved }: AppHeaderProps) {
           </div>
         </div>
       )}
+
+      <CommandPalette />
     </header>
   );
 }

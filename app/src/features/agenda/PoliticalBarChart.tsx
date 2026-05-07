@@ -91,7 +91,7 @@ function FilterChip({ label, active, onClick }: { label: string; active: boolean
       onClick={onClick}
       style={{
         fontFamily: "'IBM Plex Mono', monospace",
-        fontSize: 9,
+        fontSize: 'var(--font-micro)',
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
         padding: '3px 9px',
@@ -112,7 +112,7 @@ function OutcomeBadge({ row }: { row: AggregatedRow }) {
       <span
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 8,
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           padding: '2px 5px',
@@ -132,7 +132,7 @@ function OutcomeBadge({ row }: { row: AggregatedRow }) {
       <span
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 8,
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           padding: '2px 5px',
@@ -152,7 +152,7 @@ function OutcomeBadge({ row }: { row: AggregatedRow }) {
       <span
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 8,
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           padding: '2px 5px',
@@ -171,7 +171,7 @@ function OutcomeBadge({ row }: { row: AggregatedRow }) {
     <span
       style={{
         fontFamily: "'IBM Plex Mono', monospace",
-        fontSize: 8,
+        fontSize: 'var(--font-micro)',
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
         padding: '2px 5px',
@@ -195,7 +195,7 @@ function Row({ row }: { row: AggregatedRow }) {
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '180px 1fr 80px',
+        gridTemplateColumns: '220px 1fr 100px',
         alignItems: 'center',
         borderBottom: '1px solid var(--ink-4)',
         background: 'var(--paper-2)',
@@ -210,7 +210,7 @@ function Row({ row }: { row: AggregatedRow }) {
         <div
           style={{
             fontFamily: "'Newsreader', Georgia, serif",
-            fontSize: 12,
+            fontSize: 'var(--font-sm)',
             fontWeight: 700,
             lineHeight: 1.2,
           }}
@@ -220,7 +220,7 @@ function Row({ row }: { row: AggregatedRow }) {
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 8,
+            fontSize: 'var(--font-micro)',
             color: 'var(--ink-4)',
             marginTop: 2,
           }}
@@ -232,19 +232,19 @@ function Row({ row }: { row: AggregatedRow }) {
       <div style={{ padding: '0 10px', position: 'relative' }}>
         {isElect ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 18 }}>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--ink-3)' }}>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>
               Most elected:
             </span>
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
               {row.topElected.length === 0 ? (
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-4)' }}>—</span>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)' }}>—</span>
               ) : (
                 row.topElected.map(({ faction, count }) => (
                   <span
                     key={faction}
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 9,
+                      fontSize: 'var(--font-micro)',
                       background: 'var(--paper-3)',
                       border: '1px solid var(--ink-4)',
                       padding: '1px 6px',
@@ -258,7 +258,7 @@ function Row({ row }: { row: AggregatedRow }) {
           </div>
         ) : (
           <>
-            <div style={{ height: 18, display: 'flex', alignItems: 'stretch', position: 'relative' }}>
+            <div style={{ height: 22, display: 'flex', alignItems: 'stretch', position: 'relative' }}>
               <div
                 style={{
                   width: `${row.forPct * 100}%`,
@@ -270,7 +270,7 @@ function Row({ row }: { row: AggregatedRow }) {
                 }}
               >
                 {!closeLabel && row.forPct > 0.1 && (
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'rgba(255,255,255,0.95)', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'rgba(255,255,255,0.95)', whiteSpace: 'nowrap' }}>
                     {Math.round(row.forPct * 100)}%
                   </span>
                 )}
@@ -286,7 +286,7 @@ function Row({ row }: { row: AggregatedRow }) {
                 }}
               >
                 {!closeLabel && row.againstPct > 0.1 && (
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'rgba(255,255,255,0.95)', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'rgba(255,255,255,0.95)', whiteSpace: 'nowrap' }}>
                     {Math.round(row.againstPct * 100)}%
                   </span>
                 )}
@@ -305,7 +305,7 @@ function Row({ row }: { row: AggregatedRow }) {
               />
             </div>
             {closeLabel && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--ink-3)', marginTop: 2 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 2 }}>
                 <span style={{ color: VOTE_FOR }}>{Math.round(row.forPct * 100)}% For</span>
                 <span style={{ color: VOTE_AGAINST }}>{Math.round(row.againstPct * 100)}% Against</span>
               </div>
@@ -319,7 +319,7 @@ function Row({ row }: { row: AggregatedRow }) {
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 9,
+            fontSize: 'var(--font-micro)',
             color: 'var(--ink-3)',
             marginTop: 2,
           }}
@@ -364,13 +364,13 @@ export function PoliticalBarChart({ agendas }: Props) {
       </div>
 
       {/* Axis labels */}
-      <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr 80px', marginBottom: 2 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 100px', marginBottom: 2 }}>
         <div />
         <div style={{ position: 'relative', height: 16, padding: '0 10px' }}>
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 8,
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               color: VOTE_FOR,
@@ -383,7 +383,7 @@ export function PoliticalBarChart({ agendas }: Props) {
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 8,
+              fontSize: 'var(--font-micro)',
               color: 'var(--ink-3)',
               position: 'absolute',
               left: '50%',
@@ -395,7 +395,7 @@ export function PoliticalBarChart({ agendas }: Props) {
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 8,
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               color: VOTE_AGAINST,
@@ -416,7 +416,7 @@ export function PoliticalBarChart({ agendas }: Props) {
               padding: 16,
               textAlign: 'center',
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
+              fontSize: 'var(--font-micro)',
               color: 'var(--ink-3)',
             }}
           >

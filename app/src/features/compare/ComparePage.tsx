@@ -185,7 +185,7 @@ function buildSeries(game: ParsedGame, suffix: string, mute: boolean) {
     roundBoundaries: boundaries,
   });
   return summary.series.map((s) => ({
-    label: `${s.factionId} (${suffix})`,
+    label: suffix ? `${s.factionId} (${suffix})` : s.factionId,
     color: mute ? muteColor(s.color) : s.color,
     values: s.points.map((p) => p.cumulativeVp),
   }));
@@ -261,9 +261,8 @@ function ComparisonBody({ a, b }: BodyProps) {
   const mA = gameMetrics(a);
   const mB = gameMetrics(b);
 
-  const seriesA = buildSeries(a, 'Game A', false);
-  const seriesB = buildSeries(b, 'Game B', true);
-  const allSeries = [...seriesA, ...seriesB];
+  const seriesA = buildSeries(a, '', false);
+  const seriesB = buildSeries(b, '', false);
 
   const factionsInB = new Set(b.factions.map((f) => f.factionId));
   const sharedFactions = a.factions.filter((f) => factionsInB.has(f.factionId));
@@ -285,7 +284,10 @@ function ComparisonBody({ a, b }: BodyProps) {
       <Rule />
 
       <section style={{ marginTop: 16, marginBottom: 20 }}>
-        <MultiLineChart title="VP Race — overlay" series={allSeries} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <MultiLineChart title={labelA} series={seriesA} />
+          <MultiLineChart title={labelB} series={seriesB} />
+        </div>
       </section>
 
       <section style={{ marginBottom: 20 }}>

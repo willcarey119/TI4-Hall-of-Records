@@ -8,14 +8,15 @@ describe('MultiLineChart', () => {
     expect(screen.getByText('VP Race')).toBeInTheDocument();
   });
 
-  it('renders an SVG polyline per series', () => {
+  it('renders an SVG polyline per series (halo + color = 2 per series)', () => {
     const { container } = render(
       <MultiLineChart title="VP Race" series={[
         { label: 'A', color: '#f00', values: [0, 3, 5, 8] },
         { label: 'B', color: '#00f', values: [1, 2, 4, 6] },
       ]} />
     );
-    expect(container.querySelectorAll('polyline').length).toBe(2);
+    // Each series renders a white halo polyline + a colored polyline = 2 per series
+    expect(container.querySelectorAll('polyline').length).toBe(4);
   });
 
   it('renders legend labels', () => {

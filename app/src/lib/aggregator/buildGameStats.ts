@@ -1,4 +1,5 @@
 import type { ParsedGame, VpSource, PlayerActionType, PlanetEvent } from '../parser/types';
+import { getVictoryPointThreshold } from '../parser/options';
 import { getObjectivePoints } from '../parser/objectives';
 import { relicGrantsVp } from '../parser/relicVpRules';
 import { assignRound, type RoundBoundary } from './deriveRoundBoundaries';
@@ -596,8 +597,9 @@ function buildByThreshold(
 ): ThresholdSegment[] {
   const grouped = new Map<number, ParsedGame[]>();
   for (const game of games) {
-    // vpThreshold may be absent on Firestore docs uploaded before this field was added
-    const threshold = (game.vpThreshold as number | undefined) ?? 10;
+    // vpThreshold may be absent on Firestore docs uploaded before this field was added;
+    // fall back to reading from options so old documents still resolve correctly.
+    const threshold = (game.vpThreshold as number | undefined) ?? getVictoryPointThreshold(game.options);
     const arr = grouped.get(threshold) ?? [];
     arr.push(game);
     grouped.set(threshold, arr);

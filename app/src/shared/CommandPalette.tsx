@@ -2,17 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ParsedGameSummary } from '../adapters/firestore';
 
-interface Props { games: ParsedGameSummary[] }
-
-export function CommandPalette({ games }: Props) {
+export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [games, setGames] = useState<ParsedGameSummary[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+      if (e.key === 'K' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
         e.preventDefault();
         setOpen(o => !o);
       }
@@ -23,6 +22,13 @@ export function CommandPalette({ games }: Props) {
   }, []);
 
   useEffect(() => { if (open) inputRef.current?.focus(); }, [open]);
+
+  useEffect(() => {
+    if (!open || games.length > 0) return;
+    import('../adapters/firestore')
+      .then(({ listGames }) => listGames().then(setGames))
+      .catch(() => {});
+  }, [open, games.length]);
 
   const matches = query.trim()
     ? games.filter(g =>
@@ -55,7 +61,7 @@ export function CommandPalette({ games }: Props) {
           ref={inputRef}
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="Jump to game, faction, agenda…"
+          placeholder="Jump to game or faction…"
           style={{
             padding: '10px 14px',
             fontFamily: "'IBM Plex Sans', sans-serif",
@@ -69,7 +75,7 @@ export function CommandPalette({ games }: Props) {
             <button
               key={g.gameId}
               type="button"
-              onClick={() => { navigate(`/game/${g.gameId}`); setOpen(false); }}
+              onClick={() => { navigate(`/games/${g.gameId}`); setOpen(false); }}
               style={{
                 display: 'block', width: '100%', textAlign: 'left',
                 padding: '8px 14px',
@@ -82,6 +88,16 @@ export function CommandPalette({ games }: Props) {
               {g.winner ?? 'Game'} · {g.playedAt > 0 ? new Date(g.playedAt).toLocaleDateString() : '—'}
             </button>
           ))}
+        </div>
+        <div style={{
+          padding: '4px 14px',
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 'var(--font-micro)',
+          color: 'var(--ink-4)',
+          borderTop: '1px solid var(--rule)',
+          textAlign: 'right' as const,
+        }}>
+          Ctrl+Shift+K · Esc to close
         </div>
       </div>
     </div>

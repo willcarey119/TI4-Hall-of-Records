@@ -1,6 +1,6 @@
 interface Series { label: string; color: string; values: number[]; }
 
-export function MultiLineChart({ title, series, height = 110, yMax }: {
+export function MultiLineChart({ title, series, height = 120, yMax }: {
   title: string; series: Series[]; height?: number; yMax?: number;
 }) {
   const n = Math.max(...series.map(s => s.values.length), 1);
@@ -11,18 +11,45 @@ export function MultiLineChart({ title, series, height = 110, yMax }: {
   const toPoints = (vals: number[]) =>
     vals.map((v, i) => `${i * xStep},${height - (v / max) * height}`).join(' ');
 
+  const gridStep = max <= 6 ? 1 : max <= 12 ? 2 : 3;
+  const gridLines: number[] = [];
+  for (let v = gridStep; v < max; v += gridStep) gridLines.push(v);
+
   return (
     <div style={{ border: '1px solid var(--rule)', padding: '10px 12px' }}>
       <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontWeight: 700, fontSize: 'var(--font-sm)', color: 'var(--ink)', marginBottom: 6 }}>{title}</div>
-      <svg viewBox={`0 0 ${W} ${height}`} style={{ width: '100%', height }}>
-        {series.map((s, i) => (
+      <svg viewBox={`0 0 ${W} ${height}`} style={{ width: '100%', height, overflow: 'visible' as const }}>
+        {/* Horizontal reference lines */}
+        {gridLines.map(v => (
+          <line key={v}
+            x1={0} y1={height - (v / max) * height}
+            x2={W} y2={height - (v / max) * height}
+            stroke="var(--rule)" strokeWidth={0.5} strokeDasharray="4 4" />
+        ))}
+        {/* White halo pass — ensures light colors read against paper background */}
+        {series.map((s, i) =>
           s.values.length > 1 ? (
-            <polyline key={i} points={toPoints(s.values)}
-              fill="none" stroke={s.color}
-              strokeWidth={i === 0 ? 1.8 : 1}
+            <polyline key={`h${i}`} points={toPoints(s.values)}
+              fill="none" stroke="var(--paper)" strokeWidth={5}
               strokeLinecap="round" strokeLinejoin="round" />
           ) : null
-        ))}
+        )}
+        {/* Colored line pass */}
+        {series.map((s, i) =>
+          s.values.length > 1 ? (
+            <polyline key={i} points={toPoints(s.values)}
+              fill="none" stroke={s.color} strokeWidth={2}
+              strokeLinecap="round" strokeLinejoin="round" />
+          ) : null
+        )}
+        {/* Terminal dot at each series endpoint */}
+        {series.map((s, i) => {
+          const last = s.values.length - 1;
+          if (last < 0) return null;
+          const x = last * xStep;
+          const y = height - ((s.values[last] ?? 0) / max) * height;
+          return <circle key={`d${i}`} cx={x} cy={y} r={2.5} fill={s.color} stroke="var(--paper)" strokeWidth={1} />;
+        })}
       </svg>
       <div style={{ display: 'flex', gap: 12, marginTop: 6, flexWrap: 'wrap' as const }}>
         {series.map((s, i) => (
