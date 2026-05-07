@@ -78,6 +78,35 @@ describe('buildFactionStrategyHeatmap', () => {
       expect(v).toBeLessThanOrEqual(1);
     }
   });
+
+  it('gives intensity 1.0 to the most-picked card and lower to others', () => {
+    const game = makeGame({
+      factions: [fac('Sol')],
+      strategyCardEvents: [
+        pick('Sol', 'Imperial', 1),
+        pick('Sol', 'Imperial', 2),
+        pick('Sol', 'Trade', 3),
+      ],
+    });
+    const out = buildFactionStrategyHeatmap([game]);
+    const solIdx = out.rowLabels.indexOf('Sol');
+    const impIdx = out.colLabels.indexOf('Imperial');
+    const tradeIdx = out.colLabels.indexOf('Trade');
+    expect(out.values[solIdx]?.[impIdx]).toBe(1);
+    expect(out.values[solIdx]?.[tradeIdx]).toBeLessThan(1);
+  });
+
+  it('includes rank tooltips with pick counts', () => {
+    const game = makeGame({
+      factions: [fac('Sol')],
+      strategyCardEvents: [pick('Sol', 'Imperial', 1)],
+    });
+    const out = buildFactionStrategyHeatmap([game]);
+    const solIdx = out.rowLabels.indexOf('Sol');
+    const impIdx = out.colLabels.indexOf('Imperial');
+    expect(out.tooltips[solIdx]?.[impIdx]).toContain('#1');
+    expect(out.tooltips[solIdx]?.[impIdx]).toContain('Imperial');
+  });
 });
 
 describe('buildFactionAverageVpPace', () => {

@@ -32,10 +32,11 @@ function heatColor(intensity: number): string {
   return `oklch(${l} ${c} 25)`;
 }
 
-export function HeatmapGrid({ rowLabels, colLabels, values, title }: {
+export function HeatmapGrid({ rowLabels, colLabels, values, tooltips, title }: {
   rowLabels: string[];
   colLabels: string[];
   values: number[][];
+  tooltips?: string[][];
   title?: string;
 }) {
   const LEGEND_STEPS = 8;
@@ -56,11 +57,11 @@ export function HeatmapGrid({ rowLabels, colLabels, values, title }: {
             <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', paddingRight: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{r}</div>
             {colLabels.map((col, ci) => {
               const intensity = Math.min(1, Math.max(0, values[ri]?.[ci] ?? 0));
-              const pct = Math.round(intensity * 100);
+              const tipText = tooltips?.[ri]?.[ci] ?? `${r} × ${col}: ${Math.round(intensity * 100)}%`;
               return (
                 <div
                   key={ci}
-                  title={`${r} × ${col}: ${pct}%`}
+                  title={tipText}
                   style={{
                     height: 18,
                     background: heatColor(intensity),
@@ -75,13 +76,13 @@ export function HeatmapGrid({ rowLabels, colLabels, values, title }: {
       </div>
       {/* Legend */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
-        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>Low</span>
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>#8</span>
         <div style={{ display: 'flex', flex: 1, height: 8, border: '1px solid var(--rule)', overflow: 'hidden' }}>
           {Array.from({ length: LEGEND_STEPS }, (_, i) => (
             <div key={i} style={{ flex: 1, background: heatColor(i / (LEGEND_STEPS - 1)) }} />
           ))}
         </div>
-        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>High</span>
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>#1</span>
       </div>
     </div>
   );

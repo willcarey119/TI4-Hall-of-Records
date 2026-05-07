@@ -11,10 +11,10 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
   rowLabels: string[];
   colLabels: string[];
   values: number[][];
+  tooltips: string[][];
 } {
-  // Count games-played and picks per (faction, card)
   const gamesPlayed = new Map<string, number>();
-  const picks = new Map<string, Map<string, number>>(); // factionId -> card -> count
+  const picks = new Map<string, Map<string, number>>();
   for (const g of games) {
     for (const f of g.factions) {
       gamesPlayed.set(f.factionId, (gamesPlayed.get(f.factionId) ?? 0) + 1);
@@ -28,15 +28,28 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
     }
   }
   const rowLabels = [...gamesPlayed.keys()].sort();
-  // Per-faction normalization: each row's max = 1.0, showing relative preference within that faction.
-  const values: number[][] = rowLabels.map(fid => {
+  const N = STRATEGY_CARDS.length; // 8
+
+  const values: number[][] = [];
+  const tooltips: string[][] = [];
+
+  for (const fid of rowLabels) {
     const gp = gamesPlayed.get(fid) ?? 1;
     const m = picks.get(fid);
-    const rates = STRATEGY_CARDS.map(card => (m?.get(card) ?? 0) / gp);
-    const rowMax = Math.max(0.0001, ...rates);
-    return rates.map(v => v / rowMax);
-  });
-  return { rowLabels, colLabels: [...STRATEGY_CARDS], values };
+    const counts = STRATEGY_CARDS.map(card => m?.get(card) ?? 0);
+
+    // Rank cards by pick count descending (1 = most picked). Ties share the same rank.
+    const sorted = [...counts].sort((a, b) => b - a);
+    const ranks = counts.map(c => sorted.indexOf(c) + 1); // indexOf gives 0-based position of first occurrence
+
+    // intensity: rank 1 → 1.0, rank N → 0.0
+    values.push(ranks.map(rank => (N - rank) / (N - 1)));
+    tooltips.push(ranks.map((rank, ci) =>
+      `${fid} – ${STRATEGY_CARDS[ci]}: #${rank} pick (${counts[ci]}/${gp} games)`
+    ));
+  }
+
+  return { rowLabels, colLabels: [...STRATEGY_CARDS], values, tooltips };
 }
 
 const HIGH_FOLLOW = 0.8;
@@ -191,9 +204,9 @@ export function StrategyCardSection() {
           <div style={{ marginTop: 16 }}>
             <Kicker text="Heatmap">Faction × strategy card pick rate</Kicker>
             <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, margin: '4px 0 6px', fontStyle: 'italic' }}>
-              Each cell = how often that faction drafted that strategy card relative to their own most-picked card. Hover for details.
+              Each cell shows that faction's pick rank for that strategy card (#1 = most picked). Hover for exact counts.
             </p>
-            <HeatmapGrid rowLabels={heatmap.rowLabels} colLabels={heatmap.colLabels} values={heatmap.values} />
+            <HeatmapGrid rowLabels={heatmap.rowLabels} colLabels={heatmap.colLabels} values={heatmap.values} tooltips={heatmap.tooltips} />
           </div>
         );
       })()}
