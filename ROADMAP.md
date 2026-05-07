@@ -474,14 +474,7 @@ Sequenced into three sub-phases. Each sub-phase is independently shippable.
 
 ### V1.3b — Medium features
 
-> **Immediate next session priority:** Faction × Strategy Card heatmap redesign (item 3a below) before any other V1.3b work.
-
-3a. **Faction × Strategy Card heatmap redesign** — the current `HeatmapGrid` implementation is functional but the data representation needs a ground-up rethink. Open questions to resolve in the next session:
-   - Should cells show pick rate (Y/X), absolute count (Y), or something else?
-   - Is ordinal rank the right color axis, or should similar pick rates share similar colors?
-   - Should factions with very few games be filtered out or flagged?
-   - Is a heatmap even the right chart type, or would a ranked bar-chart-per-faction be clearer?
-   - Start the session by producing 2–3 design options before implementing anything.
+3a. ✅ **Faction × Strategy Card heatmap redesign** — shipped 2026-05-07 (822 tests). Replaced forced ordinal rank (1–8) with a 5-tier pick rate scale (Never / 1–25% / 26–50% / 51–75% / 76–100%). Denominator changed from `gamesPlayed` to `totalFactionPicks` so values are always 0–100% and mean "share of this faction's picks." Single-game factions flagged with `*`. Column headers improved to named abbreviations. New `PickRateHeatmap` component inline in `StrategyCardSection`; `HeatmapGrid` in `shared/` left untouched.
 
 4. **Player Attribution** — opt-in first-name tagging. Faction objects in each game get a `playerName` field (already parsed from the wrapped `top.data.factions`). Add a per-game UI to confirm/edit attributions, plus a new `/players` route with per-player win rates, favorite factions, head-to-head records. Uses `EntityCard variant="player"` (already built).
 5. **Sharing / social cards** — `/share/:gameId` route with Open Graph meta tags. Server-side rendered card image (winner faction + VP score) for Discord/social embeds.

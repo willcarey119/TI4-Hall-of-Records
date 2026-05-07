@@ -1,5 +1,6 @@
+import React from 'react';
 import { useMeta } from './MetaContext';
-import { Rule, SectionDesc, Tooltip, HeatmapGrid, Kicker } from '../../shared';
+import { Rule, SectionDesc, Tooltip, Kicker } from '../../shared';
 import type { ParsedGame } from '../../lib/parser/types';
 
 const STRATEGY_CARDS = [
@@ -10,15 +11,16 @@ const STRATEGY_CARDS = [
 export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
   rowLabels: string[];
   colLabels: string[];
-  ranks: number[][];
+  rates: number[][];
   cellLabels: string[][];
   tooltips: string[][];
+  gamesPlayed: number[];
 } {
-  const gamesPlayed = new Map<string, number>();
+  const gamesPlayedMap = new Map<string, number>();
   const picks = new Map<string, Map<string, number>>();
   for (const g of games) {
     for (const f of g.factions) {
-      gamesPlayed.set(f.factionId, (gamesPlayed.get(f.factionId) ?? 0) + 1);
+      gamesPlayedMap.set(f.factionId, (gamesPlayedMap.get(f.factionId) ?? 0) + 1);
       if (!picks.has(f.factionId)) picks.set(f.factionId, new Map());
     }
     for (const e of g.strategyCardEvents) {
@@ -28,34 +30,144 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
       m.set(e.card, (m.get(e.card) ?? 0) + 1);
     }
   }
-  const rowLabels = [...gamesPlayed.keys()].sort();
+  const rowLabels = [...gamesPlayedMap.keys()].sort();
 
-  const ranks: number[][] = [];
+  const rates: number[][] = [];
   const cellLabels: string[][] = [];
   const tooltips: string[][] = [];
+  const gamesPlayed: number[] = [];
 
   for (const fid of rowLabels) {
-    const gp = gamesPlayed.get(fid) ?? 1;
+    const gp = gamesPlayedMap.get(fid) ?? 1;
+    gamesPlayed.push(gp);
     const m = picks.get(fid);
     const counts = STRATEGY_CARDS.map(card => m?.get(card) ?? 0);
+    const totalFactionPicks = counts.reduce((s, n) => s + n, 0);
+    const factionRates = counts.map(c => totalFactionPicks > 0 ? c / totalFactionPicks : 0);
 
-    // Ordinal ranking: every card gets a unique rank 1–8.
-    // Sort by pick count descending; ties broken by card position (stable).
-    const order = counts
-      .map((count, i) => ({ count, i }))
-      .sort((a, b) => b.count - a.count || a.i - b.i);
-    const rowRanks = new Array<number>(counts.length);
-    order.forEach(({ i }, position) => { rowRanks[i] = position + 1; });
-
-    ranks.push(rowRanks);
-    // Show "Y/X" — how many times picked out of games played
-    cellLabels.push(counts.map(c => `${c}/${gp}`));
-    tooltips.push(rowRanks.map((rank, ci) =>
-      `${fid} – ${STRATEGY_CARDS[ci]}: picked ${counts[ci]}/${gp} games (rank #${rank})`
-    ));
+    rates.push(factionRates);
+    cellLabels.push(factionRates.map(r => r > 0 ? `${Math.round(r * 100)}%` : ''));
+    tooltips.push(counts.map((count, ci) => {
+      const r = totalFactionPicks > 0 ? count / totalFactionPicks : 0;
+      return `${fid} – ${STRATEGY_CARDS[ci]}: ${count} of ${totalFactionPicks} picks (${Math.round(r * 100)}%)`;
+    }));
   }
 
-  return { rowLabels, colLabels: [...STRATEGY_CARDS], ranks, cellLabels, tooltips };
+  return { rowLabels, colLabels: [...STRATEGY_CARDS], rates, cellLabels, tooltips, gamesPlayed };
+}
+
+// 5-tier pick rate color scale: blank → warm light → gold → orange → vermillion
+const TIER_BG = [
+  'var(--paper-2)',        // 0%   — never
+  'oklch(0.88 0.04 70)',  // 1–25%  — rare
+  'oklch(0.74 0.14 88)',  // 26–50% — sometimes
+  'oklch(0.60 0.20 48)',  // 51–75% — often
+  'oklch(0.55 0.22 25)',  // 76–100% — always
+] as const;
+
+const TIER_TEXT = [
+  'var(--ink-4)',  // never
+  'var(--ink)',    // rare — dark on light
+  'var(--ink)',    // sometimes — dark on gold
+  '#fff',          // often — white on orange
+  '#fff',          // always — white on vermillion
+] as const;
+
+const TIER_LABELS = ['Never', '1–25%', '26–50%', '51–75%', '76–100%'] as const;
+
+const CARD_ABBREV: Record<string, string> = {
+  Leadership: 'Lead', Diplomacy: 'Dipl', Politics: 'Poli', Construction: 'Cons',
+  Trade: 'Trad', Warfare: 'Warf', Technology: 'Tech', Imperial: 'Imp.',
+};
+
+function rateToTier(rate: number): number {
+  if (rate === 0) return 0;
+  if (rate <= 0.25) return 1;
+  if (rate <= 0.50) return 2;
+  if (rate <= 0.75) return 3;
+  return 4;
+}
+
+function PickRateHeatmap({ rowLabels, colLabels, rates, cellLabels, tooltips, gamesPlayed }: {
+  rowLabels: string[];
+  colLabels: string[];
+  rates: number[][];
+  cellLabels: string[][];
+  tooltips: string[][];
+  gamesPlayed: number[];
+}) {
+  const hasSingleGame = gamesPlayed.some(n => n === 1);
+  return (
+    <div style={{ border: '1px solid var(--rule)', padding: '10px 12px', overflowX: 'auto' }}>
+      {/* Legend */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginBottom: 10 }}>
+        {TIER_BG.map((color, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ width: 14, height: 14, background: color, border: '1px solid var(--rule)', flexShrink: 0 }} />
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>
+              {TIER_LABELS[i]}
+            </span>
+          </div>
+        ))}
+      </div>
+      {/* Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: `110px repeat(${colLabels.length}, 1fr)`, gap: 2 }}>
+        <div />
+        {colLabels.map((c, i) => (
+          <div key={i} title={c} style={{
+            fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)',
+            color: 'var(--ink-3)', textAlign: 'center', paddingBottom: 2,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {CARD_ABBREV[c] ?? c.slice(0, 4)}
+          </div>
+        ))}
+        {rowLabels.map((r, ri) => (
+          <React.Fragment key={ri}>
+            <div
+              title={`${r} (${gamesPlayed[ri]} game${gamesPlayed[ri] === 1 ? '' : 's'})`}
+              style={{
+                fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)',
+                color: 'var(--ink-3)', paddingRight: 4,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                display: 'flex', alignItems: 'center', gap: 2,
+              }}
+            >
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{r}</span>
+              {gamesPlayed[ri] === 1 && <span style={{ color: 'var(--ink-4)', flexShrink: 0 }}>*</span>}
+            </div>
+            {colLabels.map((col, ci) => {
+              const rate = rates[ri]?.[ci] ?? 0;
+              const tier = rateToTier(rate);
+              const tipText = tooltips?.[ri]?.[ci] ?? `${r} × ${col}: ${Math.round(rate * 100)}%`;
+              return (
+                <div
+                  key={ci}
+                  title={tipText}
+                  style={{
+                    height: 24, background: TIER_BG[tier], border: '1px solid var(--paper)',
+                    cursor: 'default', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  <span style={{
+                    fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, fontWeight: 700,
+                    color: TIER_TEXT[tier], lineHeight: 1, userSelect: 'none',
+                  }}>
+                    {cellLabels?.[ri]?.[ci] ?? ''}
+                  </span>
+                </div>
+              );
+            })}
+          </React.Fragment>
+        ))}
+      </div>
+      {hasSingleGame && (
+        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', marginTop: 6, fontStyle: 'italic' }}>
+          * faction appeared in only 1 game
+        </div>
+      )}
+    </div>
+  );
 }
 
 const HIGH_FOLLOW = 0.8;
@@ -210,9 +322,9 @@ export function StrategyCardSection() {
           <div style={{ marginTop: 16 }}>
             <Kicker text="Heatmap">Faction × strategy card pick rate</Kicker>
             <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, margin: '4px 0 6px', fontStyle: 'italic' }}>
-              Each cell shows picks/games for that faction × strategy card. Color indicates pick rank — vermillion = most picked, gray = least. Hover for details.
+              Each cell shows what share of a faction's total strategy card picks went to that card. Vermillion = picked often (76–100%), blank = never. Hover for exact counts.
             </p>
-            <HeatmapGrid rowLabels={heatmap.rowLabels} colLabels={heatmap.colLabels} ranks={heatmap.ranks} cellLabels={heatmap.cellLabels} tooltips={heatmap.tooltips} />
+            <PickRateHeatmap rowLabels={heatmap.rowLabels} colLabels={heatmap.colLabels} rates={heatmap.rates} cellLabels={heatmap.cellLabels} tooltips={heatmap.tooltips} gamesPlayed={heatmap.gamesPlayed} />
           </div>
         );
       })()}

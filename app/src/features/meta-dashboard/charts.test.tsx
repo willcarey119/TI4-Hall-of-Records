@@ -54,7 +54,7 @@ function pick(faction: string, card: string, ts: number): StrategyCardEvent {
 }
 
 describe('buildFactionStrategyHeatmap', () => {
-  it('returns 8 columns labeled with strategy cards', () => {
+  it('returns 8 columns and sorted row labels', () => {
     const game = makeGame({
       factions: [fac('Sol'), fac('Hacan')],
       strategyCardEvents: [pick('Sol', 'Imperial', 1), pick('Hacan', 'Trade', 2)],
@@ -63,21 +63,23 @@ describe('buildFactionStrategyHeatmap', () => {
     expect(out.colLabels).toHaveLength(8);
     expect(out.colLabels).toContain('Imperial');
     expect(out.rowLabels).toEqual(['Hacan', 'Sol']);
-    expect(out.ranks).toHaveLength(2);
+    expect(out.rates).toHaveLength(2);
   });
 
-  it('ranks are unique integers 1..8 per row (ordinal, no ties)', () => {
+  it('rates are 0–1 reflecting share of total faction picks', () => {
     const game = makeGame({
       factions: [fac('Sol')],
       strategyCardEvents: [pick('Sol', 'Imperial', 1)],
     });
     const out = buildFactionStrategyHeatmap([game]);
     const solIdx = out.rowLabels.indexOf('Sol');
-    const row = out.ranks[solIdx]!.slice().sort((a, b) => a - b);
-    expect(row).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    const impIdx = out.colLabels.indexOf('Imperial');
+    expect(out.rates[solIdx]?.[impIdx]).toBe(1);   // 1 of 1 total picks = 100%
+    const tradeIdx = out.colLabels.indexOf('Trade');
+    expect(out.rates[solIdx]?.[tradeIdx]).toBe(0); // never picked
   });
 
-  it('gives rank 1 to the most-picked card and higher rank to others', () => {
+  it('most-picked card has higher rate than others in the same row', () => {
     const game = makeGame({
       factions: [fac('Sol')],
       strategyCardEvents: [
@@ -90,11 +92,10 @@ describe('buildFactionStrategyHeatmap', () => {
     const solIdx = out.rowLabels.indexOf('Sol');
     const impIdx = out.colLabels.indexOf('Imperial');
     const tradeIdx = out.colLabels.indexOf('Trade');
-    expect(out.ranks[solIdx]?.[impIdx]).toBe(1);
-    expect(out.ranks[solIdx]?.[tradeIdx]).toBeGreaterThan(1);
+    expect(out.rates[solIdx]?.[impIdx]).toBeGreaterThan(out.rates[solIdx]?.[tradeIdx] ?? 0);
   });
 
-  it('includes Y/X cell labels and rank tooltips', () => {
+  it('shows percentage cell labels and pick-count tooltips', () => {
     const game = makeGame({
       factions: [fac('Sol')],
       strategyCardEvents: [pick('Sol', 'Imperial', 1)],
@@ -102,9 +103,38 @@ describe('buildFactionStrategyHeatmap', () => {
     const out = buildFactionStrategyHeatmap([game]);
     const solIdx = out.rowLabels.indexOf('Sol');
     const impIdx = out.colLabels.indexOf('Imperial');
-    expect(out.cellLabels[solIdx]?.[impIdx]).toBe('1/1');
-    expect(out.tooltips[solIdx]?.[impIdx]).toContain('rank #1');
+    expect(out.cellLabels[solIdx]?.[impIdx]).toBe('100%');
     expect(out.tooltips[solIdx]?.[impIdx]).toContain('Imperial');
+    expect(out.tooltips[solIdx]?.[impIdx]).toContain('1 of 1');
+  });
+
+  it('shows empty string cell label for cards never picked', () => {
+    const game = makeGame({
+      factions: [fac('Sol')],
+      strategyCardEvents: [],
+    });
+    const out = buildFactionStrategyHeatmap([game]);
+    const solIdx = out.rowLabels.indexOf('Sol');
+    const impIdx = out.colLabels.indexOf('Imperial');
+    expect(out.cellLabels[solIdx]?.[impIdx]).toBe('');
+  });
+
+  it('tracks games played per faction for n=1 flagging', () => {
+    const game = makeGame({ factions: [fac('Sol')], strategyCardEvents: [] });
+    const out = buildFactionStrategyHeatmap([game]);
+    const solIdx = out.rowLabels.indexOf('Sol');
+    expect(out.gamesPlayed[solIdx]).toBe(1);
+  });
+
+  it('normalizes rates correctly: picks / total faction picks', () => {
+    const game1 = makeGame({ gameId: 'g1', factions: [fac('Sol')], strategyCardEvents: [pick('Sol', 'Imperial', 1)] });
+    const game2 = makeGame({ gameId: 'g2', factions: [fac('Sol')], strategyCardEvents: [pick('Sol', 'Trade', 2)] });
+    const out = buildFactionStrategyHeatmap([game1, game2]);
+    const solIdx = out.rowLabels.indexOf('Sol');
+    const impIdx = out.colLabels.indexOf('Imperial');
+    expect(out.rates[solIdx]?.[impIdx]).toBe(0.5);       // 1 Imperial of 2 total picks = 50%
+    expect(out.cellLabels[solIdx]?.[impIdx]).toBe('50%');
+    expect(out.gamesPlayed[solIdx]).toBe(2);
   });
 });
 
