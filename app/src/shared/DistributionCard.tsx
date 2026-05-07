@@ -40,10 +40,11 @@ const RANK_COLORS = [
 // Dark text on light backgrounds (ranks 4, 8); white on everything else.
 const RANK_TEXT_DARK = [false, false, false, true, false, false, false, true];
 
-export function HeatmapGrid({ rowLabels, colLabels, ranks, tooltips, title }: {
+export function HeatmapGrid({ rowLabels, colLabels, ranks, cellLabels, tooltips, title }: {
   rowLabels: string[];
   colLabels: string[];
   ranks: number[][];
+  cellLabels?: string[][];
   tooltips?: string[][];
   title?: string;
 }) {
@@ -90,7 +91,7 @@ export function HeatmapGrid({ rowLabels, colLabels, ranks, tooltips, title }: {
                     lineHeight: 1,
                     userSelect: 'none',
                   }}>
-                    {rank}
+                    {cellLabels?.[ri]?.[ci] ?? rank}
                   </span>
                 </div>
               );
@@ -112,7 +113,7 @@ export function HeatmapGrid({ rowLabels, colLabels, ranks, tooltips, title }: {
               <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, fontWeight: 700, color: RANK_TEXT_DARK[i] ? 'var(--ink)' : '#fff', lineHeight: 1 }}>{i + 1}</span>
             </div>
             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', whiteSpace: 'nowrap' as const }}>
-              {i === 0 ? '#1 Most Picked' : i === RANK_COLORS.length - 1 ? '#8 Least' : `#${i + 1}`}
+              {i === 0 ? 'Most picked' : i === RANK_COLORS.length - 1 ? 'Least picked' : `#${i + 1}`}
             </span>
           </div>
         ))}

@@ -94,7 +94,7 @@ describe('buildFactionStrategyHeatmap', () => {
     expect(out.ranks[solIdx]?.[tradeIdx]).toBeGreaterThan(1);
   });
 
-  it('includes rank tooltips with pick counts', () => {
+  it('includes Y/X cell labels and rank tooltips', () => {
     const game = makeGame({
       factions: [fac('Sol')],
       strategyCardEvents: [pick('Sol', 'Imperial', 1)],
@@ -102,7 +102,8 @@ describe('buildFactionStrategyHeatmap', () => {
     const out = buildFactionStrategyHeatmap([game]);
     const solIdx = out.rowLabels.indexOf('Sol');
     const impIdx = out.colLabels.indexOf('Imperial');
-    expect(out.tooltips[solIdx]?.[impIdx]).toContain('#1');
+    expect(out.cellLabels[solIdx]?.[impIdx]).toBe('1/1');
+    expect(out.tooltips[solIdx]?.[impIdx]).toContain('rank #1');
     expect(out.tooltips[solIdx]?.[impIdx]).toContain('Imperial');
   });
 });

@@ -11,6 +11,7 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
   rowLabels: string[];
   colLabels: string[];
   ranks: number[][];
+  cellLabels: string[][];
   tooltips: string[][];
 } {
   const gamesPlayed = new Map<string, number>();
@@ -30,6 +31,7 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
   const rowLabels = [...gamesPlayed.keys()].sort();
 
   const ranks: number[][] = [];
+  const cellLabels: string[][] = [];
   const tooltips: string[][] = [];
 
   for (const fid of rowLabels) {
@@ -38,7 +40,7 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
     const counts = STRATEGY_CARDS.map(card => m?.get(card) ?? 0);
 
     // Ordinal ranking: every card gets a unique rank 1–8.
-    // Sort indices by count descending; ties broken by card position (stable).
+    // Sort by pick count descending; ties broken by card position (stable).
     const order = counts
       .map((count, i) => ({ count, i }))
       .sort((a, b) => b.count - a.count || a.i - b.i);
@@ -46,12 +48,14 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
     order.forEach(({ i }, position) => { rowRanks[i] = position + 1; });
 
     ranks.push(rowRanks);
+    // Show "Y/X" — how many times picked out of games played
+    cellLabels.push(counts.map(c => `${c}/${gp}`));
     tooltips.push(rowRanks.map((rank, ci) =>
-      `${fid} – ${STRATEGY_CARDS[ci]}: #${rank} pick (${counts[ci]}/${gp} games)`
+      `${fid} – ${STRATEGY_CARDS[ci]}: picked ${counts[ci]}/${gp} games (rank #${rank})`
     ));
   }
 
-  return { rowLabels, colLabels: [...STRATEGY_CARDS], ranks, tooltips };
+  return { rowLabels, colLabels: [...STRATEGY_CARDS], ranks, cellLabels, tooltips };
 }
 
 const HIGH_FOLLOW = 0.8;
@@ -206,9 +210,9 @@ export function StrategyCardSection() {
           <div style={{ marginTop: 16 }}>
             <Kicker text="Heatmap">Faction × strategy card pick rate</Kicker>
             <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, margin: '4px 0 6px', fontStyle: 'italic' }}>
-              Each cell shows that faction's pick rank for that strategy card (#1 = most picked). Hover for exact counts.
+              Each cell shows picks/games for that faction × strategy card. Color indicates pick rank — vermillion = most picked, gray = least. Hover for details.
             </p>
-            <HeatmapGrid rowLabels={heatmap.rowLabels} colLabels={heatmap.colLabels} ranks={heatmap.ranks} tooltips={heatmap.tooltips} />
+            <HeatmapGrid rowLabels={heatmap.rowLabels} colLabels={heatmap.colLabels} ranks={heatmap.ranks} cellLabels={heatmap.cellLabels} tooltips={heatmap.tooltips} />
           </div>
         );
       })()}
