@@ -204,7 +204,7 @@ export function StrategyCardSection() {
             <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, margin: '4px 0 6px', fontStyle: 'italic' }}>
               Each cell shows that faction's pick rank for that strategy card (#1 = most picked). Hover for exact counts.
             </p>
-            <HeatmapGrid rowLabels={heatmap.rowLabels} colLabels={heatmap.colLabels} values={heatmap.values} tooltips={heatmap.tooltips} />
+            <HeatmapGrid rowLabels={heatmap.rowLabels} colLabels={heatmap.colLabels} ranks={heatmap.ranks} tooltips={heatmap.tooltips} />
           </div>
         );
       })()}
