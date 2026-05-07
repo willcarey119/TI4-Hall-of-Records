@@ -14,7 +14,7 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 
 ## Current Status
 
-**V1.2 wireframe kit shipped 2026-05-05.** App live at https://ti4-hall-of-records-da562.web.app. 786 tests passing.
+**V1.3a shipped 2026-05-07.** App live at https://ti4-hall-of-records-da562.web.app. 819 tests passing.
 
 | Phase | Status |
 |---|---|
@@ -33,10 +33,11 @@ A web app that parses TI Assistant JSON exports from Twilight Imperium 4 games, 
 | **V1.1** | ✅ **Shipped 2026-04-29** — 691 tests; all 6 bugs fixed; Agenda full scope; Mecatol widget; Scoring Pace rebuilt; typography pass; multi-file upload |
 | **V1.2 — Card UI redesign** | ✅ **Shipped 2026-05-05** — 719 tests; Recap/Planets/Tech/Agenda card layouts; Mecatol widget rewrite; PlanetControlSlideshow; per-faction snapshot cards |
 | **V1.2 — Wireframe kit rollout** | ✅ **Shipped 2026-05-05** — 786 tests; font floor 11→14px; SubSectionNav, CommandPalette (Ctrl+K), EntityCard, StatCard (8 variants), LeaderboardPodium, ComparisonBlock, TrendCard, DistributionCard, CategoryBreakdown, FilterBar, EmptyState/LoadingSkeleton/ErrorState; storyline match cards |
+| **V1.3a — Wire-up & polish** | ✅ **Shipped 2026-05-07** — 819 tests; round scrubber wired; compare route; VP threshold filter; CommandPalette (Ctrl+Shift+K, self-fetching, correct route); MultiLineChart legibility (halo pass, gridlines, terminal dots); HeatmapGrid (8-color rank palette, Y/X inline labels, legend); Treemap word-wrap fix |
 
-**Next up:** V1.3+. See ROADMAP.md §V1.2+ for the backlog (round-scrubber section filtering, player attribution, CSV export, etc.).
+**Next up:** V1.3b. Immediate next session: Faction × Strategy Card heatmap redesign — the current HeatmapGrid approach needs a rethink before further work on the Strategy section. See ROADMAP.md §V1.3b for scope.
 
-**V1.3+ scope guardrail:** New analytics views, player attribution, CSV export, and any feature beyond what shipped in V1.2 go to the V1.2+ backlog in ROADMAP.md.
+**V1.3+ scope guardrail:** New analytics views, player attribution, CSV export, and any feature beyond what shipped in V1.3a go to the V1.3b+ backlog in ROADMAP.md.
 
 All app code lives under `D:\_TI4 App\app\`.
 
@@ -144,3 +145,4 @@ These are the test fixtures for Phase 1 acceptance. The gating test: every parse
 - **Player names are anonymized by default** everywhere in the UI. Faction colors and IDs are the display primitive.
 - **V1.1 scope guardrail:** If the user requests something beyond a bug fix, UI/UX improvement, or the Agenda tab, recognize it as V1.2+ scope. Log it in ROADMAP.md §V1.2+ Backlog and confirm with the user rather than implementing it in V1.1.
 - **Git remote uses `master`, not `main`.** The GitHub remote default branch is `master`. Local `main` tracks `origin/master`. Always push with `git push origin main:master`. Never push to `origin/main` — that branch has a divergent history and is not the live branch.
+- **Firebase deploy: use the CLI, not the MCP tool.** Always run `npx firebase deploy --only hosting` from `D:\_TI4 App\app\`. The Firebase MCP tool silently uses the wrong working directory (the worktree root, which has no `firebase.json`) and reports success without uploading anything. Always build first: `npm run build && npx firebase deploy --only hosting`.

@@ -2,9 +2,9 @@
 
 Phased delivery plan. Each phase has a goal, a set of deliverables, the test surface that proves it works, and an explicit acceptance bar. We do not start phase N+1 until phase N's acceptance bar is met.
 
-> **Current position (2026-05-05):** **V1.2 wireframe kit shipped.** Editorial newspaper-aesthetic redesign live.
+> **Current position (2026-05-07):** **V1.3a shipped.** All wire-up items complete; 819 tests passing.
 > App is live at https://ti4-hall-of-records-da562.web.app (Firebase project: `ti4-hall-of-records-da562`).
-> 786 tests passing. Next: **V1.3a — wire up what's built**, starting with round scrubber filtering.
+> Next: **V1.3b** — immediate priority is a ground-up redesign of the Faction × Strategy Card heatmap.
 > See `CLAUDE.md` for the full status table and working conventions.
 
 The Master Guidance Document defines four phases (Ingestion → Single-Game Replay → Meta-Dashboard → Polish). This roadmap **prepends a Phase 0** for project scaffolding, which is currently missing, and breaks each phase into concrete TDD-sized tickets.
@@ -455,19 +455,33 @@ Improvements identified in Step 3, plus any cross-cutting legibility work. Examp
 
 Sequenced into three sub-phases. Each sub-phase is independently shippable.
 
-### V1.3a — Wire up what's built (quick wins)
+### V1.3a — Wire up what's built (quick wins) ✅ COMPLETE (819 tests, 2026-05-07)
 
-Components shipped in V1.2 that are exported but not yet consumed by any page. Each item is small (~1 session).
+**What was delivered:**
 
-1. **Round scrubber filtering** — `FrozenHeader` already renders the R1…RN strip. Wire `scrubRound` into a `RoundContext` so game-detail sections (Timeline, Dashboard, Planets, Tech) clip their content to events ≤ scrubRound. Null = no filter (default).
-2. **Game Comparison route** — new `/compare/:gameA/:gameB` route using the already-built `DivergingComparison` (head-to-head metrics: VP, agendas won, planets held, techs researched) and `MultiLineChart` (overlaid VP race). Picker UI in home/meta to pick the two games.
-3. **TrendCard / DistributionCard / CategoryBreakdown placement** — find natural homes in existing meta/agenda sections:
-   - `BarHistogram` → Stats section "Game length distribution" + "Final-VP distribution"
-   - `HeatmapGrid` → Strategy section "Faction × Strategy card pick rate"
-   - `Treemap` / `StackedRowBreakdown` → Stats section "Wins by faction" prevalence view
-   - `MultiLineChart` → Scoring Pace section as the hero chart
+1. ✅ **Round scrubber filtering** — `RoundFilterContext` wired; Timeline, Dashboard, Planets, Tech sections all clip to `scrubRound`. VP Race truncates to the scrubbed round. Banner shown when filter is active.
+2. ✅ **Game Comparison route** — `/compare/:gameA/:gameB` with side-by-side `MultiLineChart` VP charts + head-to-head key metrics. Picker on HomePage.
+3. ✅ **TrendCard / DistributionCard / CategoryBreakdown placement:**
+   - `BarHistogram` → Stats section: Game Length + Final VP histograms with median marker
+   - `HeatmapGrid` → Strategy section: Faction × Strategy card pick rate (8-color ordinal rank palette, Y/X inline labels, legend, hover tooltips)
+   - `Treemap` → Stats section: Wins by Faction (all factions proportional, word-wrap fix)
+   - `MultiLineChart` → Scoring Pace as hero chart (halo pass, gridlines, terminal dots)
+4. ✅ **CommandPalette** — moved to Ctrl+Shift+K (avoids Chrome conflict); self-fetching (lazy Firestore load on first open, no prop drilling); mounted in AppHeader; fixed route `/game/` → `/games/`.
+5. ✅ **VP threshold filter** — Stats section filter chips now correctly read `options['victory-points']` from Firestore via `getVictoryPointThreshold`; games correctly split into 10pt / 12pt / 14pt buckets.
+6. ✅ **MultiLineChart legibility** — white halo underlay pass, dashed gridlines, terminal circle dots, stroke width 2.
+7. ✅ **HeatmapGrid redesign** — replaced grayscale opacity with 8-color ordinal rank palette (vermillion→orange→amber→gold→green→teal→indigo→gray); cells show Y/X pick counts inline; legend above grid; hover tooltips with full faction × card × count detail; `buildFactionStrategyHeatmap` returns ordinal ranks (1-based, no ties).
+8. ✅ **Treemap word-wrap** — all factions included in grid template (not just top 3); names word-break instead of clipping; native title tooltip.
 
 ### V1.3b — Medium features
+
+> **Immediate next session priority:** Faction × Strategy Card heatmap redesign (item 3a below) before any other V1.3b work.
+
+3a. **Faction × Strategy Card heatmap redesign** — the current `HeatmapGrid` implementation is functional but the data representation needs a ground-up rethink. Open questions to resolve in the next session:
+   - Should cells show pick rate (Y/X), absolute count (Y), or something else?
+   - Is ordinal rank the right color axis, or should similar pick rates share similar colors?
+   - Should factions with very few games be filtered out or flagged?
+   - Is a heatmap even the right chart type, or would a ranked bar-chart-per-faction be clearer?
+   - Start the session by producing 2–3 design options before implementing anything.
 
 4. **Player Attribution** — opt-in first-name tagging. Faction objects in each game get a `playerName` field (already parsed from the wrapped `top.data.factions`). Add a per-game UI to confirm/edit attributions, plus a new `/players` route with per-player win rates, favorite factions, head-to-head records. Uses `EntityCard variant="player"` (already built).
 5. **Sharing / social cards** — `/share/:gameId` route with Open Graph meta tags. Server-side rendered card image (winner faction + VP score) for Discord/social embeds.
