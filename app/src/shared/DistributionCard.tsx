@@ -53,6 +53,25 @@ export function HeatmapGrid({ rowLabels, colLabels, ranks, cellLabels, tooltips,
       {title && (
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase' as const, color: 'var(--ink-3)', marginBottom: 8 }}>{title}</div>
       )}
+      {/* Legend */}
+      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px 8px', marginBottom: 10 }}>
+        {RANK_COLORS.map((color, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{
+              width: 16, height: 16,
+              background: color,
+              border: '1px solid var(--rule)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, fontWeight: 700, color: RANK_TEXT_DARK[i] ? 'var(--ink)' : '#fff', lineHeight: 1 }}>{i + 1}</span>
+            </div>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', whiteSpace: 'nowrap' as const }}>
+              {i === 0 ? 'Most picked' : i === RANK_COLORS.length - 1 ? 'Least picked' : `#${i + 1}`}
+            </span>
+          </div>
+        ))}
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: `80px repeat(${colLabels.length}, 1fr)`, gap: 2 }}>
         <div />
         {colLabels.map((c, i) => (
@@ -97,25 +116,6 @@ export function HeatmapGrid({ rowLabels, colLabels, ranks, cellLabels, tooltips,
               );
             })}
           </React.Fragment>
-        ))}
-      </div>
-      {/* Legend */}
-      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px 8px', marginTop: 10 }}>
-        {RANK_COLORS.map((color, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{
-              width: 16, height: 16,
-              background: color,
-              border: '1px solid var(--rule)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, fontWeight: 700, color: RANK_TEXT_DARK[i] ? 'var(--ink)' : '#fff', lineHeight: 1 }}>{i + 1}</span>
-            </div>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', whiteSpace: 'nowrap' as const }}>
-              {i === 0 ? 'Most picked' : i === RANK_COLORS.length - 1 ? 'Least picked' : `#${i + 1}`}
-            </span>
-          </div>
         ))}
       </div>
     </div>
