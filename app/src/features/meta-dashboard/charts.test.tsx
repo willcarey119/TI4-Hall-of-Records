@@ -66,16 +66,15 @@ describe('buildFactionStrategyHeatmap', () => {
     expect(out.ranks).toHaveLength(2);
   });
 
-  it('ranks are integers in range 1..8', () => {
+  it('ranks are unique integers 1..8 per row (ordinal, no ties)', () => {
     const game = makeGame({
       factions: [fac('Sol')],
       strategyCardEvents: [pick('Sol', 'Imperial', 1)],
     });
     const out = buildFactionStrategyHeatmap([game]);
-    for (const v of out.ranks.flat()) {
-      expect(v).toBeGreaterThanOrEqual(1);
-      expect(v).toBeLessThanOrEqual(8);
-    }
+    const solIdx = out.rowLabels.indexOf('Sol');
+    const row = out.ranks[solIdx]!.slice().sort((a, b) => a - b);
+    expect(row).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
   });
 
   it('gives rank 1 to the most-picked card and higher rank to others', () => {

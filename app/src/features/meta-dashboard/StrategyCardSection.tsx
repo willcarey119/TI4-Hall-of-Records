@@ -37,9 +37,13 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
     const m = picks.get(fid);
     const counts = STRATEGY_CARDS.map(card => m?.get(card) ?? 0);
 
-    // Rank descending: #1 = most picked. Ties share the same rank.
-    const sorted = [...counts].sort((a, b) => b - a);
-    const rowRanks = counts.map(c => sorted.indexOf(c) + 1);
+    // Ordinal ranking: every card gets a unique rank 1–8.
+    // Sort indices by count descending; ties broken by card position (stable).
+    const order = counts
+      .map((count, i) => ({ count, i }))
+      .sort((a, b) => b.count - a.count || a.i - b.i);
+    const rowRanks = new Array<number>(counts.length);
+    order.forEach(({ i }, position) => { rowRanks[i] = position + 1; });
 
     ranks.push(rowRanks);
     tooltips.push(rowRanks.map((rank, ci) =>
