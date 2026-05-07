@@ -28,14 +28,14 @@ export function buildFactionStrategyHeatmap(games: ParsedGame[]): {
     }
   }
   const rowLabels = [...gamesPlayed.keys()].sort();
-  // Use raw rate (picks / games), normalized so the max cell is 1.
-  const rates: number[][] = rowLabels.map(fid => {
-    const games = gamesPlayed.get(fid) ?? 1;
+  // Per-faction normalization: each row's max = 1.0, showing relative preference within that faction.
+  const values: number[][] = rowLabels.map(fid => {
+    const gp = gamesPlayed.get(fid) ?? 1;
     const m = picks.get(fid);
-    return STRATEGY_CARDS.map(card => (m?.get(card) ?? 0) / games);
+    const rates = STRATEGY_CARDS.map(card => (m?.get(card) ?? 0) / gp);
+    const rowMax = Math.max(0.0001, ...rates);
+    return rates.map(v => v / rowMax);
   });
-  const max = Math.max(0.0001, ...rates.flatMap(r => r));
-  const values = rates.map(r => r.map(v => v / max));
   return { rowLabels, colLabels: [...STRATEGY_CARDS], values };
 }
 
@@ -191,7 +191,7 @@ export function StrategyCardSection() {
           <div style={{ marginTop: 16 }}>
             <Kicker text="Heatmap">Faction × strategy card pick rate</Kicker>
             <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', lineHeight: 1.5, margin: '4px 0 6px', fontStyle: 'italic' }}>
-              Each cell = how often that faction drafted that strategy card per game played, normalized to the most-picked combo.
+              Each cell = how often that faction drafted that strategy card relative to their own most-picked card. Hover for details.
             </p>
             <HeatmapGrid rowLabels={heatmap.rowLabels} colLabels={heatmap.colLabels} values={heatmap.values} />
           </div>
