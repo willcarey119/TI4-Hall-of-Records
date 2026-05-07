@@ -92,31 +92,31 @@ export function TechSection() {
                 padding: '10px 12px',
               }}
             >
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: isStar ? 'var(--accent)' : 'var(--ink-4)', marginBottom: 2 }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: isStar ? 'var(--accent)' : 'var(--ink-4)', marginBottom: 2 }}>
                 {isStar ? '★ ' : ''}Held by winner {heldPct}%
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
                 <TechPip color={t.color} size={8} />
-                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 13, lineHeight: 1.1 }}>{t.tech}</span>
+                <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 'var(--font-sm)', lineHeight: 1.1 }}>{t.tech}</span>
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 <div>
-                  <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 16, lineHeight: 1, color: isStar ? 'var(--accent)' : 'var(--ink)' }}>
+                  <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-sm)', lineHeight: 1, color: isStar ? 'var(--accent)' : 'var(--ink)' }}>
                     {heldPct}%
                   </div>
-                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>winner held</div>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>winner held</div>
                 </div>
                 <div>
-                  <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 16, lineHeight: 1 }}>
+                  <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-sm)', lineHeight: 1 }}>
                     {t.avgRoundFirstResearched === null ? '—' : `R${t.avgRoundFirstResearched.toFixed(1)}`}
                   </div>
-                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>avg research</div>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>avg research</div>
                 </div>
               </div>
               <div style={{ background: 'var(--ink-4)', height: 4, marginTop: 6 }}>
                 <div style={{ background: isStar ? 'var(--accent)' : 'var(--ink-2)', height: 4, width: `${heldPct}%` }} />
               </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', marginTop: 5 }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 5 }}>
                 {t.winnerHeldCount} of {techStats.totalWinnerGames} winning games
               </div>
             </div>
@@ -136,21 +136,21 @@ export function TechSection() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8 }}>
             {techPaths.factions.map(f => (
               <div key={f.factionId} style={{ background: 'var(--paper-2)', border: '1px solid var(--ink-4)', padding: '10px 12px' }}>
-                <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 13, lineHeight: 1.2, marginBottom: 6 }}>{f.factionId}</div>
+                <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 'var(--font-sm)', lineHeight: 1.2, marginBottom: 6 }}>{f.factionId}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                   {f.pathByPosition.map(pos => (
                     <div key={pos.position} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', width: 18, flexShrink: 0 }}>
+                      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', width: 18, flexShrink: 0 }}>
                         #{pos.position}
                       </span>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
                         {pos.topTechs.length === 0 ? (
-                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-4)' }}>—</span>
+                          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)' }}>—</span>
                         ) : pos.topTechs.map(t => (
                           <div key={t.tech} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             <TechPip color={t.color} size={6} />
-                            <span style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 10, color: 'var(--ink-2)' }}>
-                              {t.tech} <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: 'var(--ink-4)', fontSize: 9 }}>×{t.count}</span>
+                            <span style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-2)' }}>
+                              {t.tech} <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: 'var(--ink-4)', fontSize: 'var(--font-micro)' }}>×{t.count}</span>
                             </span>
                           </div>
                         ))}
@@ -158,7 +158,7 @@ export function TechSection() {
                     </div>
                   ))}
                 </div>
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', marginTop: 6 }}>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 6 }}>
                   {f.gamesAnalyzed} game{f.gamesAnalyzed !== 1 ? 's' : ''} sampled
                 </div>
               </div>

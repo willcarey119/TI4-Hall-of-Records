@@ -115,7 +115,7 @@ function FactionTerritoryCard({
           style={{
             fontFamily: "'Newsreader', Georgia, serif",
             fontWeight: 700,
-            fontSize: 12,
+            fontSize: 'var(--font-sm)',
             flex: 1,
           }}
         >
@@ -124,7 +124,7 @@ function FactionTerritoryCard({
         <span
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 11,
+            fontSize: 'var(--font-micro)',
             fontWeight: 700,
             color: 'var(--ink)',
           }}
@@ -134,7 +134,7 @@ function FactionTerritoryCard({
         <span
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 8,
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.06em',
             color: 'var(--ink-4)',
@@ -151,7 +151,7 @@ function FactionTerritoryCard({
               key={p.planet}
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 9,
+                fontSize: 'var(--font-micro)',
                 padding: '2px 5px',
                 background: 'var(--paper-3)',
                 border: isContested ? '1px solid var(--accent)' : '1px solid var(--ink-4)',
@@ -162,7 +162,7 @@ function FactionTerritoryCard({
             >
               {p.planet}
               {isContested && p.changeCount > 1 && (
-                <span style={{ marginLeft: 3, fontSize: 8, opacity: 0.8 }}>
+                <span style={{ marginLeft: 3, fontSize: 'var(--font-micro)', opacity: 0.8 }}>
                   ×{p.changeCount}
                 </span>
               )}

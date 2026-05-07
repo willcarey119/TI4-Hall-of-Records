@@ -70,24 +70,24 @@ function PlayerCard({ player, isTop }: { player: PlayerStat; isTop: boolean }) {
         opacity: isInactive ? 0.7 : 1,
       }}
     >
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>
         {player.gamesPlayed} game{player.gamesPlayed !== 1 ? 's' : ''} played
       </div>
-      <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 18, lineHeight: 1.1, marginBottom: 6 }}>
+      <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 'var(--font-subhead)', lineHeight: 1.1, marginBottom: 6 }}>
         {player.canonicalName}
       </div>
       <div style={{ display: 'flex', gap: 16 }}>
         <div>
-          <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 18, lineHeight: 1, color: isTop ? 'var(--accent)' : 'var(--ink)' }}>
+          <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-subhead)', lineHeight: 1, color: isTop ? 'var(--accent)' : 'var(--ink)' }}>
             {pct}%
           </div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>win rate</div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>win rate</div>
         </div>
         <div>
-          <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 18, lineHeight: 1 }}>
+          <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-subhead)', lineHeight: 1 }}>
             {wins}W
           </div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>wins</div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>wins</div>
         </div>
       </div>
       {player.favoriteFaction !== null && (

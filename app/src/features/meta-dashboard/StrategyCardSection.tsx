@@ -128,7 +128,7 @@ export function StrategyCardSection() {
                       <div style={{ background: 'var(--ink-4)', height: 3, marginTop: 2 }}>
                         <div style={{ background: barColor, height: 3, width: `${barPct}%` }} />
                       </div>
-                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)' }}>{picks}×</div>
+                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>{picks}×</div>
                     </div>
                   );
                 })}
@@ -161,18 +161,18 @@ export function StrategyCardSection() {
                 const barColor = i === 0 ? 'var(--accent)' : isLast ? 'var(--ink-3)' : 'var(--ink-2)';
                 return (
                   <div key={c.card} style={{ border: `1px solid ${isTop ? 'var(--ink-3)' : 'var(--ink-4)'}`, padding: 8, background: 'var(--paper-2)' }}>
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                       #{i + 1}{i === 0 ? ' most contested' : isLast ? ' least' : ''}
                     </div>
                     <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontSize: 'var(--font-body)', fontWeight: 700, margin: '2px 0' }}>{c.card}</div>
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>Avg pick position</div>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>Avg pick position</div>
                     <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-subhead)', fontWeight: 700, lineHeight: 1, color: posColor }}>
                       {fmtPos(c.avgPickPosition)}
                     </div>
                     <div style={{ marginTop: 4, background: 'var(--ink-4)', height: 3 }}>
                       <div style={{ background: barColor, height: 3, width: `${barPct}%` }} />
                     </div>
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink-3)', marginTop: 2 }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', marginTop: 2 }}>
                       {c.totalPicks} pick{c.totalPicks !== 1 ? 's' : ''}
                     </div>
                   </div>

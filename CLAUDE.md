@@ -143,3 +143,4 @@ These are the test fixtures for Phase 1 acceptance. The gating test: every parse
 - **Definition of Done** is in SKILLS.md §9. Check every item before calling a task complete.
 - **Player names are anonymized by default** everywhere in the UI. Faction colors and IDs are the display primitive.
 - **V1.1 scope guardrail:** If the user requests something beyond a bug fix, UI/UX improvement, or the Agenda tab, recognize it as V1.2+ scope. Log it in ROADMAP.md §V1.2+ Backlog and confirm with the user rather than implementing it in V1.1.
+- **Git remote uses `master`, not `main`.** The GitHub remote default branch is `master`. Local `main` tracks `origin/master`. Always push with `git push origin main:master`. Never push to `origin/main` — that branch has a divergent history and is not the live branch.

@@ -174,7 +174,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
             background: 'var(--accent)',
             color: '#fff',
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 7,
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             padding: '2px 26px',
@@ -193,7 +193,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 8,
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             color: isWinner ? 'var(--accent)' : 'var(--ink-4)',
@@ -207,7 +207,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
           <div
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: 13,
+              fontSize: 'var(--font-sm)',
               fontWeight: 700,
               lineHeight: 1.1,
             }}
@@ -218,7 +218,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 9,
+            fontSize: 'var(--font-micro)',
             color: 'var(--ink-3)',
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
@@ -232,7 +232,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 26,
+              fontSize: 'var(--font-display-md)',
               fontWeight: 700,
               lineHeight: 1,
               color: isWinner ? 'var(--accent)' : 'var(--ink)',
@@ -243,7 +243,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
           <span
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 'var(--font-micro)',
               color: 'var(--ink-3)',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
@@ -257,7 +257,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
         </div>
         <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 2, padding: 0, margin: 0 }}>
           {vpEvents.length === 0 ? (
-            <li style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 10, color: 'var(--ink-4)', fontStyle: 'italic' }}>
+            <li style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', fontStyle: 'italic' }}>
               No VP scored
             </li>
           ) : (
@@ -271,7 +271,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     fontFamily: "'IBM Plex Sans', sans-serif",
-                    fontSize: 10,
+                    fontSize: 'var(--font-micro)',
                     color: 'var(--ink-2)',
                   }}
                 >
@@ -291,7 +291,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
                   <span
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 9,
+                      fontSize: 'var(--font-micro)',
                       color: 'var(--ink-3)',
                       whiteSpace: 'nowrap',
                       marginLeft: 4,
@@ -320,7 +320,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
                   alignItems: 'center',
                   gap: 3,
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 9,
+                  fontSize: 'var(--font-micro)',
                   color: 'var(--ink-3)',
                   background: 'var(--paper-3)',
                   border: '1px solid var(--ink-4)',
@@ -337,14 +337,14 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
             {topTechs.map((t, i) => {
               const c = lookupTechColor(t.tech);
               return (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 10, color: 'var(--ink-2)' }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-2)' }}>
                   <span style={{ width: 5, height: 5, borderRadius: '50%', background: TECH_CAT_COLOR[c], flexShrink: 0 }} />
                   {t.tech}
                 </div>
               );
             })}
             {overflowTechs > 0 && (
-              <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 9, color: 'var(--ink-3)', opacity: 0.5 }}>
+              <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', opacity: 0.5 }}>
                 + {overflowTechs} more
               </div>
             )}
@@ -356,7 +356,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
       <div style={{ padding: '8px 12px' }}>
         <div style={sectionLabelStyle}>Territory · {planetNames.length} planet{planetNames.length === 1 ? '' : 's'}</div>
         {planetNames.length === 0 ? (
-          <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 10, color: 'var(--ink-4)', fontStyle: 'italic' }}>
+          <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 'var(--font-micro)', color: 'var(--ink-4)', fontStyle: 'italic' }}>
             No planets held
           </div>
         ) : (
@@ -369,7 +369,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
                   key={p}
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 8,
+                    fontSize: 'var(--font-micro)',
                     padding: '1px 5px',
                     background: isMecatol ? 'var(--paper-3)' : 'var(--paper-3)',
                     border: isContested ? '1px solid var(--accent)' : '1px solid var(--ink-4)',
@@ -386,7 +386,7 @@ function FactionCard({ data, vpThreshold }: { data: CardData; vpThreshold: numbe
               <div
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 8,
+                  fontSize: 'var(--font-micro)',
                   padding: '1px 5px',
                   background: 'var(--paper-3)',
                   border: '1px solid var(--ink-4)',

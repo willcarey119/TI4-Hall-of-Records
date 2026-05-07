@@ -93,7 +93,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
             color: 'var(--paper)',
             cursor: 'pointer',
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 11,
+            fontSize: 'var(--font-micro)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -115,7 +115,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
                 background: i === roundIdx ? 'var(--ink)' : 'var(--paper-3)',
                 color: i === roundIdx ? 'var(--paper)' : 'var(--ink-3)',
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 10,
+                fontSize: 'var(--font-micro)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 cursor: 'pointer',
@@ -131,7 +131,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
           onChange={(e) => setSpeedMs(Number(e.target.value))}
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 10,
+            fontSize: 'var(--font-micro)',
             background: 'var(--paper-3)',
             border: '1px solid var(--ink-4)',
             color: 'var(--ink)',
@@ -150,7 +150,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
         <div
           style={{
             fontFamily: "'Newsreader', Georgia, serif",
-            fontSize: 24,
+            fontSize: 'var(--font-display-sm)',
             fontWeight: 800,
             lineHeight: 1,
           }}
@@ -160,7 +160,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 9,
+            fontSize: 'var(--font-micro)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             color: 'var(--ink-3)',
@@ -213,7 +213,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
                   style={{
                     fontFamily: "'Newsreader', Georgia, serif",
                     fontWeight: 700,
-                    fontSize: 11,
+                    fontSize: 'var(--font-micro)',
                     flex: 1,
                   }}
                 >
@@ -222,7 +222,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 11,
+                    fontSize: 'var(--font-micro)',
                     fontWeight: 700,
                   }}
                 >
@@ -237,7 +237,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
                     <span
                       style={{
                         fontFamily: "'IBM Plex Mono', monospace",
-                        fontSize: 9,
+                        fontSize: 'var(--font-micro)',
                         padding: '1px 5px',
                         border: `1px solid ${badgeColor}`,
                         color: badgeColor,
@@ -253,7 +253,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
                   <div
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 9,
+                      fontSize: 'var(--font-micro)',
                       color: 'var(--ink-4)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.06em',
@@ -272,7 +272,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
                             display: 'flex',
                             alignItems: 'center',
                             fontFamily: "'IBM Plex Mono', monospace",
-                            fontSize: 10,
+                            fontSize: 'var(--font-micro)',
                             padding: '1px 3px',
                             background: isGained ? '#d6f0dc' : 'transparent',
                             color: isGained ? '#1a6e2e' : 'var(--ink-2)',
@@ -285,7 +285,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
                             <span
                               style={{
                                 fontFamily: "'IBM Plex Mono', monospace",
-                                fontSize: 8,
+                                fontSize: 'var(--font-micro)',
                                 color: '#1a6e2e',
                                 marginLeft: 4,
                               }}
@@ -303,7 +303,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
                           display: 'flex',
                           alignItems: 'center',
                           fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 10,
+                          fontSize: 'var(--font-micro)',
                           padding: '1px 3px',
                           background: '#f5d6d6',
                           color: '#8a1a1a',
@@ -316,7 +316,7 @@ export function PlanetControlSlideshow({ game, scrubRound = null }: Props) {
                         <span
                           style={{
                             fontFamily: "'IBM Plex Mono', monospace",
-                            fontSize: 8,
+                            fontSize: 'var(--font-micro)',
                             color: '#8a1a1a',
                             marginLeft: 4,
                             textDecoration: 'none',

@@ -25,33 +25,63 @@ export function BarHistogram({ label, buckets, medianIdx }: {
   );
 }
 
-export function HeatmapGrid({ rowLabels, colLabels, values }: {
+function heatColor(intensity: number): string {
+  // low (0) → light warm cream; high (1) → dark vermillion accent
+  const l = (0.94 - intensity * 0.52).toFixed(2);
+  const c = (0.01 + intensity * 0.21).toFixed(2);
+  return `oklch(${l} ${c} 25)`;
+}
+
+export function HeatmapGrid({ rowLabels, colLabels, values, title }: {
   rowLabels: string[];
   colLabels: string[];
   values: number[][];
+  title?: string;
 }) {
+  const LEGEND_STEPS = 8;
   return (
     <div style={{ border: '1px solid var(--rule)', padding: '10px 12px', overflowX: 'auto' as const }}>
+      {title && (
+        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase' as const, color: 'var(--ink-3)', marginBottom: 8 }}>{title}</div>
+      )}
       <div style={{ display: 'grid', gridTemplateColumns: `80px repeat(${colLabels.length}, 1fr)`, gap: 2 }}>
         <div />
         {colLabels.map((c, i) => (
-          <div key={i} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textAlign: 'center' as const, paddingBottom: 2 }}>{c}</div>
+          <div key={i} title={c} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', textAlign: 'center' as const, paddingBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+            {c.slice(0, 4)}
+          </div>
         ))}
         {rowLabels.map((r, ri) => (
           <React.Fragment key={ri}>
             <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)', paddingRight: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{r}</div>
-            {colLabels.map((_, ci) => {
+            {colLabels.map((col, ci) => {
               const intensity = Math.min(1, Math.max(0, values[ri]?.[ci] ?? 0));
+              const pct = Math.round(intensity * 100);
               return (
-                <div key={ci} style={{
-                  height: 18,
-                  background: `oklch(0.18 0.01 60 / ${intensity})`,
-                  border: '1px solid var(--paper)',
-                }} />
+                <div
+                  key={ci}
+                  title={`${r} × ${col}: ${pct}%`}
+                  style={{
+                    height: 18,
+                    background: heatColor(intensity),
+                    border: '1px solid var(--paper)',
+                    cursor: 'default',
+                  }}
+                />
               );
             })}
           </React.Fragment>
         ))}
+      </div>
+      {/* Legend */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>Low</span>
+        <div style={{ display: 'flex', flex: 1, height: 8, border: '1px solid var(--rule)', overflow: 'hidden' }}>
+          {Array.from({ length: LEGEND_STEPS }, (_, i) => (
+            <div key={i} style={{ flex: 1, background: heatColor(i / (LEGEND_STEPS - 1)) }} />
+          ))}
+        </div>
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: 'var(--ink-3)' }}>High</span>
       </div>
     </div>
   );

@@ -124,7 +124,7 @@ export function MecatolWidget({ timeline, factions }: Props) {
           <div
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: 14,
+              fontSize: 'var(--font-body)',
               fontWeight: 700,
               fontStyle: 'italic',
               lineHeight: 1.1,
@@ -135,7 +135,7 @@ export function MecatolWidget({ timeline, factions }: Props) {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -147,10 +147,10 @@ export function MecatolWidget({ timeline, factions }: Props) {
         </div>
         <div style={{ display: 'flex', gap: 18 }}>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 16, fontWeight: 700, lineHeight: 1 }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-sm)', fontWeight: 700, lineHeight: 1 }}>
               {turnovers}
             </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginTop: 2 }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginTop: 2 }}>
               Turnovers
             </div>
           </div>
@@ -158,7 +158,7 @@ export function MecatolWidget({ timeline, factions }: Props) {
             <div
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 16,
+                fontSize: 'var(--font-sm)',
                 fontWeight: 700,
                 lineHeight: 1,
                 color: finalOwner !== null ? getFactionBrandColor(finalOwner, colorMap[finalOwner] ?? 'var(--ink)') : 'var(--ink-3)',
@@ -166,15 +166,15 @@ export function MecatolWidget({ timeline, factions }: Props) {
             >
               {finalOwner !== null ? (finalOwner.split(' ')[0] ?? finalOwner) : '—'}
             </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginTop: 2 }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginTop: 2 }}>
               Final Holder
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 16, fontWeight: 700, lineHeight: 1 }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-sm)', fontWeight: 700, lineHeight: 1 }}>
               {firstClaimRound !== null ? `R${firstClaimRound}` : '—'}
             </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginTop: 2 }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginTop: 2 }}>
               First Claimed
             </div>
           </div>
@@ -222,7 +222,7 @@ export function MecatolWidget({ timeline, factions }: Props) {
               <div
                 style={{
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 9,
+                  fontSize: 'var(--font-micro)',
                   color: 'var(--ink-4)',
                   textAlign: 'center',
                   textTransform: 'uppercase',
@@ -247,12 +247,12 @@ export function MecatolWidget({ timeline, factions }: Props) {
                 {brandColor !== null ? (
                   <FactionDot color={brandColor} size={10} />
                 ) : (
-                  <span style={{ width: 10, height: 10, fontSize: 9, color: 'var(--ink-4)' }}>—</span>
+                  <span style={{ width: 10, height: 10, fontSize: 'var(--font-micro)', color: 'var(--ink-4)' }}>—</span>
                 )}
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 8,
+                    fontSize: 'var(--font-micro)',
                     color: 'var(--ink-2)',
                     textAlign: 'center',
                     lineHeight: 1.1,
@@ -265,7 +265,7 @@ export function MecatolWidget({ timeline, factions }: Props) {
                   <span
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 7,
+                      fontSize: 'var(--font-micro)',
                       padding: '1px 3px',
                       textTransform: 'uppercase',
                       letterSpacing: '0.05em',
@@ -289,7 +289,7 @@ export function MecatolWidget({ timeline, factions }: Props) {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               color: 'var(--ink-3)',
@@ -346,13 +346,13 @@ export function MecatolWidget({ timeline, factions }: Props) {
                   alignItems: 'flex-start',
                   marginBottom: 5,
                   fontFamily: "'IBM Plex Sans', sans-serif",
-                  fontSize: 10,
+                  fontSize: 'var(--font-micro)',
                 }}
               >
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 9,
+                    fontSize: 'var(--font-micro)',
                     color: 'var(--ink-4)',
                     background: 'var(--paper-3)',
                     border: '1px solid var(--ink-4)',

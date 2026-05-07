@@ -48,7 +48,7 @@ function LegendItem({
         alignItems: 'center',
         gap: 5,
         fontFamily: "'IBM Plex Mono', monospace",
-        fontSize: 9,
+        fontSize: 'var(--font-micro)',
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
         color: 'var(--ink-2)',
@@ -92,7 +92,7 @@ function TypeBadge({ entry, electedFaction }: { entry: AgendaDisplayEntry['entry
     <span
       style={{
         fontFamily: "'IBM Plex Mono', monospace",
-        fontSize: 8,
+        fontSize: 'var(--font-micro)',
         textTransform: 'uppercase',
         letterSpacing: '0.1em',
         padding: '1px 5px',
@@ -112,7 +112,7 @@ function OutcomeBadge({ entry }: { entry: AgendaDisplayEntry }) {
       <span
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 9,
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           padding: '2px 7px',
@@ -131,7 +131,7 @@ function OutcomeBadge({ entry }: { entry: AgendaDisplayEntry }) {
       <span
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 9,
+          fontSize: 'var(--font-micro)',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           padding: '2px 7px',
@@ -149,7 +149,7 @@ function OutcomeBadge({ entry }: { entry: AgendaDisplayEntry }) {
     <span
       style={{
         fontFamily: "'IBM Plex Mono', monospace",
-        fontSize: 9,
+        fontSize: 'var(--font-micro)',
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
         padding: '2px 7px',
@@ -227,7 +227,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
           <div
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: 14,
+              fontSize: 'var(--font-body)',
               fontWeight: 700,
               fontStyle: 'italic',
               lineHeight: 1.2,
@@ -242,7 +242,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
               <span
                 style={{
                   fontFamily: "'IBM Plex Sans', sans-serif",
-                  fontSize: 10,
+                  fontSize: 'var(--font-micro)',
                   color: 'var(--ink-3)',
                   fontStyle: 'italic',
                   lineHeight: 1.35,
@@ -258,7 +258,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
         <div
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 9,
+            fontSize: 'var(--font-micro)',
             color: 'var(--ink-4)',
             whiteSpace: 'nowrap',
             flexShrink: 0,
@@ -292,14 +292,14 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
           }
 
           return (
-            <div key={v.faction} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div key={v.faction} style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
               <FactionDot color={fm.brand} size={8} />
               <div
                 style={{
                   fontFamily: "'IBM Plex Sans', sans-serif",
-                  fontSize: 10,
+                  fontSize: 'var(--font-micro)',
                   color: 'var(--ink-2)',
-                  width: 130,
+                  width: 160,
                   flexShrink: 0,
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
@@ -308,7 +308,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
               >
                 {v.faction}
               </div>
-              <div style={{ flex: 1, background: 'var(--ink-4)', height: 14, display: 'flex' }}>
+              <div style={{ flex: 1, minWidth: 120, background: 'var(--ink-4)', height: 22, display: 'flex' }}>
                 {isAbstain ? (
                   <div style={{ width: '100%', background: 'var(--paper-3)', border: '1px solid var(--ink-4)', height: '100%' }} />
                 ) : (
@@ -323,7 +323,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
                       paddingRight: 3,
                     }}
                   >
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: '#fff', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: '#fff', whiteSpace: 'nowrap' }}>
                       {v.votes} {isFor ? 'For' : isAgainst ? 'Against' : 'votes'}
                     </span>
                   </div>
@@ -333,7 +333,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 8,
+                    fontSize: 'var(--font-micro)',
                     color: 'var(--ink-4)',
                     whiteSpace: 'nowrap',
                     flexShrink: 0,
@@ -346,7 +346,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 8,
+                    fontSize: 'var(--font-micro)',
                     padding: '0 4px',
                     background: '#d8eaf8',
                     border: '1px solid #9ac0e8',
@@ -362,7 +362,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 8,
+                    fontSize: 'var(--font-micro)',
                     padding: '0 4px',
                     background: outcomeTag.bg,
                     border: `1px solid ${outcomeTag.border}`,
@@ -392,11 +392,11 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
+              fontSize: 'var(--font-micro)',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               color: 'var(--ink-3)',
-              width: 144,
+              width: 174,
               flexShrink: 0,
             }}
           >
@@ -408,7 +408,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
               display: 'flex',
               gap: 6,
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
+              fontSize: 'var(--font-micro)',
             }}
           >
             <span style={{ color: VOTE_FOR_BG, fontWeight: 700 }}>{entry.totalFor} For</span>
@@ -433,7 +433,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
             <span
               style={{
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 9,
+                fontSize: 'var(--font-micro)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 color: 'var(--ink-3)',
@@ -452,7 +452,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
                     alignItems: 'center',
                     gap: 4,
                     fontFamily: "'IBM Plex Sans', sans-serif",
-                    fontSize: 10,
+                    fontSize: 'var(--font-micro)',
                     color: 'var(--ink-2)',
                     background: isLoss ? '#f5d8d8' : 'var(--paper-3)',
                     border: `1px solid ${isLoss ? '#e09090' : 'var(--ink-4)'}`,
@@ -464,7 +464,7 @@ function AgendaCard({ entry, game, vpDeltas }: AgendaCardProps) {
                   <span
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 9,
+                      fontSize: 'var(--font-micro)',
                       color: isLoss ? VOTE_AGAINST_BG : 'var(--accent)',
                       fontWeight: 700,
                     }}

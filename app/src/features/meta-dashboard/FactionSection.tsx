@@ -196,17 +196,17 @@ export function FactionSection() {
                       opacity: rate < topRate * 0.5 ? 0.7 : 1,
                     }}
                   >
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>
                       #{i + 1} Senate Influence
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5, margin: '4px 0' }}>
                       <FactionDot color={getFactionBrandColor(f.factionId, 'var(--ink-4)')} size={8} />
-                      <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 13, lineHeight: 1.1 }}>{f.factionId}</span>
+                      <span style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 700, fontSize: 'var(--font-sm)', lineHeight: 1.1 }}>{f.factionId}</span>
                     </div>
-                    <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 22, lineHeight: 1, color: isTop ? 'var(--accent)' : 'var(--ink)' }}>
+                    <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-display-sm)', lineHeight: 1, color: isTop ? 'var(--accent)' : 'var(--ink)' }}>
                       {Math.round(rate * 100)}%
                     </div>
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-3)', marginTop: 3 }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-3)', marginTop: 3 }}>
                       Vote alignment · {f.gamesPlayed} game{f.gamesPlayed !== 1 ? 's' : ''}
                     </div>
                     <div style={{ background: 'var(--ink-4)', height: 4, marginTop: 6 }}>

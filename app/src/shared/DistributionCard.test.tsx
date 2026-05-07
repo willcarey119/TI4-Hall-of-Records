@@ -37,9 +37,9 @@ describe('HeatmapGrid', () => {
     const { container } = render(
       <HeatmapGrid rowLabels={['A', 'B']} colLabels={['X', 'Y', 'Z']} values={[[0.1, 0.5, 0.9], [0.3, 0.7, 0.2]]} />
     );
-    // 2 rows × 3 cols = 6 cells with oklch background
+    // 2 rows × 3 cols = 6 data cells + 8 legend gradient steps = 14 oklch elements
     const cells = container.querySelectorAll('[style*="oklch"]');
-    expect(cells.length).toBe(6);
+    expect(cells.length).toBe(14);
   });
 
   it('renders all row labels', () => {

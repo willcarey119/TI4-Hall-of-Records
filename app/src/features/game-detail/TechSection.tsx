@@ -220,7 +220,7 @@ export function TechSection() {
                     style={{
                       fontFamily: "'Newsreader', Georgia, serif",
                       fontWeight: 700,
-                      fontSize: 12,
+                      fontSize: 'var(--font-sm)',
                       flex: 1,
                     }}
                   >
@@ -229,7 +229,7 @@ export function TechSection() {
                   <span
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 9,
+                      fontSize: 'var(--font-micro)',
                       color: 'var(--ink-3)',
                       whiteSpace: 'nowrap',
                     }}
@@ -250,7 +250,7 @@ export function TechSection() {
                       <span
                         style={{
                           fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 9,
+                          fontSize: 'var(--font-micro)',
                           color: 'var(--ink-4)',
                           width: 12,
                           textAlign: 'right',
@@ -263,7 +263,7 @@ export function TechSection() {
                       <span
                         style={{
                           fontFamily: "'IBM Plex Sans', sans-serif",
-                          fontSize: 10,
+                          fontSize: 'var(--font-micro)',
                           color: 'var(--ink-2)',
                           flex: 1,
                           overflow: 'hidden',
@@ -276,7 +276,7 @@ export function TechSection() {
                       <span
                         style={{
                           fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 9,
+                          fontSize: 'var(--font-micro)',
                           color: 'var(--ink-4)',
                           whiteSpace: 'nowrap',
                         }}
@@ -290,7 +290,7 @@ export function TechSection() {
                       <div
                         style={{
                           fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 8,
+                          fontSize: 'var(--font-micro)',
                           textTransform: 'uppercase',
                           letterSpacing: '0.1em',
                           color: 'var(--ink-4)',
@@ -314,7 +314,7 @@ export function TechSection() {
                           <span
                             style={{
                               fontFamily: "'IBM Plex Mono', monospace",
-                              fontSize: 9,
+                              fontSize: 'var(--font-micro)',
                               color: 'var(--ink-4)',
                               width: 12,
                               textAlign: 'right',
@@ -327,7 +327,7 @@ export function TechSection() {
                           <span
                             style={{
                               fontFamily: "'IBM Plex Sans', sans-serif",
-                              fontSize: 10,
+                              fontSize: 'var(--font-micro)',
                               color: 'var(--ink-2)',
                               flex: 1,
                               overflow: 'hidden',

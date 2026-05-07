@@ -26,33 +26,34 @@ export function StackedRowBreakdown({ title, categories }: { title: string; cate
 export function Treemap({ title, categories }: { title: string; categories: Category[] }) {
   const total = categories.reduce((s, c) => s + c.value, 0) || 1;
   const sorted = [...categories].sort((a, b) => b.value - a.value);
-  const top3 = sorted.slice(0, 3);
-  const colTemplate = top3.map(c => `${(c.value / total * 100).toFixed(1)}fr`).join(' ');
+  const colTemplate = sorted.map(c => `${(c.value / total * 100).toFixed(1)}fr`).join(' ');
 
   return (
     <div style={{ border: '1px solid var(--rule)', padding: '10px 12px' }}>
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', textTransform: 'uppercase' as const, color: 'var(--ink-3)', marginBottom: 8 }}>{title}</div>
       <div style={{
         display: 'grid',
-        gridTemplateColumns: top3.length > 0 ? colTemplate : '1fr',
+        gridTemplateColumns: sorted.length > 0 ? colTemplate : '1fr',
         gap: 2,
         height: 120,
       }}>
         {sorted.map((c, i) => (
           <div
             key={i}
+            title={`${c.label}: ${c.value}`}
             style={{
               background: c.color,
-              padding: 6,
+              padding: 4,
               display: 'flex',
               flexDirection: 'column' as const,
               justifyContent: 'flex-end' as const,
               opacity: i === 0 ? 1 : 0.75,
               overflow: 'hidden',
+              cursor: 'default',
             }}
           >
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: '#fff', textTransform: 'uppercase' as const, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{c.label}</div>
-            <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-sm)', color: '#fff' }}>{c.value}</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 'var(--font-micro)', color: '#fff', textTransform: 'uppercase' as const, overflowWrap: 'break-word' as const, wordBreak: 'break-word' as const, lineHeight: 1.2 }}>{c.label}</div>
+            <div style={{ fontFamily: "'Newsreader', Georgia, serif", fontWeight: 800, fontSize: 'var(--font-sm)', color: '#fff', flexShrink: 0 }}>{c.value}</div>
           </div>
         ))}
       </div>
