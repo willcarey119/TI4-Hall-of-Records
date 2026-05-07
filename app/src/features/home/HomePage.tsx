@@ -113,7 +113,7 @@ export function HomePage() {
             href="https://ti-assistant.com"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: 'var(--accent)', textDecoration: 'none' }}
+            style={{ color: 'var(--accent)' }}
           >
             TI Assistant
           </a>{' '}
@@ -121,12 +121,12 @@ export function HomePage() {
           Click any game below to explore its full detail — VP trajectory, timeline of events,
           faction dossiers, planet control, tech research, and agenda votes.
           Visit{' '}
-          <a href="/meta" style={{ color: 'var(--accent)', textDecoration: 'none' }}>
+          <a href="/meta" style={{ color: 'var(--accent)' }}>
             League Stats
           </a>{' '}
           for aggregate faction, strategy card, and tech data across all sessions.
           Visit{' '}
-          <a href="/agenda" style={{ color: 'var(--accent)', textDecoration: 'none' }}>
+          <a href="/agenda" style={{ color: 'var(--accent)' }}>
             Senate Almanac
           </a>{' '}
           for cross-game agenda analytics — pass rates, faction voting patterns, and VP impact of each law.

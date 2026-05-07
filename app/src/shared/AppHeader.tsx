@@ -74,7 +74,7 @@ export function AppHeader({ onGameSaved }: AppHeaderProps) {
                 <button
                   type="button"
                   onClick={() => { void signOut(); }}
-                  style={monoMicro({ color: 'var(--ink-4)' })}
+                  style={monoMicro({ color: 'var(--ink-3)' })}
                 >
                   Sign out
                 </button>
@@ -82,7 +82,7 @@ export function AppHeader({ onGameSaved }: AppHeaderProps) {
                 <button
                   type="button"
                   onClick={() => { void signIn(); }}
-                  style={monoMicro({ color: 'var(--ink-4)' })}
+                  style={monoMicro({ color: 'var(--ink-3)' })}
                 >
                   Archivist →
                 </button>

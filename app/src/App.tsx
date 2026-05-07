@@ -46,7 +46,7 @@ export default function App() {
         <ErrorBoundary>
           <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--paper)' }}>
             <AppHeader />
-            <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+            <main style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
               <Suspense fallback={<RouteLoadingFallback />}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
@@ -57,7 +57,7 @@ export default function App() {
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </Suspense>
-            </div>
+            </main>
           </div>
         </ErrorBoundary>
       </BrowserRouter>

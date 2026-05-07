@@ -51,6 +51,7 @@ export function FilterBar({
             {dropdownLabel}
           </span>
           <select
+            aria-label={dropdownLabel}
             value={dropdownValue}
             onChange={e => onDropdownChange?.(e.target.value)}
             style={{

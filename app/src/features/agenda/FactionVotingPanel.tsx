@@ -83,9 +83,10 @@ export function FactionVotingPanel({ summary, topN = 8 }: FactionVotingPanelProp
               <thead>
                 <tr>
                   {/* Empty top-left corner */}
-                  <th style={{ padding: '2px 6px 2px 0', textAlign: 'left' }} />
+                  <th scope="col" style={{ padding: '2px 6px 2px 0', textAlign: 'left' }} />
                   {topAgendas.map((agenda) => (
                     <th
+                      scope="col"
                       key={agenda.name}
                       title={agenda.name}
                       style={{
@@ -107,16 +108,18 @@ export function FactionVotingPanel({ summary, topN = 8 }: FactionVotingPanelProp
               <tbody>
                 {factions.map((factionId) => (
                   <tr key={factionId}>
-                    <td
+                    <th
+                      scope="row"
                       style={{
                         padding: '2px 6px 2px 0',
                         color: getFactionBrandColor(factionId, 'var(--ink)'),
                         whiteSpace: 'nowrap' as const,
                         fontWeight: 700,
+                        textAlign: 'left',
                       }}
                     >
                       {factionId}
-                    </td>
+                    </th>
                     {topAgendas.map((agenda) => {
                       const voting = summary.factionVotingByAgenda[agenda.name];
                       const fv =
