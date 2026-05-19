@@ -31,7 +31,7 @@ The Firebase/Firestore + `src/adapters/` data layer is **frozen** — a constrai
 
 ### Frozen — constraints, not subjects
 - Firebase/Firestore + `src/adapters/` data layer. No platform migration. The adapter pattern is respected as-is (the code review confirmed it is clean — no Firestore import outside `src/adapters/`).
-- The newspaper/almanac **aesthetic direction stays.** This review fixes the *system beneath* it, not the vibe.
+- The newspaper/almanac **aesthetic IDENTITY stays** (mastheads, editorial voice, serif display, the "almanac" framing). **Amended 2026-05-18 (owner ruling, evidence-driven):** the constraint is no longer "the vibe is untouchable" but **"keep the identity, sanction modern legibility affordances within it."** Stage 1 felt evidence (owner synthesis: *"the true newspaper vibe is maybe getting in the way of a modern UI"*; "pops of color … helped legibility") established that pure-newspaper execution is itself a legibility cost. Stage 2 §4.1 therefore treats color-coding, density control, and progressive disclosure as **sanctioned system elements**, not violations of the aesthetic. This is a scoped evolution, not a reskin — the editorial identity is still frozen; its *legibility execution* is now an explicit design axis.
 - Parser / `src/lib/` logic and its TDD discipline — out of scope except where a finding genuinely traces back to it.
 
 ### Explicitly deferred (downstream cycles, not this spec)

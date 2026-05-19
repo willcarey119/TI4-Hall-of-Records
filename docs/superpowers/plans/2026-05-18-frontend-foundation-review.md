@@ -325,6 +325,18 @@ Tasks 5, 7, 8 are parallelizable (independent tools, independent files). Task 6 
 
 ---
 
+## Post-Stage-1 amendment — H-IA bank addendum (owner-directed, 2026-05-18)
+
+Stage 1 felt evidence forced two owner decisions (see `findings/2026-05-18-stage1-decisions.md`). Decision 2 inserts these tasks **between Stage 1 close and Stage 2**, at full Stage-0 rigor:
+
+- **Task 2F — Research Bank IA (`H-IA*`).** Same contract as Tasks 2A–2E: 4–8 tier-tagged sources, ≥6 heuristics `H-IA01..`, every heuristic `[S<n>]`-cited, T3-only → `⚠ adjudicate`. Scope: information-architecture / page-length & scroll-depth budgets / progressive disclosure / truncation-vs-reflow / chart-vs-container sizing. May reference inspirations (`[INSP:...]`). Writes `research-bank-IA.md`.
+- **Task 3.5c — Independent verifier (IA).** Fresh subagent (authored not the IA bank), opus, re-opens every cited source: supports? tier-honest? reachable? → adjudication ledger rows. Auto-classify CLEAR vs ⚠.
+- **Owner adjudication gate** — same as Task 3.5 Step 4: owner rules every ⚠/contested H-IA heuristic before fold-in.
+- **Fold-in:** accepted H-IA heuristics appended to the canon (Master Index grows 55→55+N; bank section added); the 6 NO-HEURISTIC ledger findings (F-11, F-29, F-30, F-31, F-34, F-35) re-mapped to H-IA IDs (F-11 only if an H-IA heuristic genuinely covers React-lifecycle scroll cost; otherwise F-11 stays NO-HEURISTIC per the earlier owner ruling).
+- **Consolidated commit:** Stage 1-final + IA addendum commit together with explicit owner free-text authorization, then Stage 2 proceeds.
+
+Decision 1 (hybrid aesthetic) amended spec §2; Stage 2 §4.1 (Task 10) must treat editorial-vs-modern legibility execution as an explicit design axis within the kept identity.
+
 ## Self-Review
 
 **1. Spec coverage:**
